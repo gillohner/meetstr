@@ -10,7 +10,6 @@ import theme from '@/theme';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import ResponsiveAppBar from '@/components/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
-import NostrProvider from '@/components/NostrProvider';
 
 export default function ClientProviders({
   children,
@@ -25,14 +24,12 @@ export default function ClientProviders({
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
       <I18nextProvider i18n={i18n}>
-        <NostrProvider>
-          <ThemeProvider theme={theme}>
-            <InitColorSchemeScript attribute="class" />
-            <ResponsiveAppBar />
-            <CssBaseline />
-            {children}
-          </ThemeProvider>
-        </NostrProvider>
+        <ThemeProvider theme={theme}>
+          <InitColorSchemeScript attribute="class" />
+          <ResponsiveAppBar />
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
       </I18nextProvider>
     </AppRouterCacheProvider>
   );

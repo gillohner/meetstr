@@ -1,9 +1,8 @@
 // src/components/NostrProvider.tsx
 'use client';
 
-import { ReactNode, createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { ReactNode, createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
-// Define types based on NIP-07 spec
 type NostrEvent = {
   created_at: number;
   kind: number;
@@ -40,12 +39,19 @@ const NostrContext = createContext<NostrContextType | undefined>(undefined);
 
 export default function NostrProvider({ children }: { children: ReactNode }) {
   const [publicKey, setPublicKey] = useState<string | null>(null);
-  const [isExtensionAvailable, setIsExtensionAvailable] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isExtensionAvailable, setIsExtensionAvailable] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isLoggingIn, setIsLoggingIn] = useState(false); // Add login state flag
+  
+  // Use refs for tracking async states to prevent stale closures
+  const isLoginInProgress = useRef(false);
+  const isSigningInProgress = useRef(false);
+  const pendingSignRequests = useRef<Array<{
+    event: NostrEvent;
+    resolve: (value: NostrEvent | null) => void;
+    reject: (reason?: any) => void;
+  }>>([]);
 
-  // Check for extension and restore session
   useEffect(() => {
     const checkExtension = async () => {
       const nostrWindow = window as NostrWindow;
@@ -58,23 +64,19 @@ export default function NostrProvider({ children }: { children: ReactNode }) {
           setPublicKey(savedPubkey);
         }
       }
-      
       setIsLoading(false);
     };
     
     checkExtension();
   }, []);
 
-  // Login with NIP-07 extension (updated with anti-duplication)
   const login = useCallback(async () => {
-    if (isLoggingIn) return; // Prevent duplicate logins
-    
+    if (isLoginInProgress.current) return;
+    isLoginInProgress.current = true;
     setError(null);
-    setIsLoggingIn(true);
     
     try {
       const nostrWindow = window as NostrWindow;
-      
       if (!nostrWindow.nostr) {
         throw new Error('Nostr extension not found');
       }
@@ -84,20 +86,27 @@ export default function NostrProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('nostr-pubkey', pubkey);
     } catch (err) {
       console.error('Login failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to login with Nostr extension');
+      setError(err instanceof Error ? err.message : 'Login failed');
       setPublicKey(null);
     } finally {
-      setIsLoggingIn(false);
+      isLoginInProgress.current = false;
     }
-  }, [isLoggingIn]); // Add dependency
+  }, []);
 
-  // Sign an event using the NIP-07 extension
   const signEvent = useCallback(async (event: NostrEvent): Promise<NostrEvent | null> => {
     if (!publicKey) return null;
     
+    // If already signing, queue the request
+    if (isSigningInProgress.current) {
+      return new Promise((resolve, reject) => {
+        pendingSignRequests.current.push({ event, resolve, reject });
+      });
+    }
+
+    isSigningInProgress.current = true;
+    
     try {
       const nostrWindow = window as NostrWindow;
-      
       if (!nostrWindow.nostr) {
         throw new Error('Nostr extension not found');
       }
@@ -107,13 +116,31 @@ export default function NostrProvider({ children }: { children: ReactNode }) {
       console.error('Failed to sign event:', err);
       setError(err instanceof Error ? err.message : 'Failed to sign event');
       return null;
+    } finally {
+      isSigningInProgress.current = false;
+      
+      // Process next request in queue
+      const nextRequest = pendingSignRequests.current.shift();
+      if (nextRequest) {
+        signEvent(nextRequest.event)
+          .then(nextRequest.resolve)
+          .catch(nextRequest.reject);
+      }
     }
   }, [publicKey]);
 
-  // Logout and clear storage
   const logout = useCallback(() => {
     localStorage.removeItem('nostr-pubkey');
     setPublicKey(null);
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isLoginInProgress.current = false;
+      isSigningInProgress.current = false;
+      pendingSignRequests.current = [];
+    };
   }, []);
 
   return (
