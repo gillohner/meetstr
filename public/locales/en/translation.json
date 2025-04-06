@@ -1,0 +1,10 @@
+{
+    "navbar": {
+      "login": "Login",
+      "calendar": "Calendar"
+    },
+    "auth": {
+      "login_required": "Please login to access this page"
+    }
+  }
+  
