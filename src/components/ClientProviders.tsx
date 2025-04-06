@@ -22,19 +22,6 @@ export default function ClientProviders({
   const [isReady, setIsReady] = useState(false);
   const i18n = initI18n(serverLang);
 
-  useEffect(() => {
-    // When translations are loaded and ready, mark as ready
-    if (i18n.isInitialized && i18n.language === serverLang) {
-      setIsReady(true);
-    }
-  }, [serverLang, i18n]);
-
-  // Return a simple loading state or nothing until i18n is ready
-  // This prevents hydration mismatches
-  if (!isReady) {
-    return null;
-  }
-
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
       <I18nextProvider i18n={i18n}>
