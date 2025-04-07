@@ -26,7 +26,14 @@ export default function ClientProviders({
 
   useEffect(() => {
     initNdk({
-      explicitRelayUrls: ["wss://relay.damus.io"]
+      explicitRelayUrls: [
+        "wss://relay.damus.io",
+        "wss://nos.lol/",
+        "wss://nostr.land/",
+        "wss://nostr.wine/",
+        "wss://purplerelay.com/",
+        "wss://relay.snort.social/"
+      ]
     });
   }, [initNdk]);
 

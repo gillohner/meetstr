@@ -27,7 +27,7 @@
       },
       "calendarReferencesInput": {
         "label": "Add Calendar Reference",
-        "placeholder": "Format: a-tag-value",
+        "placeholder": "Format: naddr of event kind 31922, 31923",
         "helperText": "Press Enter to add"
       }
     },
