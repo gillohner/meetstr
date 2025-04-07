@@ -1,18 +1,16 @@
-// src/app/new-calendar/page.tsx
-'use client';
+// src/components/NostrEventCreation/LanguageSwitcher.tsx
 import * as React from 'react';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import CreateCalendarForm from '@/components/NostrEventCreation/CreateCalendarForm';
+import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
+import { RequireLogin } from '../NostrLogin';
 
-export default function About() {
+function CreateCalendarForm() {
     const { i18n } = useTranslation();
-
+    
     return (
-        <Container maxWidth="lg">
-            <Box
+        <RequireLogin>
+            <Box                 
                 sx={{
                 my: 4,
                 display: 'flex',
@@ -21,11 +19,12 @@ export default function About() {
                 alignItems: 'center',
                 }}
             >
-                <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+                <Button variant="contained" color="primary" onClick={() => alert('Create Calendar')}>
                     {i18n.t('createCalendar.createCalendar')}
-                </Typography>
+                </Button>
             </Box>
-            <CreateCalendarForm />
-        </Container>
-    );
+        </RequireLogin>
+    )
 }
+
+export default CreateCalendarForm;

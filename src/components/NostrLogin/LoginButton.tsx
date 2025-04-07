@@ -1,12 +1,11 @@
-// src/components/NostrLogin/LoginButton.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import Container from '@mui/material';
+import TextField from '@mui/material/TextField';
 import { useTranslation } from 'react-i18next';
 import { useLogin } from 'nostr-hooks';
 import { Divider } from '@mui/material';
@@ -21,6 +20,7 @@ const style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+  textAlign: 'center',
 };
 
 export default function LoginButton({ 
@@ -29,16 +29,39 @@ export default function LoginButton({
 }) {
   const { t } = useTranslation();
   
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [remoteSignerKey, setRemoteSignerKey] = useState('');
+  const [privateKey, setPrivateKey] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setErrorMessage('');
+  };
 
   const {
     loginWithExtension,
     loginWithRemoteSigner,
-    loginWithPrivateKey
+    loginWithPrivateKey,
   } = useLogin();
-  
+
+  const handleLoginWithRemoteSigner = async () => {
+    try {
+      await loginWithRemoteSigner(remoteSignerKey);
+    } catch (error) {
+      setErrorMessage(t('error.remoteSignerFailure'));
+    }
+  };
+
+  const handleLoginWithPrivateKey = async () => {
+    try {
+      await loginWithPrivateKey(privateKey);
+    } catch (error) {
+      setErrorMessage(t('error.invalidPrivateKey'));
+    }
+  };
+
   return (
     <>
       <Button 
@@ -55,7 +78,7 @@ export default function LoginButton({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={2}>
             {t('modal.login.title')}
           </Typography>
           <Button 
@@ -65,9 +88,43 @@ export default function LoginButton({
           >
             {t('modal.login.extension')}
           </Button>
-          <Divider />
-          <button onClick={() => loginWithRemoteSigner()}>Login with Remote Signer</button>
-         <button onClick={() => loginWithPrivateKey()}>Login with Secret Key</button>
+          <Divider sx={{ my: 2 }} />
+          <TextField
+            label={t('modal.login.remoteSignerInput')}
+            variant="outlined"
+            fullWidth
+            value={remoteSignerKey}
+            onChange={(e) => setRemoteSignerKey(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Button 
+            variant={variant} 
+            color={color} 
+            onClick={handleLoginWithRemoteSigner}
+          >
+            {t('modal.login.remoteSigner')}
+          </Button>
+          <Divider sx={{ my: 2 }} />
+          <TextField
+            label={t('modal.login.privateKeyInput')}
+            variant="outlined"
+            fullWidth
+            value={privateKey}
+            onChange={(e) => setPrivateKey(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Button 
+            variant={variant} 
+            color={color} 
+            onClick={handleLoginWithPrivateKey}
+          >
+            {t('modal.login.privateKey')}
+          </Button>
+          {errorMessage && (
+            <Typography color="error" sx={{ mt: 2 }}>
+              {errorMessage}
+            </Typography>
+          )}
         </Box>
       </Modal>
     </>
