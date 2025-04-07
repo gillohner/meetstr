@@ -10,6 +10,7 @@ import theme from '@/theme';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import ResponsiveAppBar from '@/components/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
+import { useNdk, useLogin } from 'nostr-hooks';
 
 export default function ClientProviders({
   children,
@@ -20,6 +21,23 @@ export default function ClientProviders({
 }) {
   const [isReady, setIsReady] = useState(false);
   const i18n = initI18n(serverLang);
+  const { initNdk, ndk } = useNdk();
+  const { loginFromLocalStorage } = useLogin();
+
+  useEffect(() => {
+    initNdk({
+      explicitRelayUrls: ["wss://relay.damus.io"]
+    });
+  }, [initNdk]);
+
+  useEffect(() => {
+    ndk?.connect(); // This will also reconnect when the instance changes
+  }, [ndk]);
+
+  // Login from local storage
+  useEffect(() => {
+    loginFromLocalStorage();
+  }, [loginFromLocalStorage]);
 
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>

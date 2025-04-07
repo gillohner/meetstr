@@ -17,26 +17,20 @@ import AdbIcon from '@mui/icons-material/Adb';
 import ModeSwitch from '@/components/ModeSwitch';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { LoginButton } from '@/components/NostrLogin';
-import { useNostr } from '@/components/NostrProvider';
 import { useTranslation } from 'react-i18next';
-
-// Placeholder for profile data until we implement profile fetching
-const getShortKey = (pubkey: string | null) => {
-  if (!pubkey) return '';
-  return `${pubkey.substring(0, 6)}...${pubkey.substring(pubkey.length - 4)}`;
-};
+import { useActiveUser, useLogin, useProfile } from 'nostr-hooks';
+import { useEffect } from 'react';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
   const { t } = useTranslation();
+  const { logout } = useLogin();
+
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   
-  // Use our new Nostr context
-  const { publicKey, isLoggedIn, logout } = useNostr();
-
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -55,6 +49,9 @@ function ResponsiveAppBar() {
     }
     setAnchorElUser(null);
   };
+
+  const { activeUser } = useActiveUser();
+  const userProfile = useProfile({pubkey: activeUser?.pubkey});
 
   return (
     <AppBar position="static">
@@ -152,12 +149,11 @@ function ResponsiveAppBar() {
           
           {/* User profile or login button */}
           <Box sx={{ flexGrow: 0 }}>
-            {isLoggedIn ? (
+            {userProfile?.status == "success" ? (
               // Show user avatar if logged in
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar>
-                    {getShortKey(publicKey)[0]?.toUpperCase() || 'U'}
+                  <Avatar src={userProfile.profile.image ? userProfile.profile.image : "https://github.com/satscoffee/nostr_icons/blob/main/nostr_logo_prpl.png" }>
                   </Avatar>
                 </IconButton>
               </Tooltip>

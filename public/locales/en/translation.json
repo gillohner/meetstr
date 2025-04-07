@@ -5,6 +5,9 @@
     },
     "auth": {
       "login_required": "Please login to access this page"
+    },
+    "common": {
+      "loading": "Loading..."
     }
   }
   
