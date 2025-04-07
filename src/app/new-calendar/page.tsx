@@ -4,7 +4,7 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import CreateCalendarForm from '@/components/NostrEventCreation/CreateCalendarForm';
+import { CreateCalendarForm } from '@/components/NostrEventCreation';
 import { useTranslation } from 'react-i18next';
 
 export default function About() {
@@ -22,10 +22,20 @@ export default function About() {
                 }}
             >
                 <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-                    {i18n.t('createCalendar.createCalendar')}
+                    {i18n.t('createCalendar.title')}
                 </Typography>
+                <Box                 
+                    sx={{
+                    my: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    }}
+                >
+                    <CreateCalendarForm />
+                </Box>
             </Box>
-            <CreateCalendarForm />
         </Container>
     );
 }

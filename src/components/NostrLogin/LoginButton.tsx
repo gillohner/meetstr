@@ -9,6 +9,8 @@ import TextField from '@mui/material/TextField';
 import { useTranslation } from 'react-i18next';
 import { useLogin } from 'nostr-hooks';
 import { Divider } from '@mui/material';
+import { useActiveUser } from 'nostr-hooks';
+import { useProfile } from 'nostr-hooks';
 
 const style = {
   position: 'absolute',
@@ -25,7 +27,8 @@ const style = {
 
 export default function LoginButton({ 
   variant = 'contained', 
-  color = 'primary' 
+  color = 'primary',
+  errorColor = 'error'
 }) {
   const { t } = useTranslation();
   
@@ -33,6 +36,8 @@ export default function LoginButton({
   const [remoteSignerKey, setRemoteSignerKey] = useState('');
   const [privateKey, setPrivateKey] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const { activeUser } = useActiveUser();
+  const userProfile = useProfile({pubkey: activeUser?.pubkey});
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -62,6 +67,29 @@ export default function LoginButton({
     }
   };
 
+  if (userProfile?.status == "loading") {
+    return (
+      <Button 
+        disabled
+        variant={variant} 
+        color={color} 
+      >
+        {t('navbar.login.loading')}
+      </Button>
+    )
+  }
+  if (userProfile?.status == "not-found") {
+    return (
+      <Button 
+        disabled
+        variant={variant} 
+        color={errorColor} 
+      >
+        {t('navbar.login.not-found')}
+      </Button>
+    )
+  }
+
   return (
     <>
       <Button 
@@ -69,7 +97,7 @@ export default function LoginButton({
         color={color} 
         onClick={handleOpen}
       >
-        {t('navbar.login')}
+        {t('navbar.login.login')}
       </Button>
       <Modal
         open={open}

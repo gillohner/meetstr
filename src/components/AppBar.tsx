@@ -21,12 +21,13 @@ import { useTranslation } from 'react-i18next';
 import { useActiveUser, useLogin, useProfile } from 'nostr-hooks';
 import { useEffect } from 'react';
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages = ['New Calendar', 'Pricing', 'Blog'];
 
 function ResponsiveAppBar() {
   const { t } = useTranslation();
   const { logout } = useLogin();
+
+  const settings = [t('Logout')];
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -51,7 +52,9 @@ function ResponsiveAppBar() {
   };
 
   const { activeUser } = useActiveUser();
+  console.log("activeUser", activeUser);
   const userProfile = useProfile({pubkey: activeUser?.pubkey});
+  console.log("userProfile", userProfile);
 
   return (
     <AppBar position="static">
@@ -146,9 +149,11 @@ function ResponsiveAppBar() {
               </Button>
             ))}
           </Box>
-          
+          <LanguageSwitcher />
+          <ModeSwitch />
           {/* User profile or login button */}
           <Box sx={{ flexGrow: 0 }}>
+            {/* Show user avatar if logged in */}
             {userProfile?.status == "success" ? (
               // Show user avatar if logged in
               <Tooltip title="Open settings">
@@ -184,8 +189,6 @@ function ResponsiveAppBar() {
               ))}
             </Menu>
           </Box>
-          <LanguageSwitcher />
-          <ModeSwitch />
         </Toolbar>
       </Container>
     </AppBar>
