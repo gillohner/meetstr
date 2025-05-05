@@ -20,7 +20,13 @@ const EventSection: React.FC<EventSectionProps> = ({ title, events, fallbackText
     {events.length > 0 ? (
       <Grid container spacing={3}>
         {events.map((event) => (
-          <Grid item xs={12} lg={6} key={event.id || `event-${event.id}`}>
+          <Grid 
+            item
+            xs={12}
+            lg={6}
+            key={event.id || `event-${event.id}`}
+            sx={{ width: '100%', height: 200 }}
+        >
             <EventPreviewCard event={event} />
           </Grid>
         ))}

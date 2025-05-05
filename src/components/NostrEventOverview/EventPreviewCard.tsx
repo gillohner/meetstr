@@ -1,4 +1,3 @@
-// src/components/NostrEventOverview/EventPreviewCard.tsx
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
@@ -17,63 +16,77 @@ interface EventPreviewCardProps {
 const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) => {
   const { t } = useTranslation();
   const router = useRouter();
-  
-  // Extract event data using the utility function
+
   const metadata = getEventMetadata(event);
   const name = metadata.name || t('error.event.noName');
-  console.log('Event metadata:', metadata);
   const formattedStartTime = metadata.start 
     ? formatDate(metadata.start, t('error.event.invalidDate')) 
     : t('error.event.noDate');
-const formattedEndTime = metadata.end
+  const formattedEndTime = metadata.end
     ? formatDate(metadata.end, t('error.event.invalidDate'))
     : t('error.event.noDate');
-  
-  // Generate the naddr for navigation
+
   const handleClick = () => {
     try {
-      // Find d tag for the identifier
       const dTag = event.tags.find(t => t[0] === 'd')?.[1] || '';
-      
-      // Create naddr for reliable linking
       const naddr = nip19.naddrEncode({
         kind: event.kind,
         pubkey: event.pubkey,
         identifier: dTag
       });
-      
       router.push(`/event/${naddr}`);
     } catch (error) {
       console.error('Error navigating to event:', error);
     }
   };
-  console.log("metadata", metadata);
+
   return (
-    <Card sx={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%',
-      transition: 'transform 0.2s',
-      '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: 6
-      },
-      ...sx
-    }}>
-      <CardActionArea onClick={handleClick} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
+    <Card
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        height: '100%',
+        width: '100%',
+        transition: 'transform 0.2s',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: 6
+        },
+        ...sx
+      }}
+    >
+      <CardActionArea
+        onClick={handleClick}
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'stretch',
+          width: '100%',
+          height: '100%'
+        }}
+      >
         <CardMedia
           component="img"
-          height="140"
           image={metadata.image}
           alt={name}
-          sx={{ objectFit: 'cover', width: '100%' }}
+          sx={{
+            width: 220,
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '4px 0 0 4px'
+          }}
         />
-        <CardContent sx={{ flexGrow: 1 }}>
+        <CardContent
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0 // allows text truncation
+          }}
+        >
           <Typography gutterBottom variant="h6" component="div" noWrap>
             {name}
           </Typography>
-          
           {metadata.start && (
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
               <AccessTimeIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
@@ -81,13 +94,12 @@ const formattedEndTime = metadata.end
                 {formattedStartTime}
               </Typography>
               {metadata.end && (
-                <Typography variant="body2" color="text.secondary">
-                    {formattedEndTime}
+                <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                  {formattedEndTime}
                 </Typography>
-                )}
+              )}
             </Box>
           )}
-          
           {metadata.location && (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <LocationOnIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
