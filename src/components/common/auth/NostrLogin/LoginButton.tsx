@@ -1,3 +1,4 @@
+// src/components/common/auth/NostrLogin/LoginButton.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";

@@ -1,4 +1,4 @@
-// src/components/NostrLogin/RequireLogin.tsx
+// src/components/common/auth/NostrLogin/RequireLogin.tsx
 import * as React from 'react';
 import { useActiveUser } from 'nostr-hooks';
 import { LoginButton } from '@/components/NostrLogin';

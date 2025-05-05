@@ -45,15 +45,17 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
       default: return t('error.generic');
     }
   }, [errorCode, t]);
-
-  if (loading) return <Typography>{t('common.loading')}</Typography>;
-  if (errorCode) return <Typography color="error">{errorCode}</Typography>;
     
-  if (!calendarEvent) return (
-    <Typography variant="h4">
-      {t('error.calendar.invalidId')}
-    </Typography>
-  );
+  if (!calendarEvent) {
+    if (loading) return <Typography>{t('common.loading')}</Typography>;
+    if (errorCode) return <Typography color="error">{errorCode}</Typography>;
+    
+    return (
+      <Typography variant="h4">
+        {t('error.calendar.invalidId')}
+      </Typography>
+    )
+  };
 
   // Extract metadata using the utility function
   const metadata = getEventMetadata(calendarEvent);

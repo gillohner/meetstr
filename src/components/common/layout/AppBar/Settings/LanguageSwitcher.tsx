@@ -1,4 +1,4 @@
-// src/components/LanguageSwitcher.tsx
+// src/components/common/layout/AppBar/LanguageSwitcher/LanguageSwitcher.tsx
 'use client';
 import * as React from 'react';
 import Box from '@mui/material/Box';
@@ -9,7 +9,7 @@ import Select from '@mui/material/Select';
 import { useColorScheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 
-function LanguageSwitcher() {
+export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
   const handleLanguageChange = (lang: string) => {
@@ -42,5 +42,3 @@ function LanguageSwitcher() {
     </Box>
   );
 }
-
-export default LanguageSwitcher;

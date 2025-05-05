@@ -8,7 +8,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { initI18n } from '@/lib/i18n';
 import theme from '@/theme';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
-import ResponsiveAppBar from '@/components/AppBar';
+import CustomAppBar from '@/components/common/layout/AppBar/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useNdk, useLogin } from 'nostr-hooks';
 
@@ -27,7 +27,9 @@ export default function ClientProviders({
   useEffect(() => {
     initNdk({
       explicitRelayUrls: [
-        "wss://nostr.swiss-enigma.ch/"
+        "wss://nostr.swiss-enigma.ch/",
+        "wss://relay.damus.io/",
+        "wss://relay.nostr.band"
       ]
     });
   }, [initNdk]);
@@ -46,7 +48,7 @@ export default function ClientProviders({
       <I18nextProvider i18n={i18n}>
         <ThemeProvider theme={theme}>
           <InitColorSchemeScript attribute="class" />
-          <ResponsiveAppBar />
+          <CustomAppBar />
           <CssBaseline />
           {children}
         </ThemeProvider>
