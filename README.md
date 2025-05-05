@@ -1,47 +1,47 @@
-# Material UI - Next.js App Router example in TypeScript
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped using [`create-next-app`](https://github.com/vercel/next.js/tree/HEAD/packages/create-next-app) with Material UI installed.
+# Dezentralbot Web
 
-## How to use
+Dezentralbot Web is an open-source web application for discovering, previewing, and managing decentralized calendars using the Nostr protocol. It provides a modern, React-based interface for browsing Nostr event calendars, viewing event details, and exploring upcoming and past events.
 
-Download the example [or clone the repo](https://github.com/mui/material-ui):
+    WARNING:
+    This project is in early development and is not ready for beta usage. Expect incomplete features, bugs, and breaking changes. Do not use in production.
 
-<!-- #repo-reference -->
+## Features
 
-```bash
-curl https://codeload.github.com/mui/material-ui/tar.gz/master | tar -xz --strip=2  material-ui-master/examples/material-ui-nextjs-ts
-cd material-ui-nextjs-ts
-```
+- 📅 Browse Nostr-based event calendars (NIP-52)
+- 🔎 View event details
+- ⚡ Built with React, Next.js, and Material-UI
+- much more to come such as a tg bots and other stuff
 
-Install it and run:
+
+## Installation
+
+Requirements:
+- Node.js v22
+
+Install and run Dezentralbot Web with npm:
 
 ```bash
 npm install
 npm run dev
 ```
+Then visit http://localhost:3000 in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-or:
+## Contributing
 
-<!-- #repo-reference -->
+Contributions are always welcome! Please open issues or pull requests for bug reports, feature ideas, or improvements.
 
-[![Edit on StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mui/material-ui/tree/master/examples/material-ui-nextjs-ts)
 
-[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/p/sandbox/github/mui/material-ui/tree/master/examples/material-ui-nextjs-ts)
+## License
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
-## Learn more
+You are free to use, modify, and distribute this software, provided that any derivative works or deployments are also licensed under AGPL-3.0 and their source code is made available.
 
-To learn more about this example:
+See LICENSE for the full text.
 
-<!-- #host-reference -->
+---
+Made with ❤️ for the decentralized web.
 
-- [Next.js documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Customizing Material UI](https://mui.com/material-ui/customization/how-to-customize/) - approaches to customizing Material UI.
-
-## What's next?
-
-<!-- #host-reference -->
-
-You now have a working example project.
-You can head back to the documentation and continue by browsing the [templates](https://mui.com/material-ui/getting-started/templates/) section.
+Disclaimer:
+This software is provided as-is, with no warranty. Use at your own risk.
