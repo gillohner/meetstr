@@ -47,54 +47,43 @@ export default function CreateCalendarForm() {
   }, []);
 
   // Handle publishing the event
-  const handlePublish = useCallback(async () => {
+  const handlePublish = useCallback(() => {
     if (!title.trim() || !description.trim()) {
       setErrorMessage(t('createCalendar.error.requiredFields')); // Show error for missing fields
       return;
     }
 
-    try {
-      const event = new NDKEvent(ndk);
+    const event = new NDKEvent(ndk);
 
-      // Set content to description (as per NIP-52)
-      event.content = description;
+    // Set content to description (as per NIP-52)
+    event.content = description;
 
-      // Set kind to NIP-52 calendar kind (31924)
-      event.kind = 31924;
+    // Set kind to NIP-52 calendar kind (31924)
+    event.kind = 31924;
 
-      // Populate tags according to NIP-52
-      event.tags = [
-        ['title', title], // Title tag
-        ['summary', description], // Description as summary tag
-      ];
+    // Populate tags according to NIP-52
+    event.tags = [
+      ['title', title], // Title tag
+      ['summary', description], // Description as summary tag
+    ];
 
-      // Add image URL if provided
-      if (imageUrl.trim()) {
-        event.tags.push(['image', imageUrl]);
-      }
-
-      // Add calendar references as "a" tags
-      calendarRefs.forEach((ref) => {
-        event.tags.push(['a', ref]);
-      });
-
-      // Publish the event
-      await window.nostr.signEvent(event);
-      
-      await event.publish();
-      
-      alert(t('createCalendar.success'));
-      
-      // Reset form fields
-      setTitle('');
-      setDescription('');
-      setImageUrl('');
-      setCalendarRefs([]);
-    } catch (error) {
-        console.error('Error publishing calendar:', error);
-      
-        setErrorMessage(t('createCalendar.error.generic')); // Display generic error message
+    // Add image URL if provided
+    if (imageUrl.trim()) {
+      event.tags.push(['image', imageUrl]);
     }
+
+    // Add calendar references as "a" tags
+    calendarRefs.forEach((ref) => {
+      event.tags.push(['a', ref]);
+    });
+    
+    event.publish();
+        
+    // Reset form fields
+    setTitle('');
+    setDescription('');
+    setImageUrl('');
+    setCalendarRefs([]);
   }, [title, description, imageUrl, calendarRefs, ndk]);
 
   return (

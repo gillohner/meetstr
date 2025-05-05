@@ -1,2 +1,2 @@
-// src/components/NostrLogin/index.ts
+// src/components/NostrEventCreation/index.ts
 export { default as CreateCalendarForm } from './CreateCalendarForm';

@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import { CreateCalendarForm } from '@/components/NostrEventCreation';
 import { useTranslation } from 'react-i18next';
 
-export default function About() {
+export default function NewCalendar() {
     const { i18n } = useTranslation();
 
     return (
