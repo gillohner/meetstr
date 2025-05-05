@@ -1,67 +1,90 @@
 // src/components/NostrEventOverview/CalendarOverview.tsx
 import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
-import { Grid, Box } from '@mui/material';
-// import { useSingleCalendarEvent } from '@/hooks/useSingleCalendarEvent';
-import { useNdk } from 'nostr-hooks';
-import { fetchEventById } from '@/hooks/fetchEventById';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNdk } from 'nostr-hooks';
+import { NDKEvent } from '@nostr-dev-kit/ndk';
+import { Card, CardContent, CardMedia, Typography, Container } from '@mui/material';
+import { fetchEventById, fetchCalendarEvents } from '@/utils/nostrUtils';
+import EventSection from './EventSection';
+import { getEventMetadata } from '@/utils/eventUtils';
 
-export default function CalendarOverview({ calendarId }: { calendarId: string | undefined }) {
-    const { ndk } = useNdk();
-    const [event, setEvent] = useState<NDKEvent | null>(null);
-    const { i18n } = useTranslation();
-    
-    useEffect(() => {
-        if (!ndk || !calendarId) return;
-        fetchEventById(ndk, calendarId)
-            .then(setEvent)
-            .catch(console.error);
-    }, [ndk, calendarId]);
+export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
+  const { ndk } = useNdk();
+  const { t } = useTranslation();
+  const [calendarEvent, setCalendarEvent] = useState<NDKEvent | null>(null);
+  const [upcomingEvents, setUpcomingEvents] = useState<NDKEvent[]>([]);
+  const [pastEvents, setPastEvents] = useState<NDKEvent[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    if (!event) return (       
-        <Typography variant="h4">
-            {i18n.t('error.calendar.invalidId')}
-        </Typography>
-    );
-    if (event.kind !== 31924) return (
-        <Typography variant="h4">
-            {i18n.t('error.calendar.wrongKind')}
-        </Typography>
-    );
+  useEffect(() => {
+    if (!ndk || !calendarId) return;
 
-    // Extract event metadata from tags
-    const name = event.tags.find(t => t[0] === 'name');
-    const description = event.tags.find(t => t[0] === 'description');
-    const image = event.tags.find(t => t[0] === 'image');
+    const loadCalendar = async () => {
+      try {
+        const event = await fetchEventById(ndk, calendarId);
+        if (!event || event.kind !== 31924) {
+          setCalendarEvent(null);
+          return;
+        }
 
-    return (
-        <Card>
-            <CardMedia
-                component="img"
-                alt={ description }
-                height="300"
-                image={image?.[1] || 'https://picsum.photos/200'}
-            />
-            <CardContent>
-                <Grid container>
-                    <Grid item>
-                        <Typography gutterBottom variant="h5" component="div">
-                            {name?.[1] || i18n.t('error.calendar.noName')}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            {description?.[1]}
-                        </Typography>
-                    </Grid>
-                </Grid>
-            </CardContent>
-        </Card>
-    );
+        setCalendarEvent(event);
+        const { upcoming, past } = await fetchCalendarEvents(ndk, event);
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
+      } catch (error) {
+        console.error('Calendar loading error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    setLoading(true);
+    loadCalendar();
+  }, [ndk, calendarId]);
+
+  if (loading) return <Typography>{t('common.loading')}</Typography>;
+  
+  if (!calendarEvent) return (
+    <Typography variant="h4">
+      {t('error.calendar.invalidId')}
+    </Typography>
+  );
+
+  // Extract metadata using the utility function
+  const metadata = getEventMetadata(calendarEvent);
+
+  return (
+    <Container maxWidth="lg" sx={{ mb: 4 }}>
+      <Card sx={{ width: '100%', mb: 4 }}>
+        <CardMedia
+          component="img"
+          alt={metadata.description || ''}
+          height="300"
+          image={metadata.image || ''}
+          sx={{ objectFit: 'cover' }}
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h4" component="div">
+            {metadata.name || t('error.calendar.noName')}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {metadata.description || ''}
+          </Typography>
+        </CardContent>
+      </Card>
+
+      <EventSection 
+        title={t('calendar.upcomingEvents')}
+        events={upcomingEvents}
+        fallbackText={t('calendar.noUpcomingEvents')}
+      />
+
+      <EventSection
+        title={t('calendar.pastEvents')}
+        events={pastEvents}
+        fallbackText={t('calendar.noPastEvents')}
+      />
+    </Container>
+  );
 }

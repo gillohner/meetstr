@@ -27,6 +27,7 @@ export default function ClientProviders({
   useEffect(() => {
     initNdk({
       explicitRelayUrls: [
+        "wss://nostr.cercatrova.me/",
         "wss://relay.damus.io",
         "wss://nos.lol/",
         "wss://nostr.land/",

@@ -12,17 +12,17 @@ export default function Calendar() {
   
     return (
         <Container maxWidth="lg">
-        <Box
-            sx={{
-                my: 4,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}
-        >
-            <CalendarOverview calendarId={id} />
-        </Box>
+            <Box
+                sx={{
+                    my: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <CalendarOverview calendarId={id} />
+            </Box>
         </Container>
     );
 }
