@@ -19,6 +19,7 @@
     "i18next": "^24.2.3",
     "i18next-browser-languagedetector": "^8.0.4",
     "i18next-resources-to-backend": "^1.2.1",
+    "ndk": "^1.0.0",
     "next": "^15.0.0",
     "nostr-hooks": "^4.3.3",
     "react": "^19.1.0",

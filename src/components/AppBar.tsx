@@ -52,9 +52,7 @@ function ResponsiveAppBar() {
   };
 
   const { activeUser } = useActiveUser();
-  console.log("activeUser", activeUser);
   const userProfile = useProfile({pubkey: activeUser?.pubkey});
-  console.log("userProfile", userProfile);
 
   return (
     <AppBar position="static">

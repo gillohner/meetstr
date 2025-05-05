@@ -77,7 +77,13 @@ export default function CreateCalendarForm() {
       event.tags.push(['a', ref]);
     });
     
-    event.publish();
+    try {
+      event.publish();
+    } catch (error) {
+      console.error('Error publishing event:', error);
+      setErrorMessage(t('createCalendar.error.publishFailed')); // Show error for publishing failure
+      return;
+    }
         
     // Reset form fields
     setTitle('');
