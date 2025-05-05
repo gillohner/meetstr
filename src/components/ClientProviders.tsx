@@ -27,13 +27,7 @@ export default function ClientProviders({
   useEffect(() => {
     initNdk({
       explicitRelayUrls: [
-        "wss://nostr.cercatrova.me/",
-        "wss://relay.damus.io",
-        "wss://nos.lol/",
-        "wss://nostr.land/",
-        "wss://nostr.wine/",
-        "wss://purplerelay.com/",
-        "wss://relay.snort.social/"
+        "wss://nostr.swiss-enigma.ch/"
       ]
     });
   }, [initNdk]);
