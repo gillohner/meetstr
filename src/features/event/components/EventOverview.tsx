@@ -1,6 +1,6 @@
 // src/features/event/components/EventOverview.tsx
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNdk } from 'nostr-hooks';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
@@ -21,64 +21,40 @@ import { fetchEventById } from '@/utils/nostrUtils';
 import { getEventMetadata } from '@/utils/eventUtils';
 import EventLocationDisplay from '@/components/common/events/EventLocationDisplay/EventLocationDisplay';
 import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
+import { useNostrEvent } from '@/hooks/useNostrEvent';
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
-  const { ndk } = useNdk();
   const { t } = useTranslation();
-  const [event, setEvent] = useState<NDKEvent | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { event, loading, errorCode, fetchEvent } = useNostrEvent();
+  const expectedKinds = useMemo(() => [31922, 31923], []);
 
   useEffect(() => {
-    if (!ndk || !eventId) {
-      setLoading(false);
-      return;
+    if (eventId) {
+      fetchEvent(eventId, expectedKinds);
     }
+  }, [eventId, fetchEvent, expectedKinds]);
 
-    const loadEvent = async () => {
-      try {
-        const fetchedEvent = await fetchEventById(ndk, eventId);
-        
-        // Check if event is of the correct kind
-        if (!fetchedEvent) {
-          setError('Nostr event not found in Relays');
-          setEvent(null);
-          return;
-        }
-        if (!fetchedEvent || (fetchedEvent.kind !== 31922 && fetchedEvent.kind !== 31923)) {
-          setError('Invalid event type. Only event kinds 31922 and 31923 are supported.');
-          setEvent(null);
-          return;
-        }
-
-        setEvent(fetchedEvent);
-        setError(null);
-      } catch (err) {
-        console.error('Error loading event:', err);
-        setError('Failed to load event details.');
-        setEvent(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    setLoading(true);
-    loadEvent();
-  }, [ndk, eventId]);
+  const errorMessage = useMemo(() => {
+    if (!errorCode) return null;
+    switch (errorCode) {
+      case 'not_found': return t('error.event.notFound');
+      case 'invalid_kind': return t('error.event.invalidKind');
+      default: return t('error.generic');
+    }
+  }, [errorCode, t]);
 
   if (loading) return <Typography>{t('common.loading')}</Typography>;
-  
-  if (error) return <Typography variant="h5" color="error">{error}</Typography>;
-  
-  if (!event) return (
-    <Typography variant="h4">
-      {t('error.event.invalidId', 'Invalid event ID')}
-    </Typography>
-  );
+  if (errorCode) return <Typography color="error">{errorCode}</Typography>;
 
-  // Extract metadata using the utility function
+  if (!event) {
+    return (
+      <Typography variant="h4">
+        {t('error.event.invalidId')}
+      </Typography>
+    );
+  }
+
   const metadata = getEventMetadata(event);
-  console.log('Event Metadata:', metadata);
 
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>

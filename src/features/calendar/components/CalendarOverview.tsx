@@ -1,50 +1,54 @@
 // src/features/calendar/components/CalendarOverview.tsx
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNdk } from 'nostr-hooks';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 import { Card, CardContent, CardMedia, Typography, Container } from '@mui/material';
-import { fetchEventById, fetchCalendarEvents } from '@/utils/nostrUtils';
+import { fetchCalendarEvents } from '@/utils/nostrUtils';
+import { useNostrEvent } from '@/hooks/useNostrEvent';
 import EventSection from '@/components/common/events/EventSection/EventSection';
 import { getEventMetadata } from '@/utils/eventUtils';
 
 export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
   const { ndk } = useNdk();
   const { t } = useTranslation();
-  const [calendarEvent, setCalendarEvent] = useState<NDKEvent | null>(null);
+  const { event: calendarEvent, loading, errorCode, fetchEvent } = useNostrEvent();
   const [upcomingEvents, setUpcomingEvents] = useState<NDKEvent[]>([]);
   const [pastEvents, setPastEvents] = useState<NDKEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const expectedKinds = useMemo(() => [31924], []);
 
   useEffect(() => {
-    if (!ndk || !calendarId) return;
+    if (calendarId) {
+      fetchEvent(calendarId, expectedKinds);
+    }
+  }, [calendarId, fetchEvent, expectedKinds]);
 
-    const loadCalendar = async () => {
-      try {
-        const event = await fetchEventById(ndk, calendarId);
-        if (!event || event.kind !== 31924) {
-          setCalendarEvent(null);
-          return;
-        }
-
-        setCalendarEvent(event);
-        const { upcoming, past } = await fetchCalendarEvents(ndk, event);
+  // Handle calendar events fetch
+  useEffect(() => {
+    const loadCalendarEvents = async () => {
+      if (calendarEvent) {
+        const { upcoming, past } = await fetchCalendarEvents(ndk, calendarEvent);
         setUpcomingEvents(upcoming);
         setPastEvents(past);
-      } catch (error) {
-        console.error('Calendar loading error:', error);
-      } finally {
-        setLoading(false);
       }
     };
+    loadCalendarEvents();
+  }, [calendarEvent, ndk]);
 
-    setLoading(true);
-    loadCalendar();
-  }, [ndk, calendarId]);
+  // Error message handling
+  const errorMessage = useMemo(() => {
+    if (!errorCode) return null;
+    switch (errorCode) {
+      case 'not_found': return t('error.calendar.notFound');
+      case 'invalid_kind': return t('error.calendar.invalidKind');
+      default: return t('error.generic');
+    }
+  }, [errorCode, t]);
 
   if (loading) return <Typography>{t('common.loading')}</Typography>;
-  
+  if (errorCode) return <Typography color="error">{errorCode}</Typography>;
+    
   if (!calendarEvent) return (
     <Typography variant="h4">
       {t('error.calendar.invalidId')}

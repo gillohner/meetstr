@@ -1,4 +1,4 @@
-// src/hooks/nostrUtils.ts
+// src/utils/nostrUtils.ts
 import { NDK, NDKEvent, NDKFilter } from '@nostr-dev-kit/ndk';
 import { nip19 } from 'nostr-tools';
 
