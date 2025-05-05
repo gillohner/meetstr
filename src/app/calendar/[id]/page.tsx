@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import { CalendarOverview } from '@/components/NostrEventOverview';
+import CalendarOverview from '@/features/calendar/components/CalendarOverview';
 import { useParams } from 'next/navigation';
 
 export default function Calendar() {

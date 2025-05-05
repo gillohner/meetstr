@@ -1,8 +1,8 @@
-// src/components/NostrEventOverview/EventSection.tsx
+// src/components/common/events/EventSection/EventSection.tsx
 import React from 'react';
 import { Box, Typography, Divider, Grid } from '@mui/material';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { EventPreviewCard } from '@/components/NostrEventOverview';
+import EventPreviewCard from '@/components/common/events/EventPreviewCard/EventPreviewCard';
 
 interface EventSectionProps {
   title: string;

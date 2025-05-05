@@ -1,3 +1,4 @@
+// src/components/common/events/EventPreviewCard/EventPreviewCard.tsx
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
@@ -7,6 +8,8 @@ import { Card, CardActionArea, CardContent, CardMedia, Typography, Box } from '@
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { getEventMetadata, formatDate } from '@/utils/eventUtils';
+import EventLocationDisplay from '@/components/common/events/EventLocationDisplay/EventLocationDisplay';
+import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
 
 interface EventPreviewCardProps {
   event: NDKEvent;
@@ -18,7 +21,7 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
   const router = useRouter();
 
   const metadata = getEventMetadata(event);
-  const name = metadata.name || t('error.event.noName');
+  const name = metadata.title || t('error.event.noName');
   const formattedStartTime = metadata.start 
     ? formatDate(metadata.start, t('error.event.invalidDate')) 
     : t('error.event.noDate');
@@ -87,27 +90,15 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
           <Typography gutterBottom variant="h6" component="div" noWrap>
             {name}
           </Typography>
-          {metadata.start && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <AccessTimeIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-              <Typography variant="body2" color="text.secondary">
-                {formattedStartTime}
-              </Typography>
-              {metadata.end && (
-                <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                  {formattedEndTime}
-                </Typography>
-              )}
-            </Box>
-          )}
-          {metadata.location && (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <LocationOnIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-              <Typography variant="body2" color="text.secondary" noWrap>
-                {metadata.location}
-              </Typography>
-            </Box>
-          )}
+          <EventTimeDisplay
+            startTime={metadata.start}
+            endTime={metadata.end}
+            typographyProps={{ variant: 'body2', fontSize: 14 }} // or just variant
+          />
+          <EventLocationDisplay
+            location={metadata.location}
+            typographyProps={{ variant: 'body2', fontSize: 14 }}
+          />
         </CardContent>
       </CardActionArea>
     </Card>

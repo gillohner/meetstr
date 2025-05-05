@@ -1,3 +1,4 @@
+// src/features/event/components/EventOverview.tsx
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +18,9 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PersonIcon from '@mui/icons-material/Person';
 import { fetchEventById } from '@/utils/nostrUtils';
-import { getEventMetadata, formatDate } from '@/utils/eventUtils';
+import { getEventMetadata } from '@/utils/eventUtils';
+import EventLocationDisplay from '@/components/common/events/EventLocationDisplay/EventLocationDisplay';
+import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { ndk } = useNdk();
@@ -37,6 +40,11 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         const fetchedEvent = await fetchEventById(ndk, eventId);
         
         // Check if event is of the correct kind
+        if (!fetchedEvent) {
+          setError('Nostr event not found in Relays');
+          setEvent(null);
+          return;
+        }
         if (!fetchedEvent || (fetchedEvent.kind !== 31922 && fetchedEvent.kind !== 31923)) {
           setError('Invalid event type. Only event kinds 31922 and 31923 are supported.');
           setEvent(null);
@@ -70,23 +78,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   // Extract metadata using the utility function
   const metadata = getEventMetadata(event);
-  
-  // Get additional metadata not included in the utility function
-  const getTagValue = (tagName: string) => 
-    event.tags.find((t) => t[0] === tagName)?.[1];
-  
-  const endTime = getTagValue('end');
-  const status = getTagValue('status');
-  const hostName = getTagValue('host');
-  
-  // Format dates
-  const formattedStartTime = metadata.start 
-    ? formatDate(metadata.start, t('error.event.invalidDate', 'Invalid date')) 
-    : t('error.event.noDate', 'No date provided');
-  
-  const formattedEndTime = endTime 
-    ? formatDate(endTime, t('error.event.invalidDate', 'Invalid date')) 
-    : null;
+  console.log('Event Metadata:', metadata);
 
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
@@ -94,7 +86,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         {metadata.image && (
           <CardMedia
             component="img"
-            alt={metadata.name || ''}
+            alt={metadata.title || ''}
             height="300"
             image={metadata.image}
             sx={{ objectFit: 'cover' }}
@@ -102,7 +94,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         )}
         <CardContent>
           <Typography gutterBottom variant="h4" component="div">
-            {metadata.name || t('error.event.noName', 'Unnamed Event')}
+            {metadata.title || t('error.event.noName', 'Unnamed Event')}
           </Typography>
           
           {status && (
@@ -113,37 +105,14 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               sx={{ mb: 2 }} 
             />
           )}
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <AccessTimeIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body1" color="text.secondary">
-              {formattedStartTime}
-              {formattedEndTime && ` - ${formattedEndTime}`}
-            </Typography>
-          </Box>
-          
-          {metadata.location && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <LocationOnIcon sx={{ mr: 1, color: 'text.secondary' }} />
-              <Typography variant="body1" color="text.secondary">
-                {metadata.location}
-              </Typography>
-            </Box>
-          )}
-          
-          {hostName && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <PersonIcon sx={{ mr: 1, color: 'text.secondary' }} />
-              <Typography variant="body1" color="text.secondary">
-                {hostName}
-              </Typography>
-            </Box>
-          )}
-          
+
+          <EventTimeDisplay startTime={metadata.start} endTime={metadata.end} />
+          <EventLocationDisplay location={metadata.location} />
+
           <Divider sx={{ my: 2 }} />
           
           <Typography variant="body1" paragraph>
-            {metadata.description || t('error.event.noDescription', 'No description provided')}
+            {metadata.summary || t('error.event.noDescription', 'No description provided')}
           </Typography>
           
           {/* Event tags/categories */}

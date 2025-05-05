@@ -4,13 +4,19 @@ import { NDKEvent } from '@nostr-dev-kit/ndk';
 export const getEventMetadata = (event: NDKEvent) => {
   const getTagValue = (tagName: string) => 
     event.tags.find((t) => t[0] === tagName)?.[1];
+
+  console.log('Event Tags:', event.tags);
   
   return {
-    name: getTagValue('name'),
-    description: getTagValue('description'),
+    title: getTagValue('title') ? getTagValue('title') : getTagValue('name'),
+    start: getTagValue('start'),
+    end: getTagValue('end'),
+    start_tzid: getTagValue('start_tzid'),
+    end_tzid: getTagValue('end_tzid'),
+    summary: getTagValue('summary') ? getTagValue('summary') : getTagValue('description'),
     image: getTagValue('image'),
     location: getTagValue('location'),
-    start: getTagValue('start')
+    geohash: getTagValue('g'),
   };
 };
 

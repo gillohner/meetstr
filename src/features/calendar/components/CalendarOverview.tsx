@@ -1,4 +1,4 @@
-// src/components/NostrEventOverview/CalendarOverview.tsx
+// src/features/calendar/components/CalendarOverview.tsx
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +6,7 @@ import { useNdk } from 'nostr-hooks';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 import { Card, CardContent, CardMedia, Typography, Container } from '@mui/material';
 import { fetchEventById, fetchCalendarEvents } from '@/utils/nostrUtils';
-import EventSection from './EventSection';
+import EventSection from '@/components/common/events/EventSection/EventSection';
 import { getEventMetadata } from '@/utils/eventUtils';
 
 export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
@@ -66,7 +66,7 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
         />
         <CardContent>
           <Typography gutterBottom variant="h4" component="div">
-            {metadata.name || t('error.calendar.noName')}
+            {metadata.title || t('error.calendar.noName')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
             {metadata.description || ''}
