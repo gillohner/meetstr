@@ -1,4 +1,6 @@
 
+![dezentralbot-web](https://socialify.git.ci/gillohner/dezentralbot-web/image?font=Jost&forks=1&issues=1&language=1&name=1&owner=1&pattern=Circuit+Board&pulls=1&stargazers=1&theme=Dark)
+
 # Dezentralbot Web
 
 Dezentralbot Web is an open-source web application for discovering, previewing, and managing decentralized calendars using the Nostr protocol. It provides a modern, React-based interface for browsing Nostr event calendars, viewing event details, and exploring upcoming and past events.
