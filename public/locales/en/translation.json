@@ -1,45 +1,54 @@
 {
-    "navbar": {
-      "login": {
-        "login": "Login",
-        "logout": "Logout",
-        "not-found": "User not found in Relays",
-        "loading": "Loading..."
-      }
-    },
+  "navbar": {
     "login": {
-      "requireLogin": "Please login to access this page"
-    },
-    "common": {
+      "login": "Login",
+      "logout": "Logout",
+      "not-found": "User not found in Relays",
       "loading": "Loading..."
+    }
+  },
+  "login": {
+    "requireLogin": "Please login to access this page"
+  },
+  "common": {
+    "loading": "Loading..."
+  },
+  "createCalendar": {
+    "title": "Create Calendar",
+    "publish": "Publish Calendar",
+    "titleInput": {
+      "label": "Title"
     },
-    "createCalendar": {
-      "title": "Create Calendar",
-      "publish": "Publish Calendar",
-      "titleInput": {
-        "label": "Title"
-      },
-      "descriptionInput": {
-        "label": "Description"
-      },
-      "imgUrlInput": {
-        "label": "Image URL"
-      },
-      "calendarReferencesInput": {
-        "label": "Add Calendar Reference",
-        "placeholder": "Format: naddr of event kind 31922, 31923",
-        "helperText": "Press Enter to add"
-      }
+    "descriptionInput": {
+      "label": "Description"
     },
-    "modal": {
-      "login": {
-        "title": "Login",
-        "extension": "Login with extension",
-        "remoteSignerInput": "NIP-64 string todo",
-        "remoteSigner": "Login with remote signer",
-        "privateKeyInput": "Private Key string todo",
-        "privateKey": "Login with private key"
-      }
+    "imgUrlInput": {
+      "label": "Image URL"
+    },
+    "calendarReferencesInput": {
+      "label": "Add Calendar Reference",
+      "placeholder": "Format: naddr of event kind 31922, 31923",
+      "helperText": "Press Enter to add"
+    }
+  },
+  "modal": {
+    "login": {
+      "title": "Login",
+      "extension": "Login with extension",
+      "remoteSignerInput": "NIP-64 string todo",
+      "remoteSigner": "Login with remote signer",
+      "privateKeyInput": "Private Key string todo",
+      "privateKey": "Login with private key"
+    }
+  },
+  "error": {
+    "calendar": {
+      "invalidId": "The provided event id is not valid",
+      "wrongKind": "The provided event id is not of kind 31924"
+    },  
+    "event": {
+      "wrongKind": "The provided event id is not of kind 31922 or 31923"
     }
   }
+}
   
