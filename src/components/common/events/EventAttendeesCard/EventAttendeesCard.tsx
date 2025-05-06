@@ -1,5 +1,5 @@
 // src/components/common/events/EventAttendeesCard.tsx
-import { AvatarGroup, Avatar, Tooltip, Card, CardContent, Typography } from '@mui/material';
+import { AvatarGroup, Avatar, Tooltip, Card, CardContent, Typography, Box } from '@mui/material';
 import { useProfile } from 'nostr-hooks';
 import { nip19 } from 'nostr-tools';
 import { useMemo, useEffect, useState } from 'react';
@@ -97,21 +97,27 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
           {t('event.attendees')} {loading ? '' : `(${allParticipants.length})`}
         </Typography>
-        <AvatarGroup 
-          spacing="small"
-          sx={{ 
-            justifyContent: 'start',
-            flexWrap: 'wrap',
-            gap: 1
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start', // aligns children (AvatarGroup) to the left
+            width: '100%',
           }}
         >
-          {allParticipants.map((participant) => (
-            <ParticipantAvatar 
-              key={participant.pubkey} 
-              pubkey={participant.pubkey} 
-            />
-          ))}
-        </AvatarGroup>
+          <AvatarGroup 
+            sx={{ 
+              gap: 1.2,
+              flexWrap: 'wrap',
+            }}
+          >
+            {allParticipants.map((participant) => (
+              <ParticipantAvatar 
+                key={participant.pubkey} 
+                pubkey={participant.pubkey} 
+              />
+            ))}
+          </AvatarGroup>
+        </Box>
       </CardContent>
     </Card>
   );
