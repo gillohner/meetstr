@@ -67,12 +67,12 @@ export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
       const success = await publishRsvp(rsvpEvent);
       
       if (success) {
-        showSnackbar('RSVP submitted successfully', 'success');
+        showSnackbar(t('rsvp.submit.success'), 'success');
       } else {
-        showSnackbar('Failed to submit RSVP', 'error');
+        showSnackbar(t('rsvp.submit.error'), 'error');
       }
     } catch (error) {
-      showSnackbar('Error submitting RSVP', 'error');
+      showSnackbar(t('rsvp.submit.error'), 'error');
       console.error('RSVP error:', error);
     } finally {
       setLoading(false);
