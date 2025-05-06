@@ -4,8 +4,6 @@ import { NDKEvent } from '@nostr-dev-kit/ndk';
 export const getEventMetadata = (event: NDKEvent) => {
   const getTagValue = (tagName: string) => 
     event.tags.find((t) => t[0] === tagName)?.[1];
-
-  console.log('Event Tags:', event.tags);
   
   return {
     title: getTagValue('title') ? getTagValue('title') : getTagValue('name'),
