@@ -1,4 +1,4 @@
-// src/components/ClientProviders.tsx
+// src/providers/ClientProviders.tsx
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
@@ -11,6 +11,7 @@ import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import CustomAppBar from '@/components/common/layout/AppBar/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useNdk, useLogin } from 'nostr-hooks';
+import { SnackbarProvider } from '@/context/SnackbarContext';
 
 export default function ClientProviders({
   children,
@@ -47,10 +48,12 @@ export default function ClientProviders({
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
       <I18nextProvider i18n={i18n}>
         <ThemeProvider theme={theme}>
-          <InitColorSchemeScript attribute="class" />
-          <CustomAppBar />
-          <CssBaseline />
-          {children}
+          <SnackbarProvider>
+            <InitColorSchemeScript attribute="class" />
+            <CustomAppBar />
+            <CssBaseline />
+            {children}
+          </SnackbarProvider>
         </ThemeProvider>
       </I18nextProvider>
     </AppRouterCacheProvider>

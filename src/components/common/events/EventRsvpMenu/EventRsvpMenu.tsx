@@ -8,6 +8,9 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useTranslation } from 'react-i18next';
+import { createRsvpEvent, publishRsvp } from '@/utils/nostr/rsvpUtils';
+import { useSnackbar } from '@/context/SnackbarContext';
+import { t } from 'i18next';
 
 const StyledRsvpMenu = styled((props: MenuProps) => (
   <Menu
@@ -42,16 +45,40 @@ const StyledRsvpMenu = styled((props: MenuProps) => (
   },
 }));
 
-export default function EventRsvpMenu() {
+export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
+  const { t } = useTranslation();
+  const { showSnackbar } = useSnackbar();
+  const [loading, setLoading] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const { t } = useTranslation();
+
+  const handleRsvp = async (status: string) => {
+    setLoading(true);
+    try {
+      const rsvpEvent = createRsvpEvent(event, status);
+      const success = await publishRsvp(rsvpEvent);
+      
+      if (success) {
+        showSnackbar('RSVP submitted successfully', 'success');
+      } else {
+        showSnackbar('Failed to submit RSVP', 'error');
+      }
+    } catch (error) {
+      showSnackbar('Error submitting RSVP', 'error');
+      console.error('RSVP error:', error);
+    } finally {
+      setLoading(false);
+      handleClose();
+    }
+  };
 
   return (
     <>
@@ -62,8 +89,9 @@ export default function EventRsvpMenu() {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
         sx={{ width: '100%' }}
+        disabled={loading}
       >
-        RSVP
+        {loading ? t('event.rsvp.submitting') : t('event.rsvp.title')}
       </Button>
       <StyledRsvpMenu
         anchorEl={anchorEl}
@@ -71,7 +99,8 @@ export default function EventRsvpMenu() {
         onClose={handleClose}
       >
         <MenuItem
-          onClick={handleClose}
+          onClick={() => handleRsvp('accepted')} 
+          disabled={loading}
           sx={(theme) => ({
             backgroundColor: alpha(theme.palette.success.main, 0.1),
             color: theme.palette.success.dark,
@@ -84,8 +113,9 @@ export default function EventRsvpMenu() {
           {t('event.rsvp.accept')}
         </MenuItem>
         <MenuItem
-          onClick={handleClose}
-          sx={(theme) => ({
+          onClick={() => handleRsvp('tentative')} 
+          disabled={loading}
+            sx={(theme) => ({
             backgroundColor: alpha(theme.palette.warning.main, 0.1),
             color: theme.palette.warning.dark,
             '&:hover': {
@@ -97,7 +127,8 @@ export default function EventRsvpMenu() {
           {t('event.rsvp.maybe')}
         </MenuItem>
         <MenuItem
-          onClick={handleClose}
+          onClick={() => handleRsvp('declined')} 
+          disabled={loading}
           sx={(theme) => ({
             backgroundColor: alpha(theme.palette.error.main, 0.1),
             color: theme.palette.error.dark,

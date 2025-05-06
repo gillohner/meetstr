@@ -87,7 +87,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               </Typography>
             </Grid>
             <Grid size={ 2 }>
-              <EventRsvpMenu />
+              {event && <EventRsvpMenu event={event} />}
             </Grid>
           </Grid>
 

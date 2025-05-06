@@ -1,6 +1,6 @@
 // src/app/layout.tsx (Server Component)
 import { headers } from 'next/headers';
-import ClientProviders from '@/components/ClientProviders';
+import ClientProviders from '@/providers/ClientProviders';
 import { use } from 'react';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
