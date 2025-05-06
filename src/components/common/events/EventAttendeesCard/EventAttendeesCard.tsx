@@ -2,8 +2,10 @@
 import { AvatarGroup, Avatar, Tooltip, Card, CardContent, Typography } from '@mui/material';
 import { useProfile } from 'nostr-hooks';
 import { nip19 } from 'nostr-tools';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNdk } from 'nostr-hooks';
+import type { NDKFilter } from '@nostr-dev-kit/ndk';
 
 interface Participant {
   pubkey: string;
@@ -13,45 +15,97 @@ interface Participant {
 
 interface EventAttendeesCardProps {
   participants: Participant[];
+  event: any; // The calendar event object
 }
 
-const EventAttendeesCard = ({ participants }: EventAttendeesCardProps) => {
+const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) => {
   const { t } = useTranslation();
-  const maxVisible = 5;
-  const slicedParticipants = participants.slice(0, maxVisible);
+  const { ndk } = useNdk();
+  const [rsvpParticipants, setRsvpParticipants] = useState<Participant[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Get event coordinates for a tag filtering
+  const eventCoordinates = useMemo(() => {
+    if (!event) return null;
+    
+    const dTag = event.tags.find((t: string[]) => t[0] === 'd');
+    const dValue = dTag ? dTag[1] : '';
+    
+    return `${event.kind}:${event.pubkey}:${dValue}`;
+  }, [event]);
+
+  // Fetch RSVPs using NDK directly
+  useEffect(() => {
+    if (!ndk || !event?.id) return;
+
+    const filters: NDKFilter[] = [];
+    const decodedEventId = event.id.startsWith('note1') 
+      ? nip19.decode(event.id).data.toString()
+      : event.id;
+
+    // Add filter for e tag references
+    filters.push({ 
+      kinds: [31925], 
+      '#e': [decodedEventId] 
+    });
+
+    // Add filter for a tag references if available
+    if (eventCoordinates) {
+      filters.push({ 
+        kinds: [31925], 
+        '#a': [eventCoordinates] 
+      });
+    }
+
+    const sub = ndk.subscribe(filters, { closeOnEose: false });
+    const timeout = setTimeout(() => setLoading(false), 2000);
+
+    sub.on('event', (rsvpEvent) => {
+      setRsvpParticipants(prev => [
+        ...prev,
+        { 
+          pubkey: rsvpEvent.pubkey,
+          relay: rsvpEvent.relay?.url,
+          role: 'rsvp'
+        }
+      ]);
+    });
+
+    return () => {
+      sub.stop();
+      clearTimeout(timeout);
+    };
+  }, [ndk, event?.id, eventCoordinates]);
+
+  // Combine and deduplicate participants
+  const allParticipants = useMemo(() => {
+    const participantMap = new Map<string, Participant>();
+    
+    participants.forEach(p => participantMap.set(p.pubkey, p));
+    rsvpParticipants.forEach(p => {
+      if (!participantMap.has(p.pubkey)) {
+        participantMap.set(p.pubkey, p);
+      }
+    });
+
+    return Array.from(participantMap.values());
+  }, [participants, rsvpParticipants]);
 
   return (
     <Card elevation={3} sx={{ mt: 3 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-          {t('event.attendees')}
+          {t('event.attendees')} {loading ? '' : `(${allParticipants.length})`}
         </Typography>
         <AvatarGroup 
-          max={maxVisible}
           spacing="small"
           sx={{ 
             justifyContent: 'start',
-           }}
-          renderSurplus={(surplus) => (
-            <Tooltip 
-              title={participants
-                .slice(maxVisible)
-                .map(p => nip19.npubEncode(p.pubkey))
-                .join(', ')}
-            >
-              <Avatar 
-                sx={{ 
-                  bgcolor: 'secondary.main', 
-                  cursor: 'pointer',
-                  '&:hover': { transform: 'scale(1.1)' }
-                }}
-              >
-                +{surplus}
-              </Avatar>
-            </Tooltip>
-          )}
+            flexWrap: 'wrap',
+            gap: 1
+          }}
         >
-          {slicedParticipants.map((participant) => (
+          {allParticipants.map((participant) => (
             <ParticipantAvatar 
               key={participant.pubkey} 
               pubkey={participant.pubkey} 
