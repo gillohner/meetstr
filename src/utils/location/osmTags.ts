@@ -19,6 +19,4 @@ const fetchOsmTags = async (osmType: string, osmId: number) => {
     }
 }
 
-export {
-    fetchOsmTags
-}
+export { fetchOsmTags };

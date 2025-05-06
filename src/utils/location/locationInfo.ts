@@ -1,6 +1,7 @@
 // src/utils/locationUtils.ts
 import { decodeGeohash } from '@/utils/location/geohash';
 import { fetchOsmTags } from '@/utils/location/osmTags';
+import addressFormatter from '@fragaria/address-formatter';
 
 export interface LocationData {
   coords: { latitude: number; longitude: number };
@@ -17,6 +18,8 @@ export interface LocationData {
     contactless: boolean;
   };
   mapLinks: Record<string, string>;
+  formattedName: string;
+  formattedAddress: string;
 }
 
 export async function getLocationInfo(locationName: string, geohash?: string): Promise<LocationData | null> {
@@ -57,13 +60,11 @@ export async function getLocationInfo(locationName: string, geohash?: string): P
     );
 
     const paymentMethods = {
-      acceptsBitcoin: osmTags['currency:XBT'] === 'yes',  // Direct key access
+      acceptsBitcoin: osmTags['currency:XBT'] === 'yes',
       onChain: osmTags['payment:onchain'] === 'yes',
       lightning: osmTags['payment:lightning'] === 'yes',
       contactless: osmTags['payment:lightning_contactless'] === 'yes'
     };
-
-    console.log('Payment Methods:', paymentMethods);
 
     // Generate map links
     const coords = {
@@ -75,8 +76,23 @@ export async function getLocationInfo(locationName: string, geohash?: string): P
       osm: `https://openstreetmap.org/${osmResult.osm_type}/${osmResult.osm_id}`,
       google: `https://www.google.com/maps/search/?api=1&query=${coords.latitude},${coords.longitude},${osmResult.display_name}`,
       apple: `https://maps.apple.com/?q=${osmResult.name}&ll=${coords.latitude},${coords.longitude}`,
-      btcmap: `https://btcmap.org/merchant/${osmResult.osm_type}:${osmResult.osm_id}`,
+      ...(paymentMethods.acceptsBitcoin && {
+        btcmap: `https://btcmap.org/merchant/${osmResult.osm_type}:${osmResult.osm_id}`
+      }),
     };
+
+    const addressComponents = {
+      houseNumber: osmTags['addr:housenumber'] || osmResult.address?.house_number,
+      road: osmTags['addr:street'] || osmResult.address?.road,
+      city: osmTags['addr:city'] || osmResult.address?.city,
+      postcode: osmTags['addr:postcode'] || osmResult.address?.postcode,
+      state: osmTags['addr:state'] || osmResult.address?.state,
+      country: osmTags['addr:country'] || osmResult.address?.country,
+      countryCode: osmResult.address?.country_code
+    };
+
+    const formattedName = osmTags.name;
+    const formattedAddress = addressFormatter.format(addressComponents);
 
     return {
       coords,
@@ -87,7 +103,9 @@ export async function getLocationInfo(locationName: string, geohash?: string): P
         tags: osmResult.tags || {}
       },
       paymentMethods,
-      mapLinks
+      mapLinks,
+      formattedName,
+      formattedAddress
     };
 
   } catch (error) {

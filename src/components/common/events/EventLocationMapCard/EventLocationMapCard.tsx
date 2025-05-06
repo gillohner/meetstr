@@ -170,10 +170,6 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
 
         {!loading && locationData && (
           <>
-            <Typography variant="body1" gutterBottom>
-              {locationData.osmInfo?.displayName}
-            </Typography>
-
             {renderMapFrame()}
             {renderPaymentBadges()}
             {renderMapLinks()}

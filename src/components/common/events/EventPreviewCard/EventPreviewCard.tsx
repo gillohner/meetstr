@@ -122,6 +122,7 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
           />
           <EventLocationText
             location={metadata.location}
+            geohash={metadata.geohash}
             typographyProps={{ 
               variant: 'body2', 
               fontSize: 14 
