@@ -73,16 +73,6 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           <Typography gutterBottom variant="h4" component="div">
             {metadata.title || t('error.event.noName', 'Unnamed Event')}
           </Typography>
-          
-          {status && (
-            <Chip 
-              label={status.charAt(0).toUpperCase() + status.slice(1)} 
-              color={status === 'cancelled' ? 'error' : 'success'} 
-              size="small" 
-              sx={{ mb: 2 }} 
-            />
-          )}
-
           <EventTimeDisplay startTime={metadata.start} endTime={metadata.end} />
           <EventLocationText location={metadata.location} />
 

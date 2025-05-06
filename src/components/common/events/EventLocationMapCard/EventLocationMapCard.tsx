@@ -50,7 +50,12 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
             sx={{ 
               backgroundColor: '#F7931A22', 
               color: '#F7931A',
-              '& .MuiChip-label': { p: 0.5 }
+              '& .MuiChip-label': { 
+                p: 0.5,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }
             }}
           />
         </Tooltip>
@@ -61,7 +66,12 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
               label={<LinkOutlinedIcon />}
               sx={{ 
                 backgroundColor: 'action.selected',
-                '& .MuiChip-label': { p: 0.5 }
+                '& .MuiChip-label': { 
+                  p: 0.5,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }
               }}
             />
           </Tooltip>
@@ -74,7 +84,12 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
               sx={{ 
                 backgroundColor: 'warning.light',
                 color: 'warning.contrastText',
-                '& .MuiChip-label': { p: 0.5 }
+                '& .MuiChip-label': { 
+                  p: 0.5,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }
               }}
             />
           </Tooltip>
@@ -87,7 +102,12 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
               sx={{ 
                 backgroundColor: 'success.light',
                 color: 'success.contrastText',
-                '& .MuiChip-label': { p: 0.5 }
+                '& .MuiChip-label': { 
+                  p: 0.5,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }
               }}
             />
           </Tooltip>
