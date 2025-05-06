@@ -60,7 +60,7 @@ export async function getLocationInfo(locationName: string, geohash?: string): P
     );
 
     const paymentMethods = {
-      acceptsBitcoin: osmTags['currency:XBT'] === 'yes',
+      acceptsBitcoin: osmTags['currency:XBT'] === 'yes',  // Direct key access
       onChain: osmTags['payment:onchain'] === 'yes',
       lightning: osmTags['payment:lightning'] === 'yes',
       contactless: osmTags['payment:lightning_contactless'] === 'yes'

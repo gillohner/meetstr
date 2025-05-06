@@ -60,7 +60,6 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   const metadata = getEventMetadata(event);
 
-  console.log('Event metadata participants:', metadata.participants);
 
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
@@ -115,7 +114,9 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         </Grid>
         <Grid size={{ xs: 12, md: 5, lg: 4 }}>
           <EventLocationMapCard metadata={metadata} />
-          <EventAttendeesCard participants={metadata.participants.map(p => ({ pubkey: p[0] }))}
+          <EventAttendeesCard 
+            participants={metadata.participants.map(p => ({ pubkey: p[0] }))}
+            event={event}
           />
         </Grid>
       </Grid>

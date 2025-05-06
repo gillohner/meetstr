@@ -28,7 +28,6 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
       try {
         const data = await getLocationInfo(metadata.location || '', metadata.geohash);
         setLocationData(data);
-        console.log('Location data:', data);
       } finally {
         setLoading(false);
       }

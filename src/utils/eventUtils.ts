@@ -18,7 +18,7 @@ export const getEventMetadata = (event: NDKEvent) => {
     summary: getTagValue('summary') ?? getTagValue('description'),
     image: getTagValue('image'),
     // Repeatable tags:
-    locations: getTagValues('location').flat(), // ["location1", "location2", ...]
+    location: getTagValue('location'),
     geohash: getTagValue('g'),
     participants: getTagValues('p'), // [["pubkey", "relay", "role"], ...]
     labels: [
