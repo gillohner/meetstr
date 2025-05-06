@@ -47,25 +47,24 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
     <Card
       sx={{
         display: 'flex',
-        flexDirection: 'row',
-        height: '100%',
-        width: '100%',
-        transition: 'transform 0.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: 6
+        flexDirection: {
+          xs: 'column', // Mobile vertical layout
+          sm: 'row'     // Desktop horizontal layout
         },
-        ...sx
+        height: '100%',
+        minHeight: 300  // Ensure minimum mobile height
       }}
     >
       <CardActionArea
         onClick={handleClick}
         sx={{
           display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'stretch',
-          width: '100%',
-          height: '100%'
+          flexDirection: {
+            xs: 'column', // Stack vertically on mobile
+            sm: 'row'     // Side-by-side on desktop
+          },
+          height: '100%',
+          alignItems: 'stretch'
         }}
       >
         <CardMedia
@@ -73,10 +72,20 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
           image={metadata.image}
           alt={name}
           sx={{
-            width: 220,
-            height: '100%',
+            // Image takes full width on mobile, fixed width on desktop
+            height: {
+              xs: 200,     // Fixed height on mobile
+              sm: '100%'   // Full height on desktop
+            },
+            width: {
+              xs: '100%',  // Full width on mobile
+              sm: 220      // Fixed width on desktop
+            },
             objectFit: 'cover',
-            borderRadius: '4px 0 0 4px'
+            borderRadius: {
+              xs: '4px 4px 0 0',  // Rounded top on mobile
+              sm: '4px 0 0 4px'   // Rounded left on desktop
+            }
           }}
         />
         <CardContent
@@ -84,20 +93,39 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            minWidth: 0 // allows text truncation
+            overflow: 'auto',
+            minWidth: 0,
+            padding: 2
           }}
         >
-          <Typography gutterBottom variant="h6" component="div" noWrap>
+          <Typography 
+            gutterBottom 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}
+          >
             {name}
           </Typography>
           <EventTimeDisplay
             startTime={metadata.start}
             endTime={metadata.end}
-            typographyProps={{ variant: 'body2', fontSize: 14 }} // or just variant
+            typographyProps={{ 
+              variant: 'body2', 
+              fontSize: 14 
+            }}
           />
           <EventLocationText
             location={metadata.location}
-            typographyProps={{ variant: 'body2', fontSize: 14 }}
+            typographyProps={{ 
+              variant: 'body2', 
+              fontSize: 14 
+            }}
           />
         </CardContent>
       </CardActionArea>

@@ -25,7 +25,7 @@ const EventSection: React.FC<EventSectionProps> = ({ title, events, fallbackText
             xs={12}
             lg={6}
             key={event.id || `event-${event.id}`}
-            sx={{ width: '100%', height: 200 }}
+            sx={{ width: '100%' }}
         >
             <EventPreviewCard event={event} />
           </Grid>
