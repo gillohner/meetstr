@@ -12,7 +12,8 @@ import {
   Container, 
   Box,
   Chip,
-  Divider 
+  Divider,
+  Grid
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -23,6 +24,7 @@ import EventLocationText from '@/components/common/events/EventLocationText/Even
 import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
 import { useNostrEvent } from '@/hooks/useNostrEvent';
 import EventLocationMapCard from '@/components/common/events/EventLocationMapCard/EventLocationMapCard';
+import EventRsvpMenu from '@/components/common/events/EventRsvpMenu/EventRsvpMenu';
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
@@ -70,17 +72,24 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           />
         )}
         <CardContent>
-          <Typography gutterBottom variant="h4" component="div">
-            {metadata.title || t('error.event.noName', 'Unnamed Event')}
-          </Typography>
-          <EventTimeDisplay startTime={metadata.start} endTime={metadata.end} />
-          <EventLocationText location={metadata.location} />
+          <Grid container>
+            <Grid size={ 10 }>
+              <Typography gutterBottom variant="h4" component="div">
+                {metadata.title || t('error.event.noName', 'Unnamed Event')}
+              </Typography>
+              <EventTimeDisplay startTime={metadata.start} endTime={metadata.end} />
+              <EventLocationText location={metadata.location} />
+              <Typography variant="body1" paragraph>
+                {metadata.summary || t('error.event.noDescription', 'No description provided')}
+              </Typography>
+            </Grid>
+            <Grid size={ 2 }>
+              <EventRsvpMenu />
+            </Grid>
+          </Grid>
 
           <Divider sx={{ my: 2 }} />
-          
-          <Typography variant="body1" paragraph>
-            {metadata.summary || t('error.event.noDescription', 'No description provided')}
-          </Typography>
+
           
           {/* Event tags/categories */}
           <Box sx={{ mt: 3 }}>
