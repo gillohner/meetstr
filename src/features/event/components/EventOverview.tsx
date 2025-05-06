@@ -19,9 +19,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PersonIcon from '@mui/icons-material/Person';
 import { fetchEventById } from '@/utils/nostrUtils';
 import { getEventMetadata } from '@/utils/eventUtils';
-import EventLocationDisplay from '@/components/common/events/EventLocationDisplay/EventLocationDisplay';
+import EventLocationText from '@/components/common/events/EventLocationText/EventLocationText';
 import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
 import { useNostrEvent } from '@/hooks/useNostrEvent';
+import EventLocationMapCard from '@/components/common/events/EventLocationMapCard/EventLocationMapCard';
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
@@ -83,7 +84,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           )}
 
           <EventTimeDisplay startTime={metadata.start} endTime={metadata.end} />
-          <EventLocationDisplay location={metadata.location} />
+          <EventLocationText location={metadata.location} />
 
           <Divider sx={{ my: 2 }} />
           
@@ -107,6 +108,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           </Box>
         </CardContent>
       </Card>
+      <EventLocationMapCard metadata={metadata} />
     </Container>
   );
 }

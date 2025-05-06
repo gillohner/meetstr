@@ -1,12 +1,12 @@
 import { Box, Typography, TypographyProps } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
-interface EventLocationDisplayProps {
+interface EventLocationTextProps {
   location?: string | null;
   typographyProps?: TypographyProps;
 }
 
-export default function EventLocationDisplay({ location, typographyProps }: EventLocationDisplayProps) {
+export default function EventLocationText({ location, typographyProps }: EventLocationTextProps) {
   if (!location) return null;
   return (
     <Box sx={{ display: 'flex', mb: 2 }}>

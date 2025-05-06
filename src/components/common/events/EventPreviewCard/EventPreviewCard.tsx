@@ -8,7 +8,7 @@ import { Card, CardActionArea, CardContent, CardMedia, Typography, Box } from '@
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { getEventMetadata, formatDate } from '@/utils/eventUtils';
-import EventLocationDisplay from '@/components/common/events/EventLocationDisplay/EventLocationDisplay';
+import EventLocationText from '@/components/common/events/EventLocationText/EventLocationText';
 import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
 
 interface EventPreviewCardProps {
@@ -95,7 +95,7 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
             endTime={metadata.end}
             typographyProps={{ variant: 'body2', fontSize: 14 }} // or just variant
           />
-          <EventLocationDisplay
+          <EventLocationText
             location={metadata.location}
             typographyProps={{ variant: 'body2', fontSize: 14 }}
           />
