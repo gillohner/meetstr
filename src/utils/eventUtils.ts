@@ -2,33 +2,32 @@
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 
 export const getEventMetadata = (event: NDKEvent) => {
-  const getTagValue = (tagName: string) => 
+  const getTagValue = (tagName: string) =>
     event.tags.find((t) => t[0] === tagName)?.[1];
-  
+
+  // Fetch all values for repeatable tags
+  const getTagValues = (tagName: string) =>
+    event.tags.filter((t) => t[0] === tagName).map((t) => t.slice(1));
+
   return {
-    title: getTagValue('title') ? getTagValue('title') : getTagValue('name'),
+    title: getTagValue('title') ?? getTagValue('name'),
     start: getTagValue('start'),
     end: getTagValue('end'),
     start_tzid: getTagValue('start_tzid'),
     end_tzid: getTagValue('end_tzid'),
-    summary: getTagValue('summary') ? getTagValue('summary') : getTagValue('description'),
+    summary: getTagValue('summary') ?? getTagValue('description'),
     image: getTagValue('image'),
-    location: getTagValue('location'),
+    // Repeatable tags:
+    locations: getTagValues('location').flat(), // ["location1", "location2", ...]
     geohash: getTagValue('g'),
+    participants: getTagValues('p'), // [["pubkey", "relay", "role"], ...]
+    labels: [
+      ...getTagValues('l').flat(), // ["audiospace", ...]
+      ...getTagValues('L').flat(), // ["com.cornychat", ...]
+    ],
+    hashtags: getTagValues('t').flat(), // ["tag1", "tag2", ...]
+    references: getTagValues('r').flat(), // ["url1", "url2", ...]
+    // Optionally include deprecated fields, UUID, etc.
+    uuid: getTagValue('d'),
   };
-};
-
-export const formatDate = (timestamp: string, fallbackText: string) => {
-  try {
-    const date = new Date(parseInt(timestamp) * 1000);
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch (e) {
-    return fallbackText;
-  }
 };

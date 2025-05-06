@@ -59,6 +59,8 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   const metadata = getEventMetadata(event);
 
+  console.log('Event metadata participants:', metadata.participants);
+
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Card sx={{ width: '100%', mb: 4 }}>
@@ -106,8 +108,15 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
             }
           </Box>
         </CardContent>
-      </Card>
-      <EventLocationMapCard metadata={metadata} />
+      </Card>          
+      <Grid container>
+        <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+        </Grid>
+        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+          <EventLocationMapCard metadata={metadata} />
+
+        </Grid>
+      </Grid>
     </Container>
   );
 }

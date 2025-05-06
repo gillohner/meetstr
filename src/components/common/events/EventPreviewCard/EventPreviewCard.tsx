@@ -7,9 +7,10 @@ import { nip19 } from 'nostr-tools';
 import { Card, CardActionArea, CardContent, CardMedia, Typography, Box } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { getEventMetadata, formatDate } from '@/utils/eventUtils';
+import { getEventMetadata } from '@/utils/eventUtils';
 import EventLocationText from '@/components/common/events/EventLocationText/EventLocationText';
 import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
+import { formatDate } from '@/utils/formatting/formatDate';
 
 interface EventPreviewCardProps {
   event: NDKEvent;
