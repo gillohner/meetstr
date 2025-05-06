@@ -25,6 +25,7 @@ import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventT
 import { useNostrEvent } from '@/hooks/useNostrEvent';
 import EventLocationMapCard from '@/components/common/events/EventLocationMapCard/EventLocationMapCard';
 import EventRsvpMenu from '@/components/common/events/EventRsvpMenu/EventRsvpMenu';
+import EventAttendeesCard from '@/components/common/events/EventAttendeesCard/EventAttendeesCard';
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
@@ -114,7 +115,8 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         </Grid>
         <Grid size={{ xs: 12, md: 5, lg: 4 }}>
           <EventLocationMapCard metadata={metadata} />
-
+          <EventAttendeesCard participants={metadata.participants.map(p => ({ pubkey: p[0] }))}
+          />
         </Grid>
       </Grid>
     </Container>
