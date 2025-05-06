@@ -23,8 +23,12 @@ export const useNostrEvent = () => {
     }
 
     setLoading(true);
+    
+    // Use AbortController for cleanup
+    const controller = new AbortController();
+    
     try {
-      const fetchedEvent = await fetchEventById(ndk, identifier);
+      const fetchedEvent = await fetchEventById(ndk, identifier, controller.signal);
       
       if (!fetchedEvent) {
         setErrorCode('not_found');
@@ -41,13 +45,27 @@ export const useNostrEvent = () => {
       setEvent(fetchedEvent);
       setErrorCode(null);
     } catch (error) {
-      console.error('Event fetch error:', error);
-      setErrorCode('network_error');
+      // More specific error handling
+      if (error instanceof TypeError) {
+        console.error('Network error:', error);
+        setErrorCode('network_error');
+      } else {
+        console.error('Event fetch error:', error);
+        setErrorCode('network_error');
+      }
       setEvent(null);
     } finally {
       setLoading(false);
     }
+    
+    // Return cleanup function
+    return () => controller.abort();
   }, [ndk]);
 
-  return { event, loading, errorCode, fetchEvent };
+  return { 
+    event, 
+    loading, 
+    errorCode, 
+    fetchEvent 
+  };
 };
