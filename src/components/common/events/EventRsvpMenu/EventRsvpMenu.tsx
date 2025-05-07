@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import { Button, Menu, MenuItem, MenuProps } from '@mui/material';
+import { Button, CircularProgress, Menu, MenuItem, MenuProps } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from '@mui/icons-material/Close';
@@ -11,6 +11,12 @@ import { useTranslation } from 'react-i18next';
 import { createRsvpEvent, publishRsvp } from '@/utils/nostr/rsvpUtils';
 import { useSnackbar } from '@/context/SnackbarContext';
 import { t } from 'i18next';
+import { useNdk } from 'nostr-hooks';
+import { useCallback } from 'react';
+import { NDKEvent } from '@nostr-dev-kit/ndk';
+import { v4 as uuidv4 } from 'uuid';
+import { useActiveUser } from 'nostr-hooks';
+import { Circle } from 'react-leaflet';
 
 const StyledRsvpMenu = styled((props: MenuProps) => (
   <Menu
@@ -47,10 +53,12 @@ const StyledRsvpMenu = styled((props: MenuProps) => (
 
 export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
   const { t } = useTranslation();
+  const { ndk } = useNdk();
   const { showSnackbar } = useSnackbar();
   const [loading, setLoading] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const { activeUser } = useActiveUser();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -60,25 +68,27 @@ export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
     setAnchorEl(null);
   };
 
-  const handleRsvp = async (status: string) => {
-    setLoading(true);
-    try {
-      const rsvpEvent = createRsvpEvent(event, status);
-      const success = await publishRsvp(rsvpEvent);
-      
-      if (success) {
-        showSnackbar(t('rsvp.submit.success'), 'success');
-      } else {
-        showSnackbar(t('rsvp.submit.error'), 'error');
-      }
-    } catch (error) {
-      showSnackbar(t('rsvp.submit.error'), 'error');
-      console.error('RSVP error:', error);
-    } finally {
-      setLoading(false);
-      handleClose();
-    }
-  };
+  const handleRsvp = useCallback((status: string) => {
+    const rsvpEvent = new NDKEvent(ndk);
+    rsvpEvent.content = status;
+    rsvpEvent.kind = 31925;
+
+    console.log("event: ", event.pubkey);
+
+    const aTag = `31922:${event.pubkey}:${event.tagValue('d')}`;
+    rsvpEvent.tags = [
+      ['a', aTag],
+      ['d', uuidv4()],
+      ['status', status],
+      ['p', activeUser.pubkey]
+    ];
+
+    rsvpEvent.publish();
+  }, [ndk, activeUser]);
+  
+  if (activeUser === undefined || activeUser === null) return <CircularProgress size={24} />;
+
+  if (activeUser === null) return null;
 
   return (
     <>
@@ -89,9 +99,8 @@ export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
         sx={{ width: '100%' }}
-        disabled={loading}
       >
-        {loading ? t('event.rsvp.submitting') : t('event.rsvp.title')}
+        {t('event.rsvp.title')}
       </Button>
       <StyledRsvpMenu
         anchorEl={anchorEl}
@@ -99,6 +108,7 @@ export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
         onClose={handleClose}
       >
         <MenuItem
+
           onClick={() => handleRsvp('accepted')} 
           disabled={loading}
           sx={(theme) => ({
