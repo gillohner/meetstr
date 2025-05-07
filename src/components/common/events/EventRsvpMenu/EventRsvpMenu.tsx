@@ -86,8 +86,8 @@ export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
     rsvpEvent.publish();
   }, [ndk, activeUser]);
   
-  if (activeUser === undefined || activeUser === null) return <CircularProgress size={24} />;
-
+  if (activeUser === undefined) return <CircularProgress size={24} />;
+  // TODO: Add button to login
   if (activeUser === null) return null;
 
   return (
@@ -108,7 +108,6 @@ export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
         onClose={handleClose}
       >
         <MenuItem
-
           onClick={() => handleRsvp('accepted')} 
           disabled={loading}
           sx={(theme) => ({

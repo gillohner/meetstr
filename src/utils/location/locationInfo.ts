@@ -24,6 +24,8 @@ export interface LocationData {
 
 export async function getLocationInfo(locationName: string, geohash?: string): Promise<LocationData | null> {
   try {
+    // TODO: Remove again after adding cache
+    return null;
     let osmResult: any = null;
     
     // Try location name search first
