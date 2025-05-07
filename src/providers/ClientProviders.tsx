@@ -1,6 +1,5 @@
 // src/providers/ClientProviders.tsx
 'use client';
-
 import { ReactNode, useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { ThemeProvider } from '@mui/material/styles';
@@ -12,6 +11,11 @@ import CustomAppBar from '@/components/common/layout/AppBar/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useNdk, useLogin } from 'nostr-hooks';
 import { SnackbarProvider } from '@/context/SnackbarContext';
+import { openDB } from 'idb';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { queryClient } from '@/utils/queryClient';
+import { createIDBPersister } from '@/utils/persister';
 
 export default function ClientProviders({
   children,
@@ -44,18 +48,44 @@ export default function ClientProviders({
     loginFromLocalStorage();
   }, [loginFromLocalStorage]);
 
+  // Initialize DB only on client side
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        if (typeof window !== 'undefined') { // Add client-side check
+          const db = await openDB('query-cache', 1, {
+            upgrade(db) {
+              if (!db.objectStoreNames.contains('queries')) {
+                db.createObjectStore('queries');
+              }
+            }
+          });
+          console.log('Database ready with stores:', db.objectStoreNames);
+        }
+      } catch (error) {
+        console.error('Database initialization failed:', error);
+      }
+    };
+    initialize();
+  }, []);
+
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-      <I18nextProvider i18n={i18n}>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider>
-            <InitColorSchemeScript attribute="class" />
-            <CustomAppBar />
-            <CssBaseline />
-            {children}
-          </SnackbarProvider>
-        </ThemeProvider>
-      </I18nextProvider>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister: createIDBPersister('query-cache') }}
+      >
+        <I18nextProvider i18n={i18n}>
+          <ThemeProvider theme={theme}>
+            <SnackbarProvider>
+              <InitColorSchemeScript attribute="class" />
+              <CustomAppBar />
+              <CssBaseline />
+              {children}
+            </SnackbarProvider>
+          </ThemeProvider>
+        </I18nextProvider>
+      </PersistQueryClientProvider>
     </AppRouterCacheProvider>
   );
 }

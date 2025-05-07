@@ -2,7 +2,7 @@
 import { Box, Card, CardContent, Typography, Link, Chip, Stack, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { LocationData, getLocationInfo } from '@/utils/location/locationInfo';
+import { useLocationData } from '@/hooks/useLocationData';
 import { CircularProgress } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ContactlessOutlinedIcon from '@mui/icons-material/ContactlessOutlined';
@@ -19,24 +19,10 @@ interface EventLocationMapCardProps {
 
 const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata }) => {
   const { t } = useTranslation();
-  const [locationData, setLocationData] = useState<LocationData | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const loadLocation = async () => {
-      setLoading(true);
-      try {
-        const data = await getLocationInfo(metadata.location || '', metadata.geohash);
-        setLocationData(data);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (metadata.location || metadata.geohash) {
-      loadLocation();
-    }
-  }, [metadata.location, metadata.geohash]);
+  const { data: locationData, isLoading } = useLocationData(
+    metadata.location, 
+    metadata.geohash
+  )
 
   const renderPaymentBadges = () => {
     if (!locationData?.paymentMethods.acceptsBitcoin) return null;
@@ -165,9 +151,9 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
           {t('event.location')}
         </Typography>
 
-        {loading && <CircularProgress size={24} />}
+        {isLoading && <CircularProgress size={24} />}
 
-        {!loading && locationData && (
+        {locationData && (
           <>
             {renderMapFrame()}
             {renderPaymentBadges()}
@@ -175,7 +161,7 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
           </>
         )}
 
-        {!loading && !locationData && (
+        {!isLoading && !locationData && (
           <Typography variant="body2" color="text.secondary">
             {t('event.noLocation')}
           </Typography>

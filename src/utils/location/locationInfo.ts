@@ -1,7 +1,10 @@
-// src/utils/locationUtils.ts
+// src/utils/location/locationInfo.ts
 import { decodeGeohash } from '@/utils/location/geohash';
 import { fetchOsmTags } from '@/utils/location/osmTags';
 import addressFormatter from '@fragaria/address-formatter';
+import { cache } from '@/utils/cacheManager';
+import { enqueueNominatimRequest } from '@/utils/batchService';
+import { retryWithBackoff } from '@/utils/errorRecovery';
 
 export interface LocationData {
   coords: { latitude: number; longitude: number };
@@ -23,20 +26,19 @@ export interface LocationData {
 }
 
 export async function getLocationInfo(locationName: string, geohash?: string): Promise<LocationData | null> {
+  const cacheKey = `location-${locationName}-${geohash}`;
+  const cached = cache.get(cacheKey);
+  // if (cached) return cached;
+
   try {
     let osmResult: any = null;
     
+    console.log('Location name try:', locationName);
     // Try location name search first
     if (locationName) {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`
-      );
-      
-      if (response.ok) {
-        const results = await response.json();
-        osmResult = results[0];
-      }
+      osmResult = await enqueueNominatimRequest(locationName)
     }
+    console.log('OSM result 1:', osmResult);
 
     // Fallback to geohash reverse geocoding
     if (!osmResult && geohash) {
@@ -53,11 +55,13 @@ export async function getLocationInfo(locationName: string, geohash?: string): P
     if (!osmResult) return null;
 
 
+    console.log('OSM result:', osmResult);
     // Fetch complete payment tags from Overpass
     const osmTags = await fetchOsmTags(
       osmResult.osm_type, 
       osmResult.osm_id
     );
+    console.log('OSM tags:', osmTags);
 
     const paymentMethods = {
       acceptsBitcoin: osmTags['currency:XBT'] === 'yes',  // Direct key access
@@ -94,7 +98,7 @@ export async function getLocationInfo(locationName: string, geohash?: string): P
     const formattedName = osmTags.name;
     const formattedAddress = addressFormatter.format(addressComponents);
 
-    return {
+    const result = {
       coords,
       osmInfo: {
         displayName: osmResult.display_name,
@@ -108,7 +112,10 @@ export async function getLocationInfo(locationName: string, geohash?: string): P
       formattedAddress
     };
 
+    cache.set(cacheKey, result);
+    return result;
   } catch (error) {
+    await retryWithBackoff(() => getLocationInfo(locationName, geohash));
     console.error('Location service error:', error);
     return null;
   }
