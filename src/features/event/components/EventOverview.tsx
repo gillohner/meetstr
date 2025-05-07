@@ -15,9 +15,6 @@ import {
   Divider,
   Grid
 } from '@mui/material';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import PersonIcon from '@mui/icons-material/Person';
 import { fetchEventById } from '@/utils/nostrUtils';
 import { getEventMetadata } from '@/utils/eventUtils';
 import EventLocationText from '@/components/common/events/EventLocationText/EventLocationText';
