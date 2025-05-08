@@ -1,5 +1,5 @@
 import { Box, Typography, TypographyProps } from '@mui/material';
-import { formatDate } from '@/utils/formatting/formatDate';
+import { formatDate } from '@/utils/formatting/date';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
 

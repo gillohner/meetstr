@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useNdk } from 'nostr-hooks';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 import { Card, CardContent, CardMedia, Typography, Container } from '@mui/material';
-import { fetchCalendarEvents } from '@/utils/nostrUtils';
+import { fetchCalendarEvents } from '@/utils/nostr/nostrUtils';
 import { useNostrEvent } from '@/hooks/useNostrEvent';
 import EventSection from '@/components/common/events/EventSection/EventSection';
-import { getEventMetadata } from '@/utils/eventUtils';
+import { getEventMetadata } from '@/utils/nostr/eventUtils';
 
 export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
   const { ndk } = useNdk();

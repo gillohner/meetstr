@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useNdk } from 'nostr-hooks';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { fetchEventById } from '@/utils/nostrUtils';
+import { fetchEventById } from '@/utils/nostr/nostrUtils';
 
 export type NostrEventError = 'not_found' | 'invalid_kind' | 'network_error' | null;
 

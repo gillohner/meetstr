@@ -1,35 +1,21 @@
-// src/utils/location/locationLoader.ts
+// src/utils/location/loader.ts
 import DataLoader from 'dataloader';
-import { getLocationInfo, LocationData } from './locationInfo';
+import { getLocationInfo, LocationData } from './locationUtils';
 
 type LocationKey = {
   locationName: string;
   geohash?: string | null;
 };
 
-// Create a batch function
-const batchLoadLocations = async (keys: LocationKey[]) => {
-  console.log(`Batching ${keys.length} location requests`);
-  
-  // Process in batch but make individual calls for now
-  // Could be optimized further with a true batch API endpoint
+const batchLoadLocations = async (keys: readonly LocationKey[]) => {
   return Promise.all(
-    keys.map(async ({ locationName, geohash }) => {
-      try {
-        return await getLocationInfo(locationName, geohash || undefined);
-      } catch (error) {
-        console.error('Error loading location', error);
-        return null;
-      }
-    })
+    keys.map(({ locationName, geohash }) => 
+      getLocationInfo(locationName, geohash || undefined)
+    )
   );
 };
 
-// Create a singleton loader instance
-export const locationLoader = new DataLoader<LocationKey, LocationData | null>(
-  batchLoadLocations,
-  {
-    cache: true,
-    cacheKeyFn: key => `${key.locationName}|${key.geohash || ''}`,
-  }
-);
+export const locationLoader = new DataLoader<LocationKey, LocationData | null>(batchLoadLocations, {
+  cache: true,
+  cacheKeyFn: key => `${key.locationName}|${key.geohash || ''}`
+});

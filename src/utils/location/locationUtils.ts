@@ -2,25 +2,7 @@
 import { decodeGeohash } from '@/utils/location/geohash';
 import { fetchOsmTags } from '@/utils/location/osmTags';
 import addressFormatter from '@fragaria/address-formatter';
-
-export interface LocationData {
-  coords: { latitude: number; longitude: number };
-  osmInfo?: {
-    displayName: string;
-    id: number;
-    type: string;
-    tags: Record<string, string>;
-  };
-  paymentMethods: {
-    acceptsBitcoin: boolean;
-    onChain: boolean;
-    lightning: boolean;
-    contactless: boolean;
-  };
-  mapLinks: Record<string, string>;
-  formattedName: string;
-  formattedAddress: string;
-}
+import type { LocationData } from '@/types/location';
 
 export async function getLocationInfo(locationName: string, geohash?: string): Promise<LocationData | null> {
   try {

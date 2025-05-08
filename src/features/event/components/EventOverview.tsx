@@ -15,8 +15,8 @@ import {
   Divider,
   Grid
 } from '@mui/material';
-import { fetchEventById } from '@/utils/nostrUtils';
-import { getEventMetadata } from '@/utils/eventUtils';
+import { fetchEventById } from '@/utils/nostr/nostrUtils';
+import { getEventMetadata } from '@/utils/nostr/eventUtils';
 import EventLocationText from '@/components/common/events/EventLocationText/EventLocationText';
 import EventTimeDisplay from '@/components/common/events/EventTimeDisplay/EventTimeDisplay';
 import { useNostrEvent } from '@/hooks/useNostrEvent';
