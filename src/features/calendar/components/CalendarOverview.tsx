@@ -4,11 +4,12 @@ import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNdk } from 'nostr-hooks';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { Card, CardContent, CardMedia, Typography, Container } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Container, Grid } from '@mui/material';
 import { fetchCalendarEvents } from '@/utils/nostr/nostrUtils';
 import { useNostrEvent } from '@/hooks/useNostrEvent';
 import EventSection from '@/components/common/events/EventSection/EventSection';
 import { getEventMetadata } from '@/utils/nostr/eventUtils';
+import CreateNewEventDialog from '@/components/common/events/CreateNewEventDialog/CreateNewEventDialog';
 
 export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
   const { ndk } = useNdk();
@@ -60,23 +61,31 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
   // Extract metadata using the utility function
   const metadata = getEventMetadata(calendarEvent);
 
+  console.log('Calendar metadata:', metadata);
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Card sx={{ width: '100%', mb: 4 }}>
         <CardMedia
           component="img"
-          alt={metadata.description || ''}
+          alt={metadata.summary || ''}
           height="300"
           image={metadata.image || ''}
           sx={{ objectFit: 'cover' }}
         />
         <CardContent>
-          <Typography gutterBottom variant="h4" component="div">
-            {metadata.title || t('error.calendar.noName')}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {metadata.description || ''}
-          </Typography>
+          <Grid container>
+            <Grid size={ 10 }>
+              <Typography gutterBottom variant="h4" component="div">
+                {metadata.title || t('error.calendar.noName')}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {metadata.summary || ''}
+              </Typography>
+            </Grid>
+            <Grid size={ 2 }>
+              {event && <CreateNewEventDialog event={event} />}
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
 

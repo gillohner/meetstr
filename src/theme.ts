@@ -9,6 +9,20 @@ const roboto = Roboto({
 });
 
 const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#F2A900', // Orange color
+      light: '#FFB824',
+      dark: '#D49000',
+      contrastText: '#fff',
+    },
+    secondary: {
+      main: '#9C27B0', // Purple color
+      light: '#BA68C8',
+      dark: '#7B1FA2',
+      contrastText: '#fff',
+    },
+  },
   colorSchemes: { light: true, dark: true },
   cssVariables: {
     colorSchemeSelector: 'class',

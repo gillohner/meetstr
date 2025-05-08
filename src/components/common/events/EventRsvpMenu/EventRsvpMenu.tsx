@@ -51,7 +51,7 @@ const StyledRsvpMenu = styled((props: MenuProps) => (
   },
 }));
 
-export default function EventRsvpMenu({ event }: EventRsvpMenuProps) {
+export default function EventRsvpMenu({ event }) {
   const { t } = useTranslation();
   const { ndk } = useNdk();
   const { showSnackbar } = useSnackbar();
