@@ -24,14 +24,18 @@ export interface LocationData {
 
 export async function getLocationInfo(locationName: string, geohash?: string): Promise<LocationData | null> {
   try {
-    // TODO: Remove again after adding cache
     let osmResult: any = null;
+
+    console.log('Fetching location info for:', locationName, geohash);
     
     // Try location name search first
     if (locationName) {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`
       );
+
+      console.log(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`)
+      console.log('Location search response:', response);
       
       if (response.ok) {
         const results = await response.json();

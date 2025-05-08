@@ -12,6 +12,15 @@ import CustomAppBar from '@/components/common/layout/AppBar/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useNdk, useLogin } from 'nostr-hooks';
 import { SnackbarProvider } from '@/context/SnackbarContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 export default function ClientProviders({
   children,
@@ -45,17 +54,19 @@ export default function ClientProviders({
   }, [loginFromLocalStorage]);
 
   return (
-    <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-      <I18nextProvider i18n={i18n}>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider>
-            <InitColorSchemeScript attribute="class" />
-            <CustomAppBar />
-            <CssBaseline />
-            {children}
-          </SnackbarProvider>
-        </ThemeProvider>
-      </I18nextProvider>
-    </AppRouterCacheProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+        <I18nextProvider i18n={i18n}>
+          <ThemeProvider theme={theme}>
+            <SnackbarProvider>
+              <InitColorSchemeScript attribute="class" />
+              <CustomAppBar />
+              <CssBaseline />
+              {children}
+            </SnackbarProvider>
+          </ThemeProvider>
+        </I18nextProvider>
+      </AppRouterCacheProvider>
+    </QueryClientProvider>
   );
 }

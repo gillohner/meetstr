@@ -1,9 +1,9 @@
+// src/components/common/events/EventLocationText/EventLocationText.tsx
 import { Box, Typography, TypographyProps } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { useEffect, useState } from 'react';
-import { LocationData, getLocationInfo } from '@/utils/location/locationInfo';
 import { CircularProgress } from '@mui/material';
 import { formatTextWithLineBreaks } from '@/utils/formatting/formatTextWithLineBreaks';
+import { useLocationInfo } from '@/hooks/useLocationInfo';
 
 interface EventLocationTextProps {
   location?: string | null;
@@ -13,30 +13,21 @@ interface EventLocationTextProps {
 
 export default function EventLocationText({ location, geohash, typographyProps }: EventLocationTextProps) {
   if (!location && !geohash) return null;
-  const [locationData, setLocationData] = useState<LocationData | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const loadLocation = async () => {
-      setLoading(true);
-      try {
-        const data = await getLocationInfo(location || '', geohash);
-        setLocationData(data);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (location || geohash) {
-      loadLocation();
-    }
-  }, [location, geohash]);
+  
+  const { data: locationData, isLoading } = useLocationInfo(location, geohash);
 
   return (
     <Box sx={{ display: 'flex', mb: 2 }}>
       <LocationOnIcon sx={{ mr: 1, color: 'text.secondary' }} />
-      {loading ? (
-        <CircularProgress size={22} />
+      {isLoading ? (
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          {...typographyProps}
+          sx={{ whiteSpace: 'pre-line', ...typographyProps?.sx }}
+        >
+          {formatTextWithLineBreaks(location)}
+        </Typography>
       ) : (
         <Typography
           variant="body1"
