@@ -1,52 +1,52 @@
 // src/utils/nostrUtils.ts
-import { NDK, NDKEvent, NDKFilter } from '@nostr-dev-kit/ndk';
-import { nip19 } from 'nostr-tools';
+import { NDK, NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import { nip19 } from "nostr-tools";
 
 /**
  * Fetches a Nostr event using various identifier types
- * 
+ *
  * @param ndk - The initialized NDK instance
  * @param identifier - Can be an event ID, naddr, or other identifier
  * @returns Promise that resolves to the event or null if not found
  */
 export const fetchEventById = async (ndk: NDK, identifier: string): Promise<NDKEvent | null> => {
   if (!ndk) {
-    throw new Error('NDK instance not provided');
+    throw new Error("NDK instance not provided");
   }
-  
+
   try {
     let filter: NDKFilter;
 
     // Handle different identifier types
-    if (identifier.startsWith('naddr')) {
+    if (identifier.startsWith("naddr")) {
       // If it's an naddr, decode it to get the components
       try {
         const decoded = nip19.decode(identifier);
-        if (decoded.type === 'naddr') {
+        if (decoded.type === "naddr") {
           const data = decoded.data;
           filter = {
             kinds: [data.kind],
             authors: [data.pubkey],
-            '#d': [data.identifier]
+            "#d": [data.identifier],
           };
         } else {
-          throw new Error('Invalid naddr format');
+          throw new Error("Invalid naddr format");
         }
       } catch (error) {
-        console.error('Error decoding naddr:', error);
+        console.error("Error decoding naddr:", error);
         return null;
       }
-    } else if (identifier.startsWith('note')) {
+    } else if (identifier.startsWith("note")) {
       // If it's a note ID
       try {
         const decoded = nip19.decode(identifier);
-        if (decoded.type === 'note') {
+        if (decoded.type === "note") {
           filter = { ids: [decoded.data] };
         } else {
-          throw new Error('Invalid note format');
+          throw new Error("Invalid note format");
         }
       } catch (error) {
-        console.error('Error decoding note:', error);
+        console.error("Error decoding note:", error);
         return null;
       }
     } else {
@@ -58,14 +58,14 @@ export const fetchEventById = async (ndk: NDK, identifier: string): Promise<NDKE
     const event = await ndk.fetchEvent(filter);
     return event;
   } catch (error) {
-    console.error('Error fetching event:', error);
+    console.error("Error fetching event:", error);
     return null;
   }
 };
 
 /**
  * Fetches and categorizes calendar events from a main calendar event
- * 
+ *
  * @param ndk - Initialized NDK instance
  * @param calendarEvent - The main calendar event (kind 31924)
  * @returns Object containing sorted upcoming and past events
@@ -82,41 +82,39 @@ export const fetchCalendarEvents = async (
     return { upcoming, past };
   }
 
-  const eventRefs = calendarEvent.tags.filter((tag) => tag[0] === 'a');
+  const eventRefs = calendarEvent.tags.filter((tag) => tag[0] === "a");
   const fetchPromises = eventRefs.map(async (tag) => {
-    const parts = tag[1].split(':');
+    const parts = tag[1].split(":");
     if (parts.length < 3) return null;
 
     const [kindStr, pubkey, dTag] = parts;
     const kind = parseInt(kindStr);
-    
+
     if (kind !== 31922 && kind !== 31923) return null;
 
     try {
       const event = await ndk.fetchEvent({
         kinds: [kind],
         authors: [pubkey],
-        '#d': [dTag]
+        "#d": [dTag],
       });
 
       if (!event) return null;
 
-      const startTime = parseInt(
-        event.tags.find((t) => t[0] === 'start')?.[1] || '0'
-      );
-      
+      const startTime = parseInt(event.tags.find((t) => t[0] === "start")?.[1] || "0");
+
       return { event, startTime };
     } catch (error) {
-      console.error('Error fetching calendar event:', error);
+      console.error("Error fetching calendar event:", error);
       return null;
     }
   });
 
   const results = await Promise.all(fetchPromises);
-  
+
   results.forEach((result) => {
     if (!result) return;
-    
+
     if (result.startTime > now) {
       upcoming.push(result.event);
     } else {
@@ -125,20 +123,18 @@ export const fetchCalendarEvents = async (
   });
 
   // Sort functions
-  const sortAsc = (a: NDKEvent, b: NDKEvent) => 
-    (getStartTime(a) || 0) - (getStartTime(b) || 0);
-  
-  const sortDesc = (a: NDKEvent, b: NDKEvent) => 
-    (getStartTime(b) || 0) - (getStartTime(a) || 0);
+  const sortAsc = (a: NDKEvent, b: NDKEvent) => (getStartTime(a) || 0) - (getStartTime(b) || 0);
+
+  const sortDesc = (a: NDKEvent, b: NDKEvent) => (getStartTime(b) || 0) - (getStartTime(a) || 0);
 
   return {
     upcoming: upcoming.sort(sortAsc),
-    past: past.sort(sortDesc)
+    past: past.sort(sortDesc),
   };
 };
 
 // Helper function to extract start time from event tags
 const getStartTime = (event: NDKEvent): number | undefined => {
-  const startTag = event.tags.find((t) => t[0] === 'start');
+  const startTag = event.tags.find((t) => t[0] === "start");
   return startTag ? parseInt(startTag[1]) : undefined;
 };

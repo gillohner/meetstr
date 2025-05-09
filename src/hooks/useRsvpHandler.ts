@@ -1,7 +1,7 @@
 // src/hooks/useRsvpHandler.ts
-import { useState } from 'react';
-import { useNDK } from 'nostr-hooks';
-import { createRsvpEvent } from '@/utils/rsvpUtils';
+import { useState } from "react";
+import { useNDK } from "nostr-hooks";
+import { createRsvpEvent } from "@/utils/rsvpUtils";
 
 export const useRsvpHandler = (event: NDKEvent) => {
   const { ndk } = useNDK();
@@ -11,7 +11,7 @@ export const useRsvpHandler = (event: NDKEvent) => {
   const submitRsvp = async (status: string) => {
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       const rsvpEvent = createRsvpEvent(event, status);
       await rsvpEvent.publish();

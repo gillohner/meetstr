@@ -1,4 +1,3 @@
-
 ![dezentralbot-web](https://socialify.git.ci/gillohner/dezentralbot-web/image?font=Jost&forks=1&issues=1&language=1&name=1&owner=1&pattern=Circuit+Board&pulls=1&stargazers=1&theme=Dark)
 
 # Dezentralbot Web
@@ -15,10 +14,10 @@ Dezentralbot Web is an open-source web application for discovering, previewing, 
 - ⚡ Built with React, Next.js, and Material-UI
 - much more to come such as a tg bots and other stuff
 
-
 ## Installation
 
 Requirements:
+
 - Node.js v22
 
 Install and run Dezentralbot Web with npm:
@@ -27,15 +26,15 @@ Install and run Dezentralbot Web with npm:
 npm install
 npm run dev
 ```
-Then visit http://localhost:3000 in your browser.
 
+Then visit http://localhost:3000 in your browser.
 
 ## Contributing
 
 Contributions are always welcome! Please open issues or pull requests for bug reports, feature ideas, or improvements.
 
-
 ## License
+
 This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
 You are free to use, modify, and distribute this software, provided that any derivative works or deployments are also licensed under AGPL-3.0 and their source code is made available.
@@ -43,6 +42,7 @@ You are free to use, modify, and distribute this software, provided that any der
 See LICENSE for the full text.
 
 ---
+
 Made with ❤️ for the decentralized web.
 
 Disclaimer:

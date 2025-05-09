@@ -1,10 +1,9 @@
 {
-    "navbar": {
-      "login": "Anmelden",
-      "calendar": "Kalender"
-    },
-    "auth": {
-      "login_required": "NIP-07 login erforderlich (https://nostrcheck.me/register/browser-extension.php)"
-    }
+  "navbar": {
+    "login": "Anmelden",
+    "calendar": "Kalender"
+  },
+  "auth": {
+    "login_required": "NIP-07 login erforderlich (https://nostrcheck.me/register/browser-extension.php)"
   }
-  
+}

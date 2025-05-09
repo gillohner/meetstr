@@ -46,8 +46,7 @@ export default function LoginButton({
     setErrorMessage("");
   };
 
-  const { loginWithExtension, loginWithRemoteSigner, loginWithPrivateKey } =
-    useLogin();
+  const { loginWithExtension, loginWithRemoteSigner, loginWithPrivateKey } = useLogin();
 
   const handleLoginWithRemoteSigner = async () => {
     try {
@@ -92,12 +91,7 @@ export default function LoginButton({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography
-            id="modal-modal-title"
-            variant="h6"
-            component="h2"
-            marginBottom={2}
-          >
+          <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={2}>
             {t("modal.login.title")}
           </Typography>
           <Button variant={variant} color={color} onClick={loginWithExtension}>
@@ -112,11 +106,7 @@ export default function LoginButton({
             onChange={(e) => setRemoteSignerKey(e.target.value)}
             sx={{ mb: 2 }}
           />
-          <Button
-            variant={variant}
-            color={color}
-            onClick={handleLoginWithRemoteSigner}
-          >
+          <Button variant={variant} color={color} onClick={handleLoginWithRemoteSigner}>
             {t("modal.login.remoteSigner")}
           </Button>
           <Divider sx={{ my: 2 }} />
@@ -128,11 +118,7 @@ export default function LoginButton({
             onChange={(e) => setPrivateKey(e.target.value)}
             sx={{ mb: 2 }}
           />
-          <Button
-            variant={variant}
-            color={color}
-            onClick={handleLoginWithPrivateKey}
-          >
+          <Button variant={variant} color={color} onClick={handleLoginWithPrivateKey}>
             {t("modal.login.privateKey")}
           </Button>
           {errorMessage && (

@@ -1,13 +1,13 @@
 // src/components/common/events/EventLocationMapCard/EventLocationMapCard.tsx
-import { Box, Card, CardContent, Typography, Link, Chip, Stack, Tooltip } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import { useLocationInfo } from '@/hooks/useLocationInfo'; // New custom hook
-import { CircularProgress } from '@mui/material';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import ContactlessOutlinedIcon from '@mui/icons-material/ContactlessOutlined';
-import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined';
-import CurrencyBitcoinOutlinedIcon from '@mui/icons-material/CurrencyBitcoinOutlined';
-import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
+import { Box, Card, CardContent, Typography, Link, Chip, Stack, Tooltip } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { useLocationInfo } from "@/hooks/useLocationInfo"; // New custom hook
+import { CircularProgress } from "@mui/material";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import ContactlessOutlinedIcon from "@mui/icons-material/ContactlessOutlined";
+import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
+import CurrencyBitcoinOutlinedIcon from "@mui/icons-material/CurrencyBitcoinOutlined";
+import LinkOutlinedIcon from "@mui/icons-material/LinkOutlined";
 
 interface EventLocationMapCardProps {
   metadata: {
@@ -18,80 +18,77 @@ interface EventLocationMapCardProps {
 
 const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata }) => {
   const { t } = useTranslation();
-  const { data: locationData, isLoading } = useLocationInfo(
-    metadata.location,
-    metadata.geohash
-  );
+  const { data: locationData, isLoading } = useLocationInfo(metadata.location, metadata.geohash);
 
   const renderPaymentBadges = () => {
     if (!locationData?.paymentMethods.acceptsBitcoin) return null;
-  
+
     return (
-      <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-        <Tooltip title={t('payment.bitcoinAccepted')}>
-          <Chip 
+      <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+        <Tooltip title={t("payment.bitcoinAccepted")}>
+          <Chip
             label={<CurrencyBitcoinOutlinedIcon />}
-            sx={{ 
-              backgroundColor: '#F7931A22', 
-              color: '#F7931A',
-              '& .MuiChip-label': { 
+            sx={{
+              backgroundColor: "#F7931A22",
+              color: "#F7931A",
+              "& .MuiChip-label": {
                 p: 0.5,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              },
             }}
           />
         </Tooltip>
-  
+
         {locationData.paymentMethods.onChain && (
-          <Tooltip title={t('payment.onChain')}>
+          <Tooltip title={t("payment.onChain")}>
             <Chip
               label={<LinkOutlinedIcon />}
-              sx={{ 
-                backgroundColor: 'action.selected',
-                '& .MuiChip-label': { 
+              sx={{
+                backgroundColor: "action.selected",
+                "& .MuiChip-label": {
                   p: 0.5,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
               }}
             />
           </Tooltip>
         )}
-  
+
         {locationData.paymentMethods.lightning && (
-          <Tooltip title={t('payment.lightning')}>
+          <Tooltip title={t("payment.lightning")}>
             <Chip
               label={<BoltOutlinedIcon />}
-              sx={{ 
-                backgroundColor: 'warning.light',
-                color: 'warning.contrastText',
-                '& .MuiChip-label': { 
+              sx={{
+                backgroundColor: "warning.light",
+                color: "warning.contrastText",
+                "& .MuiChip-label": {
                   p: 0.5,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
               }}
             />
           </Tooltip>
         )}
-  
+
         {locationData.paymentMethods.contactless && (
-          <Tooltip title={t('payment.contactless')}>
+          <Tooltip title={t("payment.contactless")}>
             <Chip
               label={<ContactlessOutlinedIcon />}
-              sx={{ 
-                backgroundColor: 'success.light',
-                color: 'success.contrastText',
-                '& .MuiChip-label': { 
+              sx={{
+                backgroundColor: "success.light",
+                color: "success.contrastText",
+                "& .MuiChip-label": {
                   p: 0.5,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
               }}
             />
           </Tooltip>
@@ -102,7 +99,7 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
 
   const renderMapFrame = () => {
     if (!locationData) return null;
-    
+
     return (
       <iframe
         title="location-map"
@@ -113,31 +110,50 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
         },${locationData.coords.latitude + 0.01}&layer=mapnik&marker=${
           locationData.coords.latitude
         },${locationData.coords.longitude}`}
-        style={{ border: 'none', width: '100%', height: '300px' }}
+        style={{ border: "none", width: "100%", height: "300px" }}
       />
     );
   };
 
   const renderMapLinks = () => (
-    <Stack direction="column" spacing={0} sx={{ mt: 1, flexWrap: 'wrap', gap: 1.5, fontSize: '0.8rem' }}>
+    <Stack
+      direction="column"
+      spacing={0}
+      sx={{ mt: 1, flexWrap: "wrap", gap: 1.5, fontSize: "0.8rem" }}
+    >
       {locationData?.mapLinks.osm && (
         <Link href={locationData.mapLinks.osm} target="_blank" display="flex" alignItems="center">
-          {t('service.openstreetmap')} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+          {t("service.openstreetmap")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
       {locationData?.mapLinks.btcmap && (
-        <Link href={locationData.mapLinks.btcmap} target="_blank" display="flex" alignItems="center">
-          {t('service.btcmap')} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+        <Link
+          href={locationData.mapLinks.btcmap}
+          target="_blank"
+          display="flex"
+          alignItems="center"
+        >
+          {t("service.btcmap")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
       {locationData?.mapLinks.google && (
-        <Link href={locationData?.mapLinks.google} target="_blank" display="flex" alignItems="center">
-          {t('service.googlemaps')}  <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+        <Link
+          href={locationData?.mapLinks.google}
+          target="_blank"
+          display="flex"
+          alignItems="center"
+        >
+          {t("service.googlemaps")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
       {locationData?.mapLinks.apple && (
-        <Link href={locationData?.mapLinks.apple} target="_blank" display="flex" alignItems="center">
-          {t('service.applemaps')}  <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+        <Link
+          href={locationData?.mapLinks.apple}
+          target="_blank"
+          display="flex"
+          alignItems="center"
+        >
+          {t("service.applemaps")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
     </Stack>
@@ -147,7 +163,7 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          {t('event.location')}
+          {t("event.location")}
         </Typography>
 
         {isLoading && <CircularProgress size={24} />}
@@ -162,7 +178,7 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
 
         {!isLoading && !locationData && (
           <Typography variant="body2" color="text.secondary">
-            {t('event.noLocation')}
+            {t("event.noLocation")}
           </Typography>
         )}
       </CardContent>

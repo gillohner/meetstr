@@ -1,6 +1,6 @@
 // src/context/SnackbarContext.tsx
-import React, { createContext, useContext, useState } from 'react';
-import { Snackbar, Alert, AlertColor } from '@mui/material';
+import React, { createContext, useContext, useState } from "react";
+import { Snackbar, Alert, AlertColor } from "@mui/material";
 
 type SnackbarContextType = {
   showSnackbar: (message: string, severity: AlertColor) => void;
@@ -10,8 +10,8 @@ const SnackbarContext = createContext<SnackbarContextType>({} as SnackbarContext
 
 export const SnackbarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  const [severity, setSeverity] = useState<AlertColor>('info');
+  const [message, setMessage] = useState("");
+  const [severity, setSeverity] = useState<AlertColor>("info");
 
   const showSnackbar = (newMessage: string, newSeverity: AlertColor) => {
     setMessage(newMessage);
@@ -30,9 +30,9 @@ export const SnackbarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         open={open}
         autoHideDuration={6000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
+        <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
           {message}
         </Alert>
       </Snackbar>

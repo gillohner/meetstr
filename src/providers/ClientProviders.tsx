@@ -1,18 +1,18 @@
 // src/providers/ClientProviders.tsx
-'use client';
+"use client";
 
-import { ReactNode, useEffect, useState } from 'react';
-import { I18nextProvider } from 'react-i18next';
-import { ThemeProvider } from '@mui/material/styles';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { initI18n } from '@/lib/i18n';
-import theme from '@/theme';
-import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
-import CustomAppBar from '@/components/common/layout/AppBar/AppBar';
-import CssBaseline from '@mui/material/CssBaseline';
-import { useNdk, useLogin } from 'nostr-hooks';
-import { SnackbarProvider } from '@/context/SnackbarContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactNode, useEffect, useState } from "react";
+import { I18nextProvider } from "react-i18next";
+import { ThemeProvider } from "@mui/material/styles";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { initI18n } from "@/lib/i18n";
+import theme from "@/theme";
+import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
+import CustomAppBar from "@/components/common/layout/AppBar/AppBar";
+import CssBaseline from "@mui/material/CssBaseline";
+import { useNdk, useLogin } from "nostr-hooks";
+import { SnackbarProvider } from "@/context/SnackbarContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
 
 export default function ClientProviders({
   children,
-  serverLang
+  serverLang,
 }: {
   children: ReactNode;
   serverLang: string;
@@ -39,8 +39,8 @@ export default function ClientProviders({
       explicitRelayUrls: [
         "wss://nostr.swiss-enigma.ch/",
         "wss://relay.damus.io/",
-        "wss://relay.nostr.band"
-      ]
+        "wss://relay.nostr.band",
+      ],
     });
   }, [initNdk]);
 

@@ -1,10 +1,10 @@
 // src/hooks/useNostrEvent.ts
-import { useState, useCallback } from 'react';
-import { useNdk } from 'nostr-hooks';
-import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { fetchEventById } from '@/utils/nostr/nostrUtils';
+import { useState, useCallback } from "react";
+import { useNdk } from "nostr-hooks";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { fetchEventById } from "@/utils/nostr/nostrUtils";
 
-export type NostrEventError = 'not_found' | 'invalid_kind' | 'network_error' | null;
+export type NostrEventError = "not_found" | "invalid_kind" | "network_error" | null;
 
 export const useNostrEvent = () => {
   const { ndk } = useNdk();
@@ -12,60 +12,60 @@ export const useNostrEvent = () => {
   const [loading, setLoading] = useState(false);
   const [errorCode, setErrorCode] = useState<NostrEventError>(null);
 
-  const fetchEvent = useCallback(async (
-    identifier?: string,
-    expectedKinds: number[] = []
-  ) => {
-    if (!ndk || !identifier) {
-      setErrorCode(null);
-      setEvent(null);
-      return;
-    }
-
-    setLoading(true);
-    
-    // Use AbortController for cleanup
-    const controller = new AbortController();
-    
-    try {
-      const fetchedEvent = await fetchEventById(ndk, identifier, controller.signal);
-      
-      if (!fetchedEvent) {
-        setErrorCode('not_found');
+  const fetchEvent = useCallback(
+    async (identifier?: string, expectedKinds: number[] = []) => {
+      if (!ndk || !identifier) {
+        setErrorCode(null);
         setEvent(null);
         return;
       }
 
-      if (expectedKinds.length > 0 && !expectedKinds.includes(fetchedEvent.kind)) {
-        setErrorCode('invalid_kind');
+      setLoading(true);
+
+      // Use AbortController for cleanup
+      const controller = new AbortController();
+
+      try {
+        const fetchedEvent = await fetchEventById(ndk, identifier, controller.signal);
+
+        if (!fetchedEvent) {
+          setErrorCode("not_found");
+          setEvent(null);
+          return;
+        }
+
+        if (expectedKinds.length > 0 && !expectedKinds.includes(fetchedEvent.kind)) {
+          setErrorCode("invalid_kind");
+          setEvent(null);
+          return;
+        }
+
+        setEvent(fetchedEvent);
+        setErrorCode(null);
+      } catch (error) {
+        // More specific error handling
+        if (error instanceof TypeError) {
+          console.error("Network error:", error);
+          setErrorCode("network_error");
+        } else {
+          console.error("Event fetch error:", error);
+          setErrorCode("network_error");
+        }
         setEvent(null);
-        return;
+      } finally {
+        setLoading(false);
       }
 
-      setEvent(fetchedEvent);
-      setErrorCode(null);
-    } catch (error) {
-      // More specific error handling
-      if (error instanceof TypeError) {
-        console.error('Network error:', error);
-        setErrorCode('network_error');
-      } else {
-        console.error('Event fetch error:', error);
-        setErrorCode('network_error');
-      }
-      setEvent(null);
-    } finally {
-      setLoading(false);
-    }
-    
-    // Return cleanup function
-    return () => controller.abort();
-  }, [ndk]);
+      // Return cleanup function
+      return () => controller.abort();
+    },
+    [ndk]
+  );
 
-  return { 
-    event, 
-    loading, 
-    errorCode, 
-    fetchEvent 
+  return {
+    event,
+    loading,
+    errorCode,
+    fetchEvent,
   };
 };

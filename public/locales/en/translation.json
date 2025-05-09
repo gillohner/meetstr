@@ -45,10 +45,9 @@
     "calendar": {
       "invalidId": "The provided event id is not valid",
       "wrongKind": "The provided event id is not of kind 31924"
-    },  
+    },
     "event": {
       "wrongKind": "The provided event id is not of kind 31922 or 31923"
     }
   }
 }
-  

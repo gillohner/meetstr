@@ -1,15 +1,15 @@
 // src/features/calendar/components/CalendarOverview.tsx
-import * as React from 'react';
-import { useEffect, useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNdk } from 'nostr-hooks';
-import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { Card, CardContent, CardMedia, Typography, Container, Grid } from '@mui/material';
-import { fetchCalendarEvents } from '@/utils/nostr/nostrUtils';
-import { useNostrEvent } from '@/hooks/useNostrEvent';
-import EventSection from '@/components/common/events/EventSection/EventSection';
-import { getEventMetadata } from '@/utils/nostr/eventUtils';
-import CreateNewEventDialog from '@/components/common/events/CreateNewEventDialog/CreateNewEventDialog';
+import * as React from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useNdk } from "nostr-hooks";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { Card, CardContent, CardMedia, Typography, Container, Grid } from "@mui/material";
+import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
+import EventSection from "@/components/common/events/EventSection/EventSection";
+import { getEventMetadata } from "@/utils/nostr/eventUtils";
+import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog/CreateNewEventDialog";
 
 export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
   const { ndk } = useNdk();
@@ -41,64 +41,61 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
   const errorMessage = useMemo(() => {
     if (!errorCode) return null;
     switch (errorCode) {
-      case 'not_found': return t('error.calendar.notFound');
-      case 'invalid_kind': return t('error.calendar.invalidKind');
-      default: return t('error.generic');
+      case "not_found":
+        return t("error.calendar.notFound");
+      case "invalid_kind":
+        return t("error.calendar.invalidKind");
+      default:
+        return t("error.generic");
     }
   }, [errorCode, t]);
-    
+
   if (!calendarEvent) {
-    if (loading) return <Typography>{t('common.loading')}</Typography>;
+    if (loading) return <Typography>{t("common.loading")}</Typography>;
     if (errorCode) return <Typography color="error">{errorCode}</Typography>;
-    
-    return (
-      <Typography variant="h4">
-        {t('error.calendar.invalidId')}
-      </Typography>
-    )
-  };
+
+    return <Typography variant="h4">{t("error.calendar.invalidId")}</Typography>;
+  }
 
   // Extract metadata using the utility function
   const metadata = getEventMetadata(calendarEvent);
 
-  console.log('Calendar metadata:', metadata);
+  console.log("Calendar metadata:", metadata);
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
-      <Card sx={{ width: '100%', mb: 4 }}>
+      <Card sx={{ width: "100%", mb: 4 }}>
         <CardMedia
           component="img"
-          alt={metadata.summary || ''}
+          alt={metadata.summary || ""}
           height="300"
-          image={metadata.image || ''}
-          sx={{ objectFit: 'cover' }}
+          image={metadata.image || ""}
+          sx={{ objectFit: "cover" }}
         />
         <CardContent>
           <Grid container>
-            <Grid size={ 10 }>
+            <Grid size={10}>
               <Typography gutterBottom variant="h4" component="div">
-                {metadata.title || t('error.calendar.noName')}
+                {metadata.title || t("error.calendar.noName")}
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                {metadata.summary || ''}
+                {metadata.summary || ""}
               </Typography>
             </Grid>
-            <Grid size={ 2 }>
-              {event && <CreateNewEventDialog event={event} />}
-            </Grid>
+            <Grid size={2}>{event && <CreateNewEventDialog event={event} />}</Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      <EventSection 
-        title={t('calendar.upcomingEvents')}
+      <EventSection
+        title={t("calendar.upcomingEvents")}
         events={upcomingEvents}
-        fallbackText={t('calendar.noUpcomingEvents')}
+        fallbackText={t("calendar.noUpcomingEvents")}
       />
 
       <EventSection
-        title={t('calendar.pastEvents')}
+        title={t("calendar.pastEvents")}
         events={pastEvents}
-        fallbackText={t('calendar.noPastEvents')}
+        fallbackText={t("calendar.noPastEvents")}
       />
     </Container>
   );

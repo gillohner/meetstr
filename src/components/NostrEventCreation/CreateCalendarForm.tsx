@@ -1,41 +1,32 @@
 // src/components/NostrEventCreation/CreateCalendarForm.tsx
-import { useState, useCallback } from 'react';
-import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { useNdk } from 'nostr-hooks';
-import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Paper,
-  Chip,
-  Grid,
-  Alert
-} from '@mui/material';
-import { RequireLogin } from '@/components/NostrLogin';
-import { useTranslation } from 'react-i18next';
+import { useState, useCallback } from "react";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { useNdk } from "nostr-hooks";
+import { TextField, Button, Box, Typography, Paper, Chip, Grid, Alert } from "@mui/material";
+import { RequireLogin } from "@/components/NostrLogin";
+import { useTranslation } from "react-i18next";
 
 export default function CreateCalendarForm() {
   const { t } = useTranslation();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [calendarRefs, setCalendarRefs] = useState([]);
-  const [currentRef, setCurrentRef] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // New state for error messages
+  const [currentRef, setCurrentRef] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // New state for error messages
 
   const { ndk } = useNdk();
 
   // Add a calendar reference when pressing Enter
   const handleRefKeyDown = useCallback(
     (e) => {
-      if (e.key === 'Enter') {
+      if (e.key === "Enter") {
         e.preventDefault();
         const value = currentRef.trim();
         if (!value) return;
 
         setCalendarRefs((prev) => [...prev, value]);
-        setCurrentRef('');
+        setCurrentRef("");
       }
     },
     [currentRef]
@@ -49,7 +40,7 @@ export default function CreateCalendarForm() {
   // Handle publishing the event
   const handlePublish = useCallback(() => {
     if (!title.trim() || !description.trim()) {
-      setErrorMessage(t('createCalendar.error.requiredFields')); // Show error for missing fields
+      setErrorMessage(t("createCalendar.error.requiredFields")); // Show error for missing fields
       return;
     }
 
@@ -63,32 +54,32 @@ export default function CreateCalendarForm() {
 
     // Populate tags according to NIP-52
     event.tags = [
-      ['title', title], // Title tag
-      ['summary', description], // Description as summary tag
+      ["title", title], // Title tag
+      ["summary", description], // Description as summary tag
     ];
 
     // Add image URL if provided
     if (imageUrl.trim()) {
-      event.tags.push(['image', imageUrl]);
+      event.tags.push(["image", imageUrl]);
     }
 
     // Add calendar references as "a" tags
     calendarRefs.forEach((ref) => {
-      event.tags.push(['a', ref]);
+      event.tags.push(["a", ref]);
     });
-    
+
     try {
       event.publish();
     } catch (error) {
-      console.error('Error publishing event:', error);
-      setErrorMessage(t('createCalendar.error.publishFailed')); // Show error for publishing failure
+      console.error("Error publishing event:", error);
+      setErrorMessage(t("createCalendar.error.publishFailed")); // Show error for publishing failure
       return;
     }
-        
+
     // Reset form fields
-    setTitle('');
-    setDescription('');
-    setImageUrl('');
+    setTitle("");
+    setDescription("");
+    setImageUrl("");
     setCalendarRefs([]);
   }, [title, description, imageUrl, calendarRefs, ndk]);
 
@@ -108,7 +99,7 @@ export default function CreateCalendarForm() {
             <TextField
               required
               fullWidth
-              label={t('createCalendar.titleInput.label')}
+              label={t("createCalendar.titleInput.label")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -119,7 +110,7 @@ export default function CreateCalendarForm() {
             <TextField
               required
               fullWidth
-              label={t('createCalendar.descriptionInput.label')}
+              label={t("createCalendar.descriptionInput.label")}
               multiline
               rows={4}
               value={description}
@@ -131,7 +122,7 @@ export default function CreateCalendarForm() {
           <Grid item sx={{ mb: 2 }}>
             <TextField
               fullWidth
-              label={t('createCalendar.imgUrlInput.label')}
+              label={t("createCalendar.imgUrlInput.label")}
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
             />
@@ -141,17 +132,17 @@ export default function CreateCalendarForm() {
           <Grid item sx={{ mb: 2 }}>
             <TextField
               fullWidth
-              label={t('createCalendar.calendarReferencesInput.label')}
+              label={t("createCalendar.calendarReferencesInput.label")}
               value={currentRef}
               onChange={(e) => setCurrentRef(e.target.value)}
               onKeyDown={handleRefKeyDown}
-              placeholder={t('createCalendar.calendarReferencesInput.placeholder')}
-              helperText={t('createCalendar.calendarReferencesInput.helperText')}
+              placeholder={t("createCalendar.calendarReferencesInput.placeholder")}
+              helperText={t("createCalendar.calendarReferencesInput.helperText")}
               sx={{ mb: 2 }}
             />
 
             {/* Display Reference Chips */}
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
               {calendarRefs.map((ref, index) => (
                 <Chip
                   key={index}
@@ -167,7 +158,7 @@ export default function CreateCalendarForm() {
           {/* Publish Button */}
           <Grid item sx={{ mb: 2 }}>
             <Button variant="contained" color="primary" size="large" onClick={handlePublish}>
-              {t('createCalendar.publish')}
+              {t("createCalendar.publish")}
             </Button>
           </Grid>
         </Box>
