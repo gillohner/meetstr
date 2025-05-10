@@ -18,16 +18,9 @@ var react_i18next_1 = require("react-i18next");
 function EventTimeDisplay(_a) {
     var startTime = _a.startTime, endTime = _a.endTime, typographyProps = _a.typographyProps;
     var t = react_i18next_1.useTranslation().t;
-    var formattedStartTime = startTime
-        ? date_1.formatDate(startTime, t("error.event.invalidDate", "Invalid date"))
-        : t("error.event.noDate", "No date provided");
-    var formattedEndTime = endTime
-        ? date_1.formatDate(endTime, t("error.event.invalidDate", "Invalid date"))
-        : null;
+    var formattedDateRange = date_1.formatDateRange(startTime, endTime, t("error.event.invalidDate", "Invalid date"));
     return (React.createElement(material_1.Box, { sx: { display: "flex", alignItems: "center", mb: 2 } },
         React.createElement(AccessTime_1["default"], { sx: { mr: 1, color: "text.secondary" } }),
-        React.createElement(material_1.Typography, __assign({ variant: "body1", color: "text.secondary" }, typographyProps),
-            formattedStartTime,
-            formattedEndTime && " - " + formattedEndTime)));
+        React.createElement(material_1.Typography, __assign({ variant: "body1", color: "text.secondary" }, typographyProps), formattedDateRange)));
 }
 exports["default"] = EventTimeDisplay;

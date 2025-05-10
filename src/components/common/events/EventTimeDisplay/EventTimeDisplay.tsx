@@ -1,5 +1,5 @@
 import { Box, Typography, TypographyProps } from "@mui/material";
-import { formatDate } from "@/utils/formatting/date";
+import { formatDate, formatDateRange } from "@/utils/formatting/date";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useTranslation } from "react-i18next";
 
@@ -15,19 +15,18 @@ export default function EventTimeDisplay({
   typographyProps,
 }: EventTimeDisplayProps) {
   const { t } = useTranslation();
-  const formattedStartTime = startTime
-    ? formatDate(startTime, t("error.event.invalidDate", "Invalid date"))
-    : t("error.event.noDate", "No date provided");
-  const formattedEndTime = endTime
-    ? formatDate(endTime, t("error.event.invalidDate", "Invalid date"))
-    : null;
+
+  const formattedDateRange = formatDateRange(
+    startTime,
+    endTime,
+    t("error.event.invalidDate", "Invalid date")
+  );
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
       <AccessTimeIcon sx={{ mr: 1, color: "text.secondary" }} />
       <Typography variant="body1" color="text.secondary" {...typographyProps}>
-        {formattedStartTime}
-        {formattedEndTime && ` - ${formattedEndTime}`}
+        {formattedDateRange}
       </Typography>
     </Box>
   );
