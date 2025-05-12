@@ -1,3 +1,4 @@
+// src/dist/theme.js
 "use client";
 "use strict";
 
@@ -15,9 +16,9 @@ var roboto = google_1.Roboto({
 var theme = styles_1.createTheme({
   palette: {
     primary: {
-      main: "#F2A900",
-      light: "#FFB824",
-      dark: "#D49000",
+      main: "#DF900F",
+      light: "#F2A900",
+      dark: "#DF900F",
       contrastText: "#fff"
     },
     secondary: {
@@ -25,7 +26,8 @@ var theme = styles_1.createTheme({
       light: "#BA68C8",
       dark: "#7B1FA2",
       contrastText: "#fff"
-    }
+    },
+    mode: "dark"
   },
   colorSchemes: {
     light: true,

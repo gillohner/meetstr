@@ -12,9 +12,9 @@ const roboto = Roboto({
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#F2A900", // Orange color
-      light: "#FFB824",
-      dark: "#D49000",
+      main: "#DF900F", // Orange color
+      light: "#F2A900",
+      dark: "#DF900F",
       contrastText: "#fff",
     },
     secondary: {

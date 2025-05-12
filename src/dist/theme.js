@@ -1,4 +1,4 @@
-// src/theme.ts
+// src/dist/theme.js
 "use client";
 "use strict";
 exports.__esModule = true;
@@ -12,9 +12,9 @@ var roboto = google_1.Roboto({
 var theme = styles_1.createTheme({
     palette: {
         primary: {
-            main: "#F2A900",
-            light: "#FFB824",
-            dark: "#D49000",
+            main: "#DF900F",
+            light: "#F2A900",
+            dark: "#DF900F",
             contrastText: "#fff"
         },
         secondary: {
