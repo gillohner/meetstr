@@ -68,27 +68,29 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
           alignItems: "stretch",
         }}
       >
-        <CardMedia
-          component="img"
-          image={metadata.image}
-          alt={name}
-          sx={{
-            // Image takes full width on mobile, fixed width on desktop
-            height: {
-              xs: 200, // Fixed height on mobile
-              sm: "100%", // Full height on desktop
-            },
-            width: {
-              xs: "100%", // Full width on mobile
-              sm: 220, // Fixed width on desktop
-            },
-            objectFit: "cover",
-            borderRadius: {
-              xs: "4px 4px 0 0", // Rounded top on mobile
-              sm: "4px 0 0 4px", // Rounded left on desktop
-            },
-          }}
-        />
+        {metadata.image && (
+          <CardMedia
+            component="img"
+            image={metadata.image}
+            alt={name}
+            sx={{
+              // Image takes full width on mobile, fixed width on desktop
+              height: {
+                xs: 200, // Fixed height on mobile
+                sm: "100%", // Full height on desktop
+              },
+              width: {
+                xs: "100%", // Full width on mobile
+                sm: 220, // Fixed width on desktop
+              },
+              objectFit: "cover",
+              borderRadius: {
+                xs: "4px 4px 0 0", // Rounded top on mobile
+                sm: "4px 0 0 4px", // Rounded left on desktop
+              },
+            }}
+          />
+        )}
         <CardContent
           sx={{
             flex: 1,

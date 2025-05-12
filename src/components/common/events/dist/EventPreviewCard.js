@@ -1,4 +1,3 @@
-// src/components/common/events/dist/EventPreviewCard.js
 "use strict";
 exports.__esModule = true;
 // src/components/common/events/EventPreviewCard.tsx
@@ -56,7 +55,7 @@ var EventPreviewCard = function (_a) {
                 height: "100%",
                 alignItems: "stretch"
             } },
-            react_1["default"].createElement(material_1.CardMedia, { component: "img", image: metadata.image, alt: name, sx: {
+            metadata.image && (react_1["default"].createElement(material_1.CardMedia, { component: "img", image: metadata.image, alt: name, sx: {
                     // Image takes full width on mobile, fixed width on desktop
                     height: {
                         xs: 200,
@@ -71,7 +70,7 @@ var EventPreviewCard = function (_a) {
                         xs: "4px 4px 0 0",
                         sm: "4px 0 0 4px"
                     }
-                } }),
+                } })),
             react_1["default"].createElement(material_1.CardContent, { sx: {
                     flex: 1,
                     display: "flex",
