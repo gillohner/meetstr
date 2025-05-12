@@ -37,10 +37,11 @@ export default function ClientProviders({
   useEffect(() => {
     initNdk({
       explicitRelayUrls: [
+        "wss://relay.primal.net/",
         "wss://nostr.swiss-enigma.ch/",
         "wss://relay.damus.io/",
-        "wss://relay.nostr.band",
-        "wss://multiplexer.huszonegy.world",
+        "wss://relay.nostr.band/",
+        "wss://multiplexer.huszonegy.world/",
       ],
     });
   }, [initNdk]);
