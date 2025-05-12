@@ -95,7 +95,7 @@ export default function CreateCalendarForm() {
           )}
 
           {/* Title Input */}
-          <Grid item sx={{ mb: 2 }}>
+          <Grid sx={{ mb: 2 }}>
             <TextField
               required
               fullWidth
@@ -106,7 +106,7 @@ export default function CreateCalendarForm() {
           </Grid>
 
           {/* Description Input */}
-          <Grid item sx={{ mb: 2 }}>
+          <Grid sx={{ mb: 2 }}>
             <TextField
               required
               fullWidth
@@ -119,7 +119,7 @@ export default function CreateCalendarForm() {
           </Grid>
 
           {/* Image URL Input */}
-          <Grid item sx={{ mb: 2 }}>
+          <Grid sx={{ mb: 2 }}>
             <TextField
               fullWidth
               label={t("createCalendar.imgUrlInput.label")}
@@ -129,7 +129,7 @@ export default function CreateCalendarForm() {
           </Grid>
 
           {/* Calendar References Input */}
-          <Grid item sx={{ mb: 2 }}>
+          <Grid sx={{ mb: 2 }}>
             <TextField
               fullWidth
               label={t("createCalendar.calendarReferencesInput.label")}
@@ -156,7 +156,7 @@ export default function CreateCalendarForm() {
           </Grid>
 
           {/* Publish Button */}
-          <Grid item sx={{ mb: 2 }}>
+          <Grid sx={{ mb: 2 }}>
             <Button variant="contained" color="primary" size="large" onClick={handlePublish}>
               {t("createCalendar.publish")}
             </Button>

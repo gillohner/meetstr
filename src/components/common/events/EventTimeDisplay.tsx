@@ -1,3 +1,4 @@
+// src/components/common/events/EventTimeDisplay.tsx
 import { Box, Typography, TypographyProps } from "@mui/material";
 import { formatDate, formatDateRange } from "@/utils/formatting/date";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";

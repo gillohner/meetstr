@@ -1,4 +1,4 @@
-// src/components/common/events/EventLocationText/EventLocationText.tsx
+// src/components/common/events/EventLocationText.tsx
 import { Box, Typography, TypographyProps } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { CircularProgress } from "@mui/material";

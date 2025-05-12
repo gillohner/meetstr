@@ -44,9 +44,9 @@ var nostr_hooks_1 = require("nostr-hooks");
 var material_1 = require("@mui/material");
 var nostrUtils_1 = require("@/utils/nostr/nostrUtils");
 var useNostrEvent_1 = require("@/hooks/useNostrEvent");
-var EventSection_1 = require("@/components/common/events/EventSection/EventSection");
+var EventSection_1 = require("@/components/common/events/EventSection");
 var eventUtils_1 = require("@/utils/nostr/eventUtils");
-var CreateNewEventDialog_1 = require("@/components/common/events/CreateNewEventDialog/CreateNewEventDialog");
+var CreateNewEventDialog_1 = require("@/components/common/events/CreateNewEventDialog");
 function CalendarOverview(_a) {
     var _this = this;
     var calendarId = _a.calendarId;

@@ -1,3 +1,4 @@
+// src/types/location.ts
 export interface LocationData {
   coords: { latitude: number; longitude: number };
   osmInfo?: {

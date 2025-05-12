@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-// src/components/common/events/EventLocationMapCard/EventLocationMapCard.tsx
+// src/components/common/events/EventLocationMapCard.tsx
 var material_1 = require("@mui/material");
 var react_i18next_1 = require("react-i18next");
 var useLocationInfo_1 = require("@/hooks/useLocationInfo"); // New custom hook

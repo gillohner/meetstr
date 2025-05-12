@@ -17,12 +17,12 @@ import {
 } from "@mui/material";
 import { fetchEventById } from "@/utils/nostr/nostrUtils";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
-import EventLocationText from "@/components/common/events/EventLocationText/EventLocationText";
-import EventTimeDisplay from "@/components/common/events/EventTimeDisplay/EventTimeDisplay";
+import EventLocationText from "@/components/common/events/EventLocationText";
+import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
-import EventLocationMapCard from "@/components/common/events/EventLocationMapCard/EventLocationMapCard";
-import EventRsvpMenu from "@/components/common/events/EventRsvpMenu/EventRsvpMenu";
-import EventAttendeesCard from "@/components/common/events/EventAttendeesCard/EventAttendeesCard";
+import EventLocationMapCard from "@/components/common/events/EventLocationMapCard";
+import EventRsvpMenu from "@/components/common/events/EventRsvpMenu";
+import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();

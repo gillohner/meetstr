@@ -11,6 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
+// src/components/common/events/EventTimeDisplay.tsx
 var material_1 = require("@mui/material");
 var date_1 = require("@/utils/formatting/date");
 var AccessTime_1 = require("@mui/icons-material/AccessTime");

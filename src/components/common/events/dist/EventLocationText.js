@@ -11,7 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
-// src/components/common/events/EventLocationText/EventLocationText.tsx
+// src/components/common/events/EventLocationText.tsx
 var material_1 = require("@mui/material");
 var LocationOn_1 = require("@mui/icons-material/LocationOn");
 var text_1 = require("@/utils/formatting/text");

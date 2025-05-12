@@ -1,8 +1,8 @@
-// src/components/common/events/EventSection/EventSection.tsx
+// src/components/common/events/EventSection.tsx
 import React from "react";
 import { Box, Typography, Divider, Grid } from "@mui/material";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import EventPreviewCard from "@/components/common/events/EventPreviewCard/EventPreviewCard";
+import EventPreviewCard from "@/components/common/events/EventPreviewCard";
 
 interface EventSectionProps {
   title: string;
@@ -20,7 +20,7 @@ const EventSection: React.FC<EventSectionProps> = ({ title, events, fallbackText
     {events.length > 0 ? (
       <Grid container spacing={3}>
         {events.map((event) => (
-          <Grid item xs={12} lg={6} key={event.id || `event-${event.id}`} sx={{ width: "100%" }}>
+          <Grid xs={12} lg={6} key={event.id || `event-${event.id}`} sx={{ width: "100%" }}>
             <EventPreviewCard event={event} />
           </Grid>
         ))}

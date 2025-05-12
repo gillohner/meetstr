@@ -1,4 +1,4 @@
-// src/components/common/events/EventPreviewCard/EventPreviewCard.tsx
+// src/components/common/events/EventPreviewCard.tsx
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
@@ -8,8 +8,8 @@ import { Card, CardActionArea, CardContent, CardMedia, Typography, Box } from "@
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
-import EventLocationText from "@/components/common/events/EventLocationText/EventLocationText";
-import EventTimeDisplay from "@/components/common/events/EventTimeDisplay/EventTimeDisplay";
+import EventLocationText from "@/components/common/events/EventLocationText";
+import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
 import { formatDate } from "@/utils/formatting/date";
 
 interface EventPreviewCardProps {

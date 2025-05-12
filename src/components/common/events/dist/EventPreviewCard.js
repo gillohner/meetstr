@@ -1,14 +1,15 @@
+// src/components/common/events/dist/EventPreviewCard.js
 "use strict";
 exports.__esModule = true;
-// src/components/common/events/EventPreviewCard/EventPreviewCard.tsx
+// src/components/common/events/EventPreviewCard.tsx
 var react_1 = require("react");
 var react_i18next_1 = require("react-i18next");
 var navigation_1 = require("next/navigation");
 var nostr_tools_1 = require("nostr-tools");
 var material_1 = require("@mui/material");
 var eventUtils_1 = require("@/utils/nostr/eventUtils");
-var EventLocationText_1 = require("@/components/common/events/EventLocationText/EventLocationText");
-var EventTimeDisplay_1 = require("@/components/common/events/EventTimeDisplay/EventTimeDisplay");
+var EventLocationText_1 = require("@/components/common/events/EventLocationText");
+var EventTimeDisplay_1 = require("@/components/common/events/EventTimeDisplay");
 var date_1 = require("@/utils/formatting/date");
 var EventPreviewCard = function (_a) {
     var event = _a.event, _b = _a.sx, sx = _b === void 0 ? {} : _b;

@@ -1,4 +1,4 @@
-// src/components/common/events/EventLocationMapCard/EventLocationMapCard.tsx
+// src/components/common/events/EventLocationMapCard.tsx
 import { Box, Card, CardContent, Typography, Link, Chip, Stack, Tooltip } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useLocationInfo } from "@/hooks/useLocationInfo"; // New custom hook

@@ -1,4 +1,4 @@
-// src/utils/eventUtils.ts
+// src/utils/nostr/eventUtils.ts
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get } from "http";
 

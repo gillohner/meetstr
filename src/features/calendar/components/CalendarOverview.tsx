@@ -7,9 +7,9 @@ import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Card, CardContent, CardMedia, Typography, Container, Grid } from "@mui/material";
 import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
-import EventSection from "@/components/common/events/EventSection/EventSection";
+import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
-import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog/CreateNewEventDialog";
+import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 
 export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
   const { ndk } = useNdk();

@@ -80,16 +80,16 @@ function CreateCalendarForm() {
         React.createElement(material_1.Paper, { elevation: 3, sx: { p: 3, maxWidth: 900, minWidth: 600, mt: 4 } },
             React.createElement(material_1.Box, { component: "form", noValidate: true, sx: { mt: 3, mb: 2 } },
                 errorMessage && (React.createElement(material_1.Alert, { severity: "error", sx: { mb: 2 } }, errorMessage)),
-                React.createElement(material_1.Grid, { item: true, sx: { mb: 2 } },
+                React.createElement(material_1.Grid, { sx: { mb: 2 } },
                     React.createElement(material_1.TextField, { required: true, fullWidth: true, label: t("createCalendar.titleInput.label"), value: title, onChange: function (e) { return setTitle(e.target.value); } })),
-                React.createElement(material_1.Grid, { item: true, sx: { mb: 2 } },
+                React.createElement(material_1.Grid, { sx: { mb: 2 } },
                     React.createElement(material_1.TextField, { required: true, fullWidth: true, label: t("createCalendar.descriptionInput.label"), multiline: true, rows: 4, value: description, onChange: function (e) { return setDescription(e.target.value); } })),
-                React.createElement(material_1.Grid, { item: true, sx: { mb: 2 } },
+                React.createElement(material_1.Grid, { sx: { mb: 2 } },
                     React.createElement(material_1.TextField, { fullWidth: true, label: t("createCalendar.imgUrlInput.label"), value: imageUrl, onChange: function (e) { return setImageUrl(e.target.value); } })),
-                React.createElement(material_1.Grid, { item: true, sx: { mb: 2 } },
+                React.createElement(material_1.Grid, { sx: { mb: 2 } },
                     React.createElement(material_1.TextField, { fullWidth: true, label: t("createCalendar.calendarReferencesInput.label"), value: currentRef, onChange: function (e) { return setCurrentRef(e.target.value); }, onKeyDown: handleRefKeyDown, placeholder: t("createCalendar.calendarReferencesInput.placeholder"), helperText: t("createCalendar.calendarReferencesInput.helperText"), sx: { mb: 2 } }),
                     React.createElement(material_1.Box, { sx: { display: "flex", flexWrap: "wrap", gap: 1, mb: 2 } }, calendarRefs.map(function (ref, index) { return (React.createElement(material_1.Chip, { key: index, label: ref, onDelete: function () { return handleDeleteRef(index); }, color: "primary", sx: { my: 0.5 } })); }))),
-                React.createElement(material_1.Grid, { item: true, sx: { mb: 2 } },
+                React.createElement(material_1.Grid, { sx: { mb: 2 } },
                     React.createElement(material_1.Button, { variant: "contained", color: "primary", size: "large", onClick: handlePublish }, t("createCalendar.publish")))))));
 }
 exports["default"] = CreateCalendarForm;

@@ -6,12 +6,12 @@ var react_1 = require("react");
 var react_i18next_1 = require("react-i18next");
 var material_1 = require("@mui/material");
 var eventUtils_1 = require("@/utils/nostr/eventUtils");
-var EventLocationText_1 = require("@/components/common/events/EventLocationText/EventLocationText");
-var EventTimeDisplay_1 = require("@/components/common/events/EventTimeDisplay/EventTimeDisplay");
+var EventLocationText_1 = require("@/components/common/events/EventLocationText");
+var EventTimeDisplay_1 = require("@/components/common/events/EventTimeDisplay");
 var useNostrEvent_1 = require("@/hooks/useNostrEvent");
-var EventLocationMapCard_1 = require("@/components/common/events/EventLocationMapCard/EventLocationMapCard");
-var EventRsvpMenu_1 = require("@/components/common/events/EventRsvpMenu/EventRsvpMenu");
-var EventAttendeesCard_1 = require("@/components/common/events/EventAttendeesCard/EventAttendeesCard");
+var EventLocationMapCard_1 = require("@/components/common/events/EventLocationMapCard");
+var EventRsvpMenu_1 = require("@/components/common/events/EventRsvpMenu");
+var EventAttendeesCard_1 = require("@/components/common/events/EventAttendeesCard");
 function EventOverview(_a) {
     var eventId = _a.eventId;
     var t = react_i18next_1.useTranslation().t;

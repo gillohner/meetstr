@@ -1,4 +1,4 @@
-// src/components/common/events/EventRsvpMenu/EventRsvpMenu.tsx
+// src/components/common/events/EventRsvpMenu.tsx
 
 import * as React from "react";
 import { styled, alpha } from "@mui/material/styles";

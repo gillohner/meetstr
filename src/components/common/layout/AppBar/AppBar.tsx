@@ -1,3 +1,4 @@
+// src/components/common/layout/AppBar/AppBar.tsx
 "use client";
 import { useState } from 'react';
 import { AppBar, Container, IconButton, Toolbar, Box } from '@mui/material';
