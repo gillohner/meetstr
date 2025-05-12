@@ -25,6 +25,7 @@ import { useBlossomUpload } from "@/hooks/useBlossomUpload";
 import { useActiveUser } from "nostr-hooks";
 import { CircularProgress } from "@mui/material";
 import { useSnackbar } from "@/context/SnackbarContext";
+import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWithPreview";
 
 // Import icons
 import EventIcon from "@mui/icons-material/Event";
@@ -44,49 +45,18 @@ export default function EventDialogTemplate() {
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const { activeUser } = useActiveUser();
+  const [eventImage, setEventImage] = useState<string | null>(null);
   const { uploadFile } = useBlossomUpload();
-  const [fileUrl, setFileUrl] = useState(null);
   const { showSnackbar } = useSnackbar();
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Reset previous preview
-    setPreview("");
-    setLoading(true);
-
-    try {
-      // Create object URL for immediate preview
-      const localPreview = URL.createObjectURL(file);
-      setPreview(localPreview);
-
-      // Upload file to server
-      const imageUrl = await uploadFile(file);
-
-      if (imageUrl === "error" || !imageUrl) {
-        throw new Error("Upload failed");
-      }
-
-      // Update preview with actual URL from server
-      setPreview(imageUrl);
-
-      // Log success
-      console.log("Image uploaded successfully:", imageUrl);
-
-      // Show success message
-      showSnackbar(t("event.createEvent.imageUpload.success"), "success");
-    } catch (error) {
-      console.error("Upload failed:", error);
-      showSnackbar(t("event.createEvent.imageUpload.error"), "error");
-
-      // Clear preview on error
-      setPreview("");
-    } finally {
-      setLoading(false);
-    }
+  const handleImageUploaded = (imageUrl: string) => {
+    setEventImage(imageUrl);
+    showSnackbar(t("event.createEvent.imageUpload.success"), "success");
   };
-  
+
+  const handleImageRemoved = () => {
+    setEventImage(null);
+  };
 
   if (activeUser === undefined || activeUser === null) return "";
 
@@ -160,41 +130,13 @@ export default function EventDialogTemplate() {
                 <Grid container spacing={2.5} direction="column">
                   {/* Image Upload */}
                   <Grid item>
-                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <Button
-                        component="label"
-                        variant="outlined"
-                        fullWidth
-                        startIcon={
-                          loading ? <CircularProgress size={20} /> : <ImageIcon color="primary" />
-                        }
-                        sx={{ mb: 2, color: "primary.main", borderColor: "primary.main" }}
-                        disabled={loading}
-                      >
-                        {loading
-                          ? t("event.createEvent.imageUpload.uploading")
-                          : t("event.createEvent.imageUpload.upload")}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          hidden
-                          onChange={handleFileChange}
-                          disabled={loading}
-                        />
-                      </Button>
-                      {preview && (
-                        <Paper
-                          elevation={2}
-                          sx={{ p: 1, width: "100%", bgcolor: "background.default" }}
-                        >
-                          <img
-                            src={preview}
-                            alt="Event preview"
-                            style={{ width: "100%", height: "auto", borderRadius: "4px" }}
-                          />
-                        </Paper>
-                      )}
-                    </Box>
+                    <ImageUploadWithPreview
+                      initialPreview={eventImage || ""}
+                      onImageUploaded={handleImageUploaded}
+                      onImageRemoved={handleImageRemoved}
+                      uploadFunction={uploadFile}
+                      showControls={true}
+                    />
                   </Grid>
 
                   {/* Location */}
