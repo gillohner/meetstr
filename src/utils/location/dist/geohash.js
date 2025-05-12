@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 exports.decodeGeohash = void 0;
-// src/utils/geohash.ts
+// src/utils/location/geohash.ts
 var BASE32_CODES = "0123456789bcdefghjkmnpqrstuvwxyz";
 function decodeGeohash(geohash) {
     var isLon = true;

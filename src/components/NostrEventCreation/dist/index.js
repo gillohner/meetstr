@@ -7,6 +7,6 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     o[k2] = m[k];
 }));
 exports.__esModule = true;
-// src/components/NostrEventCreation/index.ts
+// src/components/NostrEventCreation/index.tsx
 var CreateCalendarForm_1 = require("./CreateCalendarForm");
 __createBinding(exports, CreateCalendarForm_1, "default", "CreateCalendarForm");

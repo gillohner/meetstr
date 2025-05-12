@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+// src/app/about/page.tsx
 var React = require("react");
 var Container_1 = require("@mui/material/Container");
 var Typography_1 = require("@mui/material/Typography");

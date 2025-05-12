@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 exports.formatTextWithLineBreaks = void 0;
-// src/utils/formatting/formatTextWithLineBreaks.tsx
+// src/utils/formatting/text.tsx
 var formatTextWithLineBreaks = function (text) {
     if (!text)
         return null;

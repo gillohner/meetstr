@@ -51,7 +51,7 @@ function EventOverview(_a) {
                         React.createElement(material_1.Typography, { gutterBottom: true, variant: "h4", component: "div" }, metadata.title || t("error.event.noName", "Unnamed Event")),
                         React.createElement(EventTimeDisplay_1["default"], { startTime: metadata.start, endTime: metadata.end }),
                         React.createElement(EventLocationText_1["default"], { location: metadata.location }),
-                        React.createElement(material_1.Typography, { variant: "body1", paragraph: true }, metadata.summary || t("error.event.noDescription", "No description provided"))),
+                        React.createElement(material_1.Typography, { variant: "body1", paragraph: true }, metadata.summary)),
                     React.createElement(material_1.Grid, { size: 2 }, event && React.createElement(EventRsvpMenu_1["default"], { event: event }))),
                 React.createElement(material_1.Divider, { sx: { my: 2 } }),
                 React.createElement(material_1.Box, { sx: { mt: 3 } }, event.tags

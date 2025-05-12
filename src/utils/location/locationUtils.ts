@@ -1,4 +1,4 @@
-// src/utils/locationUtils.ts
+// src/utils/location/locationUtils.ts
 import { decodeGeohash } from "@/utils/location/geohash";
 import { fetchOsmTags } from "@/utils/location/osmTags";
 import addressFormatter from "@fragaria/address-formatter";

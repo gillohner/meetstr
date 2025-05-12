@@ -11,7 +11,10 @@
     "requireLogin": "Please login to access this page"
   },
   "common": {
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "change": "Change",
+    "remove": "Remove",
+    "cancel": "Cancel"
   },
   "createCalendar": {
     "title": "Create Calendar",
@@ -29,6 +32,10 @@
       "label": "Add Calendar Reference",
       "placeholder": "Format: naddr of event kind 31922, 31923",
       "helperText": "Press Enter to add"
+    },
+    "error": {
+      "requiredFields": "Fill all required fields",
+      "publishFailed": "Calendar creation failed"
     }
   },
   "modal": {
@@ -43,11 +50,67 @@
   },
   "error": {
     "calendar": {
-      "invalidId": "The provided event id is not valid",
       "wrongKind": "The provided event id is not of kind 31924"
     },
     "event": {
-      "wrongKind": "The provided event id is not of kind 31922 or 31923"
-    }
+      "wrongKind": "The provided event id is not of kind 31922 or 31923",
+      "noName": "Untitled",
+      "invalidDate": "Invalid Date",
+      "notFound": "404: Calendar not Found",
+      "invalidKind": "Invalid Nostr Kind",
+      "invalidId": "The provided event id is not valid"
+    },
+    "remoteSignerFailure": "Remote signer faillure",
+    "invalidPrivateKey": "Invalid private key",
+    "generic": "Something failed"
+  },
+  "event": {
+    "rsvp": {
+      "title": "RSVP",
+      "accept": "Accept",
+      "maybe": "Maybe",
+      "decline": "Decline"
+    },
+    "location": "Location",
+    "noLocation": "No Location",
+    "createEvent": {
+      "imageUpload": {
+        "upload": "Upload",
+        "success": "Image successfully uploaded"
+      },
+      "title": "Add Event",
+      "newEvent": "Add Event",
+      "dateTime": {
+        "title": "Date and Time",
+        "start": "Starttime",
+        "end": "Endtime"
+      },
+      "form": {
+        "timezone": "Timezone"
+      }
+    },
+    "attendees": "Attendees"
+  },
+  "payment": {
+    "bitcoinAccepted": "Bitcoin Accepted",
+    "onChain": "On-Chain",
+    "lightning": "Lightning",
+    "contactless": "Contactless"
+  },
+  "service": {
+    "openstreetmap": "Openstreetmap",
+    "btcmap": "BTCMap",
+    "googlemaps": "Google Maps",
+    "applemaps": "Apple Maps"
+  },
+  "logout": "Logout",
+  "tooltip": {
+    "openProfile": "Open Profile"
+  },
+  "calendar": {
+    "upcomingEvents": "Upcoming Events",
+    "noUpcomingEvents": "No upcoming Events",
+    "pastEvents": "Past Events",
+    "noPastEvents": "No Past Events"
   }
 }

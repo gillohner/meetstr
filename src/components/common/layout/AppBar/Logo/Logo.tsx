@@ -1,3 +1,4 @@
+// src/components/common/layout/AppBar/Logo/Logo.tsx
 import AdbIcon from '@mui/icons-material/Adb';
 import { Typography } from '@mui/material';
 

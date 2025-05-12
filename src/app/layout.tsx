@@ -1,4 +1,4 @@
-// src/app/layout.tsx (Server Component)
+// src/app/layout.tsx
 import { headers } from "next/headers";
 import ClientProviders from "@/providers/ClientProviders";
 import { use } from "react";

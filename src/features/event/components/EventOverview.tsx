@@ -77,7 +77,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               <EventTimeDisplay startTime={metadata.start} endTime={metadata.end} />
               <EventLocationText location={metadata.location} />
               <Typography variant="body1" paragraph>
-                {metadata.summary || t("error.event.noDescription", "No description provided")}
+                {metadata.summary}
               </Typography>
             </Grid>
             <Grid size={2}>{event && <EventRsvpMenu event={event} />}</Grid>

@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 exports.formatDateRange = exports.formatDate = void 0;
-// src/utils/formatting/formatDate.tsx
+// src/utils/formatting/date.ts
 // TODO: Add locales
 var formatDate = function (timestamp, fallbackText) {
     try {

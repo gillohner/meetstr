@@ -1,3 +1,4 @@
+// src/components/common/layout/AppBar/NavigationMenu/NavigationMenu.tsx
 import { Box, Button, Menu, MenuItem, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 

@@ -1,4 +1,4 @@
-// src/utils/geohash.ts
+// src/utils/location/geohash.ts
 const BASE32_CODES = "0123456789bcdefghjkmnpqrstuvwxyz";
 
 export function decodeGeohash(geohash: string) {

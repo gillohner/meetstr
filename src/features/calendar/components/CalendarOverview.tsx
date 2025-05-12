@@ -42,9 +42,9 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
     if (!errorCode) return null;
     switch (errorCode) {
       case "not_found":
-        return t("error.calendar.notFound");
+        return t("error.event.notFound");
       case "invalid_kind":
-        return t("error.calendar.invalidKind");
+        return t("error.event.invalidKind");
       default:
         return t("error.generic");
     }
@@ -54,7 +54,7 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
     if (loading) return <Typography>{t("common.loading")}</Typography>;
     if (errorCode) return <Typography color="error">{errorCode}</Typography>;
 
-    return <Typography variant="h4">{t("error.calendar.invalidId")}</Typography>;
+    return <Typography variant="h4">{t("error.event.invalidId")}</Typography>;
   }
 
   // Extract metadata using the utility function
@@ -75,7 +75,7 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
           <Grid container>
             <Grid size={10}>
               <Typography gutterBottom variant="h4" component="div">
-                {metadata.title || t("error.calendar.noName")}
+                {metadata.title || t("error.event.noName")}
               </Typography>
               <Typography variant="body1" color="text.secondary">
                 {metadata.summary || ""}

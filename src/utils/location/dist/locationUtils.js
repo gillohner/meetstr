@@ -48,7 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.getLocationInfo = void 0;
-// src/utils/locationUtils.ts
+// src/utils/location/locationUtils.ts
 var geohash_1 = require("@/utils/location/geohash");
 var osmTags_1 = require("@/utils/location/osmTags");
 var address_formatter_1 = require("@fragaria/address-formatter");

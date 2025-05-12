@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-// src/app/layout.tsx (Server Component)
+// src/app/layout.tsx
 var headers_1 = require("next/headers");
 var ClientProviders_1 = require("@/providers/ClientProviders");
 var react_1 = require("react");

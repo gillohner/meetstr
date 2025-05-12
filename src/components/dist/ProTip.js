@@ -11,6 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
+// src/components/ProTip.tsx
 var React = require("react");
 var Link_1 = require("@mui/material/Link");
 var SvgIcon_1 = require("@mui/material/SvgIcon");

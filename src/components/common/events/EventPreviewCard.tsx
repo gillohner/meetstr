@@ -10,7 +10,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import EventLocationText from "@/components/common/events/EventLocationText";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
-import { formatDate } from "@/utils/formatting/date";
 
 interface EventPreviewCardProps {
   event: NDKEvent;
@@ -23,12 +22,6 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) =
 
   const metadata = getEventMetadata(event);
   const name = metadata.title || t("error.event.noName");
-  const formattedStartTime = metadata.start
-    ? formatDate(metadata.start, t("error.event.invalidDate"))
-    : t("error.event.noDate");
-  const formattedEndTime = metadata.end
-    ? formatDate(metadata.end, t("error.event.invalidDate"))
-    : t("error.event.noDate");
 
   const handleClick = () => {
     try {

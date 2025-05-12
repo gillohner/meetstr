@@ -1,3 +1,4 @@
+// src/components/common/layout/AppBar/Settings/ModeSwitch.tsx
 'use client';
 import * as React from 'react';
 import Box from '@mui/material/Box';

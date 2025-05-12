@@ -5,5 +5,78 @@
   },
   "auth": {
     "login_required": "NIP-07 login erforderlich (https://nostrcheck.me/register/browser-extension.php)"
+  },
+  "event": {
+    "rsvp": {
+      "title": "RSVP",
+      "accept": "Akzeptieren",
+      "maybe": "Vielleicht",
+      "decline": "Abfall"
+    },
+    "location": "Standort",
+    "noLocation": "Kein Standort",
+    "createEvent": {
+      "imageUpload": {
+        "upload": "Hochladen",
+        "success": "Bild erfolgreich hochgeladen"
+      },
+      "title": "Event hinzufügen",
+      "newEvent": "Event hinzufügen",
+      "dateTime": {
+        "title": "Datum und Uhrzeit",
+        "start": "Startzeit",
+        "end": "Endzeit"
+      },
+      "form": {
+        "timezone": "Zeitzone"
+      }
+    },
+    "attendees": "Teilnehmer"
+  },
+  "payment": {
+    "bitcoinAccepted": "Bitcoin Zahlungen möglich",
+    "onChain": "On-Chain",
+    "lightning": "Lightning",
+    "contactless": "Contactless"
+  },
+  "service": {
+    "openstreetmap": "Openstreetmap",
+    "btcmap": "BTCMap",
+    "googlemaps": "Google Maps",
+    "applemaps": "Apple Maps"
+  },
+  "error": {
+    "remoteSignerFailure": "Remote signer fehler",
+    "invalidPrivateKey": "Ungültiger privater Schlüssel",
+    "event": {
+      "noName": "Ohne Titel",
+      "invalidDate": "Datum ungültig",
+      "notFound": "404: Kalender nicht gefunden",
+      "invalidKind": "Ungültiger Nostr Kind"
+    },
+    "calendar": {},
+    "generic": "Etwas scheiterte"
+  },
+  "common": {
+    "change": "Ändern",
+    "remove": "Entfernen",
+    "cancel": "Abbrechen",
+    "loading": "Laden..."
+  },
+  "logout": "Ausloggen",
+  "tooltip": {
+    "openProfile": "Profil Öffnen"
+  },
+  "createCalendar": {
+    "error": {
+      "requiredFields": "Füllen Sie alle erforderlichen Felder aus",
+      "publishFailed": "Kalendererstellung fehlgeschlagen"
+    }
+  },
+  "calendar": {
+    "upcomingEvents": "Bevorstehende Events",
+    "noUpcomingEvents": "Keine bevorstehenden Events",
+    "pastEvents": "Vergangene Events",
+    "noPastEvents": "Keine Vergangenen Events"
   }
 }

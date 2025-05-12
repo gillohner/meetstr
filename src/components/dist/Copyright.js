@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+// src/components/Copyright.tsx
 var React = require("react");
 var Typography_1 = require("@mui/material/Typography");
 var Link_1 = require("@mui/material/Link");

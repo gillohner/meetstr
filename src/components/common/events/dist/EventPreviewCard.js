@@ -9,19 +9,12 @@ var material_1 = require("@mui/material");
 var eventUtils_1 = require("@/utils/nostr/eventUtils");
 var EventLocationText_1 = require("@/components/common/events/EventLocationText");
 var EventTimeDisplay_1 = require("@/components/common/events/EventTimeDisplay");
-var date_1 = require("@/utils/formatting/date");
 var EventPreviewCard = function (_a) {
     var event = _a.event, _b = _a.sx, sx = _b === void 0 ? {} : _b;
     var t = react_i18next_1.useTranslation().t;
     var router = navigation_1.useRouter();
     var metadata = eventUtils_1.getEventMetadata(event);
     var name = metadata.title || t("error.event.noName");
-    var formattedStartTime = metadata.start
-        ? date_1.formatDate(metadata.start, t("error.event.invalidDate"))
-        : t("error.event.noDate");
-    var formattedEndTime = metadata.end
-        ? date_1.formatDate(metadata.end, t("error.event.invalidDate"))
-        : t("error.event.noDate");
     var handleClick = function () {
         var _a;
         try {

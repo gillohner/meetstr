@@ -87,9 +87,9 @@ function CalendarOverview(_a) {
             return null;
         switch (errorCode) {
             case "not_found":
-                return t("error.calendar.notFound");
+                return t("error.event.notFound");
             case "invalid_kind":
-                return t("error.calendar.invalidKind");
+                return t("error.event.invalidKind");
             default:
                 return t("error.generic");
         }
@@ -99,7 +99,7 @@ function CalendarOverview(_a) {
             return React.createElement(material_1.Typography, null, t("common.loading"));
         if (errorCode)
             return React.createElement(material_1.Typography, { color: "error" }, errorCode);
-        return React.createElement(material_1.Typography, { variant: "h4" }, t("error.calendar.invalidId"));
+        return React.createElement(material_1.Typography, { variant: "h4" }, t("error.event.invalidId"));
     }
     // Extract metadata using the utility function
     var metadata = eventUtils_1.getEventMetadata(calendarEvent);
@@ -110,7 +110,7 @@ function CalendarOverview(_a) {
             React.createElement(material_1.CardContent, null,
                 React.createElement(material_1.Grid, { container: true },
                     React.createElement(material_1.Grid, { size: 10 },
-                        React.createElement(material_1.Typography, { gutterBottom: true, variant: "h4", component: "div" }, metadata.title || t("error.calendar.noName")),
+                        React.createElement(material_1.Typography, { gutterBottom: true, variant: "h4", component: "div" }, metadata.title || t("error.event.noName")),
                         React.createElement(material_1.Typography, { variant: "body1", color: "text.secondary" }, metadata.summary || "")),
                     React.createElement(material_1.Grid, { size: 2 }, event && React.createElement(CreateNewEventDialog_1["default"], { event: event }))))),
         React.createElement(EventSection_1["default"], { title: t("calendar.upcomingEvents"), events: upcomingEvents, fallbackText: t("calendar.noUpcomingEvents") }),

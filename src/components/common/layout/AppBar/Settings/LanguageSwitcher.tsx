@@ -1,4 +1,4 @@
-// src/components/common/layout/AppBar/LanguageSwitcher/LanguageSwitcher.tsx
+// src/components/common/layout/AppBar/Settings/LanguageSwitcher.tsx
 'use client';
 import * as React from 'react';
 import Box from '@mui/material/Box';

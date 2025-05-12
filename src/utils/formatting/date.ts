@@ -1,4 +1,4 @@
-// src/utils/formatting/formatDate.tsx
+// src/utils/formatting/date.ts
 // TODO: Add locales
 const formatDate = (timestamp: string, fallbackText: string) => {
   try {

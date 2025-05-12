@@ -1,4 +1,4 @@
-// src/utils/formatting/formatTextWithLineBreaks.tsx
+// src/utils/formatting/text.tsx
 const formatTextWithLineBreaks = (text?: string) => {
   if (!text) return null;
   return text.split("\n").map((line, index, arr) => (
