@@ -1,4 +1,6 @@
+// src/components/common/events/CreateNewEventDialog/CreateNewEventDialog.tsx
 import * as React from "react";
+import { useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -19,6 +21,10 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
+import { useBlossomUpload } from "@/hooks/useBlossomUpload";
+import { useActiveUser } from "nostr-hooks";
+import { CircularProgress } from "@mui/material";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 // Import icons
 import EventIcon from "@mui/icons-material/Event";
@@ -33,18 +39,57 @@ dayjs.extend(timezone);
 
 export default function EventDialogTemplate() {
   const { t } = useTranslation();
-  const [open, setOpen] = React.useState(false);
-  const [timezone, setTimezone] = React.useState(dayjs.tz.guess());
-  const [preview, setPreview] = React.useState("");
+  const [open, setOpen] = useState(false);
+  const [timezone, setTimezone] = useState(dayjs.tz.guess());
+  const [preview, setPreview] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { activeUser } = useActiveUser();
+  const { uploadFile } = useBlossomUpload();
+  const [fileUrl, setFileUrl] = useState(null);
+  const { showSnackbar } = useSnackbar();
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => setPreview(e.target?.result);
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Reset previous preview
+    setPreview("");
+    setLoading(true);
+
+    try {
+      // Create object URL for immediate preview
+      const localPreview = URL.createObjectURL(file);
+      setPreview(localPreview);
+
+      // Upload file to server
+      const imageUrl = await uploadFile(file);
+
+      if (imageUrl === "error" || !imageUrl) {
+        throw new Error("Upload failed");
+      }
+
+      // Update preview with actual URL from server
+      setPreview(imageUrl);
+
+      // Log success
+      console.log("Image uploaded successfully:", imageUrl);
+
+      // Show success message
+      showSnackbar(t("event.createEvent.imageUpload.success"), "success");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      showSnackbar(t("event.createEvent.imageUpload.error"), "error");
+
+      // Clear preview on error
+      setPreview("");
+    } finally {
+      setLoading(false);
     }
   };
+  
+
+  if (activeUser === undefined || activeUser === null) return "";
+
   return (
     <>
       <Button variant="outlined" onClick={() => setOpen(true)}>
@@ -120,11 +165,22 @@ export default function EventDialogTemplate() {
                         component="label"
                         variant="outlined"
                         fullWidth
-                        startIcon={<ImageIcon color="primary" />}
+                        startIcon={
+                          loading ? <CircularProgress size={20} /> : <ImageIcon color="primary" />
+                        }
                         sx={{ mb: 2, color: "primary.main", borderColor: "primary.main" }}
+                        disabled={loading}
                       >
-                        Upload Image
-                        <input type="file" accept="image/*" hidden onChange={handleFileChange} />
+                        {loading
+                          ? t("event.createEvent.imageUpload.uploading")
+                          : t("event.createEvent.imageUpload.upload")}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={handleFileChange}
+                          disabled={loading}
+                        />
                       </Button>
                       {preview && (
                         <Paper
