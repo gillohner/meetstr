@@ -1,4 +1,4 @@
-// src/components/common/ImageUploadWithPreview.tsx
+// src/components/common/blossoms/ImageUploadWithPreview.tsx
 import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";

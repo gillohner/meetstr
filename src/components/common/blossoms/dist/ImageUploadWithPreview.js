@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-// src/components/common/ImageUploadWithPreview.tsx
+// src/components/common/blossoms/ImageUploadWithPreview.tsx
 var react_1 = require("react");
 var Button_1 = require("@mui/material/Button");
 var CircularProgress_1 = require("@mui/material/CircularProgress");
