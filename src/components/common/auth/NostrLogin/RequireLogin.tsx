@@ -1,13 +1,13 @@
 // src/components/common/auth/NostrLogin/RequireLogin.tsx
 import * as React from "react";
 import { useActiveUser } from "nostr-hooks";
-import { LoginButton } from "@/components/NostrLogin";
+import LoginButton from "@/components/common/auth/NostrLogin/LoginButton";
 import { useTranslation } from "react-i18next";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 export default function RequireLogin({ children }: { children: React.ReactNode }) {
-  const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const { activeUser } = useActiveUser();
 
   if (!activeUser) {
@@ -22,7 +22,7 @@ export default function RequireLogin({ children }: { children: React.ReactNode }
         }}
       >
         <Typography variant="h5" component="h5" sx={{ mb: 2 }}>
-          {i18n.t("login.requireLogin")}
+          {t("login.requireLogin")}
         </Typography>
         <LoginButton />
       </Box>

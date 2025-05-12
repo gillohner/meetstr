@@ -8,7 +8,7 @@ import { CreateCalendarForm } from "@/components/NostrEventCreation";
 import { useTranslation } from "react-i18next";
 
 export default function NewCalendar() {
-  const { i18n } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <Container maxWidth="lg">
@@ -22,7 +22,7 @@ export default function NewCalendar() {
         }}
       >
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          {i18n.t("createCalendar.title")}
+          {t("createCalendar.title")}
         </Typography>
         <Box
           sx={{

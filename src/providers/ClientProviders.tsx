@@ -40,6 +40,7 @@ export default function ClientProviders({
         "wss://nostr.swiss-enigma.ch/",
         "wss://relay.damus.io/",
         "wss://relay.nostr.band",
+        "wss://multiplexer.huszonegy.world",
       ],
     });
   }, [initNdk]);

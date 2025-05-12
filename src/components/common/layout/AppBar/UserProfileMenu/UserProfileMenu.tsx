@@ -1,3 +1,4 @@
+// src/components/common/layout/AppBar/UserProfileMenu/UserProfileMenu.tsx
 import { Avatar, Box, IconButton, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
 import { useActiveUser, useLogin, useProfile } from 'nostr-hooks';
 import LoginButton from '@/components/common/auth/NostrLogin/LoginButton';
