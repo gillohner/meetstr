@@ -46,9 +46,11 @@ var Image_1 = require("@mui/icons-material/Image");
 var Edit_1 = require("@mui/icons-material/Edit");
 var Delete_1 = require("@mui/icons-material/Delete");
 var react_i18next_1 = require("react-i18next");
+var SnackbarContext_1 = require("@/context/SnackbarContext");
 var ImageUploadWithPreview = function (_a) {
     var _b = _a.initialPreview, initialPreview = _b === void 0 ? "" : _b, onImageUploaded = _a.onImageUploaded, onImageRemoved = _a.onImageRemoved, uploadFunction = _a.uploadFunction, _c = _a.showControls, showControls = _c === void 0 ? true : _c;
     var t = react_i18next_1.useTranslation().t;
+    var showSnackbar = SnackbarContext_1.useSnackbar().showSnackbar;
     var _d = react_1.useState(initialPreview), preview = _d[0], setPreview = _d[1];
     var _e = react_1.useState(false), loading = _e[0], setLoading = _e[1];
     var handleFileChange = function (event) { return __awaiter(void 0, void 0, void 0, function () {
@@ -71,7 +73,7 @@ var ImageUploadWithPreview = function (_a) {
                 case 2:
                     imageUrl = _b.sent();
                     if (!imageUrl || imageUrl === "error") {
-                        throw new Error("Upload failed");
+                        showSnackbar(t("event.createEvent.imageUpload.error"));
                     }
                     // Update preview with actual URL from server
                     setPreview(imageUrl);

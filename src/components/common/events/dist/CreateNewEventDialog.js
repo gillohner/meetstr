@@ -39,7 +39,7 @@ function CreateNewEventDialog() {
     var showSnackbar = SnackbarContext_1.useSnackbar().showSnackbar;
     var handleImageUploaded = function (imageUrl) {
         setEventImage(imageUrl);
-        showSnackbar(t("event.createEvent.imageUpload.success"), "success");
+        showSnackbar(t("event.createEvent.imageUpload.success"));
     };
     var handleImageRemoved = function () {
         setEventImage(null);

@@ -8,6 +8,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 interface ImageUploadWithPreviewProps {
   initialPreview?: string;
@@ -25,6 +26,7 @@ const ImageUploadWithPreview: React.FC<ImageUploadWithPreviewProps> = ({
   showControls = true,
 }) => {
   const { t } = useTranslation();
+  const { showSnackbar } = useSnackbar();
   const [preview, setPreview] = useState<string>(initialPreview);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -44,7 +46,7 @@ const ImageUploadWithPreview: React.FC<ImageUploadWithPreviewProps> = ({
       const imageUrl = await uploadFunction(file);
 
       if (!imageUrl || imageUrl === "error") {
-        throw new Error("Upload failed");
+        showSnackbar(t("event.createEvent.imageUpload.error"));
       }
 
       // Update preview with actual URL from server

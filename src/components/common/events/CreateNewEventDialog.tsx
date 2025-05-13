@@ -53,7 +53,7 @@ export default function CreateNewEventDialog() {
 
   const handleImageUploaded = (imageUrl: string) => {
     setEventImage(imageUrl);
-    showSnackbar(t("event.createEvent.imageUpload.success"), "success");
+    showSnackbar(t("event.createEvent.imageUpload.success"));
   };
 
   const handleImageRemoved = () => {
