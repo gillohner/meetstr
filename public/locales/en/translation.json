@@ -96,8 +96,12 @@
         "end": "Endtime"
       },
       "form": {
-        "timezone": "Timezone"
-      }
+        "timezone": "Timezone",
+        "title": "Title",
+        "description": "Description",
+        "location": "Location"
+      },
+      "submit": "Create Event"
     },
     "attendees": "Attendees"
   },

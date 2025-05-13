@@ -72,7 +72,7 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
           sx={{ objectFit: "cover" }}
         />
         <CardContent>
-          <Grid container>
+          <Grid container spacing={2} direction="row">
             <Grid size={10}>
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName")}

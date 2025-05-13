@@ -108,7 +108,7 @@ function CalendarOverview(_a) {
         React.createElement(material_1.Card, { sx: { width: "100%", mb: 4 } },
             React.createElement(material_1.CardMedia, { component: "img", alt: metadata.summary || "", height: "300", image: metadata.image || "", sx: { objectFit: "cover" } }),
             React.createElement(material_1.CardContent, null,
-                React.createElement(material_1.Grid, { container: true },
+                React.createElement(material_1.Grid, { container: true, spacing: 2, direction: "row" },
                     React.createElement(material_1.Grid, { size: 10 },
                         React.createElement(material_1.Typography, { gutterBottom: true, variant: "h4", component: "div" }, metadata.title || t("error.event.noName")),
                         React.createElement(material_1.Typography, { variant: "body1", color: "text.secondary" }, metadata.summary || "")),

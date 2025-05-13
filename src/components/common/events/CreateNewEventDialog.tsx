@@ -65,7 +65,7 @@ export default function CreateNewEventDialog() {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)}>
+      <Button size="large" variant="contained" onClick={() => setOpen(true)} sx={{ width: "100%" }}>
         {t("event.createEvent.title")}
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
@@ -83,7 +83,7 @@ export default function CreateNewEventDialog() {
                 <Grid container spacing={2} direction="column">
                   <Grid size={{ xs: 12, md: 6 }}>
                     <FormTextField
-                      label="event.createEvent.form.title"
+                      label={t("event.createEvent.form.title")}
                       name="title"
                       icon={<EventIcon color="primary" />}
                       required
@@ -91,7 +91,7 @@ export default function CreateNewEventDialog() {
                   </Grid>
                   <Grid size={12}>
                     <FormTextField
-                      label="event.createEvent.form.description"
+                      label={t("event.createEvent.form.description")}
                       name="description"
                       icon={<DescriptionIcon color="primary" />}
                       multiline
@@ -112,7 +112,7 @@ export default function CreateNewEventDialog() {
                   </Grid>
                   <Grid size={12}>
                     <FormTextField
-                      label="event.createEvent.form.location"
+                      label={t("event.createEvent.form.location")}
                       name="location"
                       icon={<LocationOnIcon color="primary" />}
                     />
@@ -129,7 +129,7 @@ export default function CreateNewEventDialog() {
 
             <DialogActionsSection
               onCancel={() => setOpen(false)}
-              submitLabel="event.createEvent.submit"
+              submitLabel={t("event.createEvent.submit")}
             />
           </form>
         </DialogContent>

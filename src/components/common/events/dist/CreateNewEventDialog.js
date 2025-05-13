@@ -47,7 +47,7 @@ function CreateNewEventDialog() {
     if (activeUser === undefined || activeUser === null)
         return "";
     return (React.createElement(React.Fragment, null,
-        React.createElement(Button_1["default"], { variant: "outlined", onClick: function () { return setOpen(true); } }, t("event.createEvent.title")),
+        React.createElement(Button_1["default"], { size: "large", variant: "contained", onClick: function () { return setOpen(true); }, sx: { width: "100%" } }, t("event.createEvent.title")),
         React.createElement(Dialog_1["default"], { open: open, onClose: function () { return setOpen(false); }, maxWidth: "md", fullWidth: true },
             React.createElement(DialogTitle_1["default"], { sx: { bgcolor: "background.default", color: "text.primary" } },
                 React.createElement(Typography_1["default"], { variant: "h5", component: "div" },
@@ -60,18 +60,18 @@ function CreateNewEventDialog() {
                             " ",
                             React.createElement(material_1.Grid, { container: true, spacing: 2, direction: "column" },
                                 React.createElement(material_1.Grid, { size: { xs: 12, md: 6 } },
-                                    React.createElement(FormTextField_1["default"], { label: "event.createEvent.form.title", name: "title", icon: React.createElement(Event_1["default"], { color: "primary" }), required: true })),
+                                    React.createElement(FormTextField_1["default"], { label: t("event.createEvent.form.title"), name: "title", icon: React.createElement(Event_1["default"], { color: "primary" }), required: true })),
                                 React.createElement(material_1.Grid, { size: 12 },
-                                    React.createElement(FormTextField_1["default"], { label: "event.createEvent.form.description", name: "description", icon: React.createElement(Description_1["default"], { color: "primary" }), multiline: true })))),
+                                    React.createElement(FormTextField_1["default"], { label: t("event.createEvent.form.description"), name: "description", icon: React.createElement(Description_1["default"], { color: "primary" }), multiline: true })))),
                         React.createElement(material_1.Grid, { size: { xs: 12, md: 6 } },
                             React.createElement(material_1.Grid, { container: true, spacing: 2.5, direction: "column" },
                                 React.createElement(material_1.Grid, { size: 12 },
                                     React.createElement(ImageUploadWithPreview_1["default"], { initialPreview: eventImage || "", onImageUploaded: handleImageUploaded, onImageRemoved: handleImageRemoved, uploadFunction: uploadFile })),
                                 React.createElement(material_1.Grid, { size: 12 },
-                                    React.createElement(FormTextField_1["default"], { label: "event.createEvent.form.location", name: "location", icon: React.createElement(LocationOn_1["default"], { color: "primary" }) })))),
+                                    React.createElement(FormTextField_1["default"], { label: t("event.createEvent.form.location"), name: "location", icon: React.createElement(LocationOn_1["default"], { color: "primary" }) })))),
                         React.createElement(material_1.Grid, { size: 12 },
                             React.createElement(DateTimeSection_1["default"], { timezone: timezone, onTimezoneChange: setTimezone }))),
                     React.createElement(Divider_1["default"], { sx: { my: 3, borderColor: "divider" } }),
-                    React.createElement(DialogActionsSection_1["default"], { onCancel: function () { return setOpen(false); }, submitLabel: "event.createEvent.submit" }))))));
+                    React.createElement(DialogActionsSection_1["default"], { onCancel: function () { return setOpen(false); }, submitLabel: t("event.createEvent.submit") }))))));
 }
 exports["default"] = CreateNewEventDialog;

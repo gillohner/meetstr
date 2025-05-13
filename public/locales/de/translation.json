@@ -38,8 +38,12 @@
         "end": "Endzeit"
       },
       "form": {
-        "timezone": "Zeitzone"
-      }
+        "timezone": "Zeitzone",
+        "title": "Titel",
+        "description": "Beschreibung",
+        "location": "Standort"
+      },
+      "submit": "Event erstellen"
     },
     "attendees": "Teilnehmer"
   },

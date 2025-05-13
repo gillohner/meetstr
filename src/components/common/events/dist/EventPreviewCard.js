@@ -1,4 +1,3 @@
-// src/components/common/events/dist/EventPreviewCard.js
 "use strict";
 exports.__esModule = true;
 // src/components/common/events/EventPreviewCard.tsx
