@@ -14,6 +14,7 @@ import {
   Chip,
   Divider,
   Grid,
+  Link,
 } from "@mui/material";
 import { fetchEventById } from "@/utils/nostr/nostrUtils";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
@@ -56,6 +57,10 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   const metadata = getEventMetadata(event);
 
+  metadata.hashtags = ["test", "event", "overview"];
+
+  console.log("metadata: ", metadata);
+
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Card sx={{ width: "100%", mb: 4 }}>
@@ -85,13 +90,18 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
           <Divider sx={{ my: 2 }} />
 
-          {/* Event tags/categories */}
           <Box sx={{ mt: 3 }}>
-            {event.tags
-              .filter((tag) => ["t", "hashtag"].includes(tag[0]))
-              .map((tag, index) => (
-                <Chip key={`tag-${index}`} label={tag[1]} size="small" sx={{ m: 0.5 }} />
-              ))}
+            {metadata.references.map((reference, index) => (
+              <Link href={reference} key={`link-${index}`} variant="body2" sx={{ mr: 2 }}>
+                {reference}
+              </Link>
+            ))}
+          </Box>
+
+          <Box sx={{ mt: 3 }}>
+            {metadata.hashtags.map((hashtag, index) => (
+              <Chip key={`hashtag-${index}`} label={`#${hashtag}`} size="small" sx={{ m: 0.5 }} />
+            ))}
           </Box>
         </CardContent>
       </Card>

@@ -42,6 +42,8 @@ function EventOverview(_a) {
         return React.createElement(material_1.Typography, { variant: "h4" }, t("error.event.invalidId"));
     }
     var metadata = eventUtils_1.getEventMetadata(event);
+    metadata.hashtags = ["test", "event", "overview"];
+    console.log("metadata: ", metadata);
     return (React.createElement(material_1.Container, { maxWidth: "lg", sx: { mb: 4 } },
         React.createElement(material_1.Card, { sx: { width: "100%", mb: 4 } },
             metadata.image && (React.createElement(material_1.CardMedia, { component: "img", alt: metadata.title || "", height: "300", image: metadata.image, sx: { objectFit: "cover" } })),
@@ -54,9 +56,8 @@ function EventOverview(_a) {
                         React.createElement(material_1.Typography, { variant: "body1", paragraph: true }, metadata.summary)),
                     React.createElement(material_1.Grid, { size: 2 }, event && React.createElement(EventRsvpMenu_1["default"], { event: event }))),
                 React.createElement(material_1.Divider, { sx: { my: 2 } }),
-                React.createElement(material_1.Box, { sx: { mt: 3 } }, event.tags
-                    .filter(function (tag) { return ["t", "hashtag"].includes(tag[0]); })
-                    .map(function (tag, index) { return (React.createElement(material_1.Chip, { key: "tag-" + index, label: tag[1], size: "small", sx: { m: 0.5 } })); })))),
+                React.createElement(material_1.Box, { sx: { mt: 3 } }, metadata.references.map(function (reference, index) { return (React.createElement(material_1.Link, { href: reference, key: "link-" + index, variant: "body2", sx: { mr: 2 } }, reference)); })),
+                React.createElement(material_1.Box, { sx: { mt: 3 } }, metadata.hashtags.map(function (hashtag, index) { return (React.createElement(material_1.Chip, { key: "hashtag-" + index, label: "#" + hashtag, size: "small", sx: { m: 0.5 } })); })))),
         React.createElement(material_1.Grid, { container: true },
             React.createElement(material_1.Grid, { size: { xs: 12, md: 7, lg: 8 } }),
             React.createElement(material_1.Grid, { size: { xs: 12, md: 5, lg: 4 } },
