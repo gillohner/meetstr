@@ -28,7 +28,6 @@ import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWith
 import FormTextField from "@/components/common/form/FormTextField";
 import DateTimeSection from "@/components/common/events/DateTimeSection";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
-import RequireLogin from "@/components/common/auth/NostrLogin/RequireLogin";
 
 // Import icons
 import EventIcon from "@mui/icons-material/Event";
