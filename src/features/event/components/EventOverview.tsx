@@ -77,7 +77,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         )}
         <CardContent>
           <Grid container>
-            <Grid size={10}>
+            <Grid size={9}>
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName", "Unnamed Event")}
               </Typography>
@@ -87,7 +87,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 {metadata.summary}
               </Typography>
             </Grid>
-            <Grid size={2}>{event && <EventRsvpMenu event={event} />}</Grid>
+            <Grid size={3}>{event && <EventRsvpMenu event={event} />}</Grid>
           </Grid>
 
           <Divider sx={{ my: 2 }} />

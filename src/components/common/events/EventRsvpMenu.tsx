@@ -7,17 +7,12 @@ import CheckIcon from "@mui/icons-material/Check";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
-import { createRsvpEvent, publishRsvp } from "@/utils/nostr/rsvpUtils";
-import { useSnackbar } from "@/context/SnackbarContext";
-import { t } from "i18next";
-import { useNdk } from "nostr-hooks";
-import { useCallback } from "react";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { v4 as uuidv4 } from "uuid";
 import { useActiveUser } from "nostr-hooks";
-import { Circle } from "react-leaflet";
+import { useRsvpHandler, RsvpStatus } from "@/hooks/useRsvpHandler";
 
+// Keep the styled menu component as is...
 const StyledRsvpMenu = styled((props: MenuProps) => (
   <Menu
     elevation={0}
@@ -53,12 +48,12 @@ const StyledRsvpMenu = styled((props: MenuProps) => (
 
 export default function EventRsvpMenu({ event }) {
   const { t } = useTranslation();
-  const { ndk } = useNdk();
-  const { showSnackbar } = useSnackbar();
-  const [loading, setLoading] = React.useState(false);
+  const { activeUser } = useActiveUser();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { activeUser } = useActiveUser();
+
+  // Use our new hook
+  const { rsvpStatus, loading, createRsvp, deleteRsvp } = useRsvpHandler(event);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -68,44 +63,74 @@ export default function EventRsvpMenu({ event }) {
     setAnchorEl(null);
   };
 
-  const handleRsvp = useCallback(
-    (status: string) => {
-      const rsvpEvent = new NDKEvent(ndk);
-      rsvpEvent.content = status;
-      rsvpEvent.kind = 31925;
+  // Handle RSVP status changes
+  const handleRsvp = (status: RsvpStatus) => {
+    createRsvp(status);
+    handleClose();
+  };
 
-      console.log("event: ", event);
+  // Handle RSVP deletion
+  const handleDelete = () => {
+    deleteRsvp();
+    handleClose();
+  };
 
-      const eTag = `${event.id}`;
-      const aTag = `${event.kind}:${event.pubkey}:${event.tagValue["d"]}`;
-      rsvpEvent.tags = [
-        ["e", eTag],
-        ["a", aTag],
-        ["d", uuidv4()],
-        ["status", status],
-        ["p", event.id],
-      ];
+  // Determine button text and color based on current RSVP status
+  const getButtonProps = () => {
+    if (loading) {
+      return {
+        text: t("common.loading"),
+        color: "primary" as const,
+        startIcon: <CircularProgress size={18} />,
+      };
+    }
 
-      rsvpEvent.publish();
-    },
-    [ndk, activeUser]
-  );
+    switch (rsvpStatus) {
+      case "accepted":
+        return {
+          text: t("event.rsvp.attending"),
+          color: "success" as const,
+          startIcon: <CheckIcon />,
+        };
+      case "tentative":
+        return {
+          text: t("event.rsvp.tentative"),
+          color: "warning" as const,
+          startIcon: <HelpOutlineIcon />,
+        };
+      case "declined":
+        return {
+          text: t("event.rsvp.notAttending"),
+          color: "error" as const,
+          startIcon: <CloseIcon />,
+        };
+      default:
+        return {
+          text: t("event.rsvp.title"),
+          color: "primary" as const,
+          startIcon: null,
+        };
+    }
+  };
+
+  const buttonProps = getButtonProps();
 
   if (activeUser === undefined) return <CircularProgress size={24} />;
-  // TODO: Add button to login
-  if (activeUser === null) return null;
+  if (activeUser === null) return null; // Could add login button here
 
   return (
     <>
       <Button
         variant="contained"
-        color="primary"
+        color={buttonProps.color}
         size="large"
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
+        startIcon={buttonProps.startIcon}
+        disabled={loading}
         sx={{ width: "100%" }}
       >
-        {t("event.rsvp.title")}
+        {buttonProps.text}
       </Button>
       <StyledRsvpMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem
@@ -134,7 +159,7 @@ export default function EventRsvpMenu({ event }) {
           })}
         >
           <HelpOutlineIcon />
-          {t("event.rsvp.maybe")}
+          {t("event.rsvp.tentative")}
         </MenuItem>
         <MenuItem
           onClick={() => handleRsvp("declined")}
@@ -150,6 +175,26 @@ export default function EventRsvpMenu({ event }) {
           <CloseIcon />
           {t("event.rsvp.decline")}
         </MenuItem>
+
+        {/* Add delete option when user has already RSVP'd */}
+        {rsvpStatus && (
+          <MenuItem
+            key="delete"
+            onClick={handleDelete}
+            disabled={loading}
+            sx={(theme) => ({
+              borderTop: `1px solid ${theme.palette.divider}`,
+              backgroundColor: alpha(theme.palette.grey[500], 0.1),
+              color: theme.palette.text.primary,
+              "&:hover": {
+                backgroundColor: alpha(theme.palette.grey[500], 0.2),
+              },
+            })}
+          >
+            <DeleteIcon />
+            {t("event.rsvp.withdraw")}
+          </MenuItem>
+        )}
       </StyledRsvpMenu>
     </>
   );

@@ -69,7 +69,13 @@
       "title": "RSVP",
       "accept": "Accept",
       "maybe": "Maybe",
-      "decline": "Decline"
+      "decline": "Decline",
+      "attending": "Attending",
+      "notAttending": "Declined",
+      "withdraw": "Withdraw RSVP",
+      "accepted": "Accepted",
+      "tentative": "Maybe",
+      "declined": "Declined"
     },
     "location": "Location",
     "noLocation": "No Location",

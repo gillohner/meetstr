@@ -11,7 +11,13 @@
       "title": "RSVP",
       "accept": "Akzeptieren",
       "maybe": "Vielleicht",
-      "decline": "Abfall"
+      "decline": "Abfall",
+      "attending": "Angemeldet",
+      "notAttending": "Abgelehnt",
+      "withdraw": "Teilnahme zurücknehmen",
+      "accepted": "Akzeptiert",
+      "tentative": "Vielleicht",
+      "declined": "Abgelehnt"
     },
     "location": "Standort",
     "noLocation": "Kein Standort",

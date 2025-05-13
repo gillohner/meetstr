@@ -19,13 +19,11 @@ var Check_1 = require("@mui/icons-material/Check");
 var HelpOutline_1 = require("@mui/icons-material/HelpOutline");
 var Close_1 = require("@mui/icons-material/Close");
 var KeyboardArrowDown_1 = require("@mui/icons-material/KeyboardArrowDown");
+var Delete_1 = require("@mui/icons-material/Delete");
 var react_i18next_1 = require("react-i18next");
-var SnackbarContext_1 = require("@/context/SnackbarContext");
 var nostr_hooks_1 = require("nostr-hooks");
-var react_1 = require("react");
-var ndk_1 = require("@nostr-dev-kit/ndk");
-var uuid_1 = require("uuid");
-var nostr_hooks_2 = require("nostr-hooks");
+var useRsvpHandler_1 = require("@/hooks/useRsvpHandler");
+// Keep the styled menu component as is...
 var StyledRsvpMenu = styles_1.styled(function (props) { return (React.createElement(material_1.Menu, __assign({ elevation: 0, anchorOrigin: {
         vertical: "bottom",
         horizontal: "right"
@@ -56,41 +54,70 @@ var StyledRsvpMenu = styles_1.styled(function (props) { return (React.createElem
 function EventRsvpMenu(_a) {
     var event = _a.event;
     var t = react_i18next_1.useTranslation().t;
-    var ndk = nostr_hooks_1.useNdk().ndk;
-    var showSnackbar = SnackbarContext_1.useSnackbar().showSnackbar;
-    var _b = React.useState(false), loading = _b[0], setLoading = _b[1];
-    var _c = React.useState(null), anchorEl = _c[0], setAnchorEl = _c[1];
+    var activeUser = nostr_hooks_1.useActiveUser().activeUser;
+    var _b = React.useState(null), anchorEl = _b[0], setAnchorEl = _b[1];
     var open = Boolean(anchorEl);
-    var activeUser = nostr_hooks_2.useActiveUser().activeUser;
+    // Use our new hook
+    var _c = useRsvpHandler_1.useRsvpHandler(event), rsvpStatus = _c.rsvpStatus, loading = _c.loading, createRsvp = _c.createRsvp, deleteRsvp = _c.deleteRsvp;
     var handleClick = function (event) {
         setAnchorEl(event.currentTarget);
     };
     var handleClose = function () {
         setAnchorEl(null);
     };
-    var handleRsvp = react_1.useCallback(function (status) {
-        var rsvpEvent = new ndk_1.NDKEvent(ndk);
-        rsvpEvent.content = status;
-        rsvpEvent.kind = 31925;
-        console.log("event: ", event);
-        var eTag = "" + event.id;
-        var aTag = event.kind + ":" + event.pubkey + ":" + event.tagValue["d"];
-        rsvpEvent.tags = [
-            ["e", eTag],
-            ["a", aTag],
-            ["d", uuid_1.v4()],
-            ["status", status],
-            ["p", event.id],
-        ];
-        rsvpEvent.publish();
-    }, [ndk, activeUser]);
+    // Handle RSVP status changes
+    var handleRsvp = function (status) {
+        createRsvp(status);
+        handleClose();
+    };
+    // Handle RSVP deletion
+    var handleDelete = function () {
+        deleteRsvp();
+        handleClose();
+    };
+    // Determine button text and color based on current RSVP status
+    var getButtonProps = function () {
+        if (loading) {
+            return {
+                text: t("common.loading"),
+                color: "primary",
+                startIcon: React.createElement(material_1.CircularProgress, { size: 18 })
+            };
+        }
+        switch (rsvpStatus) {
+            case "accepted":
+                return {
+                    text: t("event.rsvp.attending"),
+                    color: "success",
+                    startIcon: React.createElement(Check_1["default"], null)
+                };
+            case "tentative":
+                return {
+                    text: t("event.rsvp.tentative"),
+                    color: "warning",
+                    startIcon: React.createElement(HelpOutline_1["default"], null)
+                };
+            case "declined":
+                return {
+                    text: t("event.rsvp.notAttending"),
+                    color: "error",
+                    startIcon: React.createElement(Close_1["default"], null)
+                };
+            default:
+                return {
+                    text: t("event.rsvp.title"),
+                    color: "primary",
+                    startIcon: null
+                };
+        }
+    };
+    var buttonProps = getButtonProps();
     if (activeUser === undefined)
         return React.createElement(material_1.CircularProgress, { size: 24 });
-    // TODO: Add button to login
     if (activeUser === null)
-        return null;
+        return null; // Could add login button here
     return (React.createElement(React.Fragment, null,
-        React.createElement(material_1.Button, { variant: "contained", color: "primary", size: "large", onClick: handleClick, endIcon: React.createElement(KeyboardArrowDown_1["default"], null), sx: { width: "100%" } }, t("event.rsvp.title")),
+        React.createElement(material_1.Button, { variant: "contained", color: buttonProps.color, size: "large", onClick: handleClick, endIcon: React.createElement(KeyboardArrowDown_1["default"], null), startIcon: buttonProps.startIcon, disabled: loading, sx: { width: "100%" } }, buttonProps.text),
         React.createElement(StyledRsvpMenu, { anchorEl: anchorEl, open: open, onClose: handleClose },
             React.createElement(material_1.MenuItem, { onClick: function () { return handleRsvp("accepted"); }, disabled: loading, sx: function (theme) { return ({
                     backgroundColor: styles_1.alpha(theme.palette.success.main, 0.1),
@@ -109,7 +136,7 @@ function EventRsvpMenu(_a) {
                     }
                 }); } },
                 React.createElement(HelpOutline_1["default"], null),
-                t("event.rsvp.maybe")),
+                t("event.rsvp.tentative")),
             React.createElement(material_1.MenuItem, { onClick: function () { return handleRsvp("declined"); }, disabled: loading, sx: function (theme) { return ({
                     backgroundColor: styles_1.alpha(theme.palette.error.main, 0.1),
                     color: theme.palette.error.dark,
@@ -118,6 +145,16 @@ function EventRsvpMenu(_a) {
                     }
                 }); } },
                 React.createElement(Close_1["default"], null),
-                t("event.rsvp.decline")))));
+                t("event.rsvp.decline")),
+            rsvpStatus && (React.createElement(material_1.MenuItem, { key: "delete", onClick: handleDelete, disabled: loading, sx: function (theme) { return ({
+                    borderTop: "1px solid " + theme.palette.divider,
+                    backgroundColor: styles_1.alpha(theme.palette.grey[500], 0.1),
+                    color: theme.palette.text.primary,
+                    "&:hover": {
+                        backgroundColor: styles_1.alpha(theme.palette.grey[500], 0.2)
+                    }
+                }); } },
+                React.createElement(Delete_1["default"], null),
+                t("event.rsvp.withdraw"))))));
 }
 exports["default"] = EventRsvpMenu;
