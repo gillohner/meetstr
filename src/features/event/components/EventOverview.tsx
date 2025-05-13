@@ -102,6 +102,9 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
             {metadata.hashtags.map((hashtag, index) => (
               <Chip key={`hashtag-${index}`} label={`#${hashtag}`} size="small" sx={{ m: 0.5 }} />
             ))}
+            {metadata.labels.map((label, index) => (
+              <Chip key={`label-${index}`} label={`${label}`} size="small" sx={{ m: 0.5 }} />
+            ))}
           </Box>
         </CardContent>
       </Card>
