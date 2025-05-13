@@ -39,14 +39,10 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
     if (!ndk || !event?.id) return;
 
     const filters: NDKFilter[] = [];
-    const decodedEventId = event.id.startsWith("note1")
-      ? nip19.decode(event.id).data.toString()
-      : event.id;
-
     // Add filter for e tag references
     filters.push({
       kinds: [31925],
-      "#e": [decodedEventId],
+      "#e": [event.id],
     });
 
     // Add filter for a tag references if available

@@ -74,14 +74,16 @@ export default function EventRsvpMenu({ event }) {
       rsvpEvent.content = status;
       rsvpEvent.kind = 31925;
 
-      console.log("event: ", event.pubkey);
+      console.log("event: ", event);
 
-      const aTag = `31922:${event.pubkey}:${event.tagValue("d")}`;
+      const eTag = `${event.id}`;
+      const aTag = `${event.kind}:${event.pubkey}:${event.tagValue["d"]}`;
       rsvpEvent.tags = [
+        ["e", eTag],
         ["a", aTag],
         ["d", uuidv4()],
         ["status", status],
-        ["p", activeUser.pubkey],
+        ["p", event.id],
       ];
 
       rsvpEvent.publish();

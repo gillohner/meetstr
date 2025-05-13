@@ -1,4 +1,4 @@
-// src/components/common/events/dist/EventPreviewCard.js
+// src/components/common/events/dist/dist/EventPreviewCard.dev.js
 "use strict";
 
 exports.__esModule = true; // src/components/common/events/EventPreviewCard.tsx
@@ -19,8 +19,6 @@ var EventLocationText_1 = require("@/components/common/events/EventLocationText"
 
 var EventTimeDisplay_1 = require("@/components/common/events/EventTimeDisplay");
 
-var date_1 = require("@/utils/formatting/date");
-
 var EventPreviewCard = function EventPreviewCard(_a) {
   var event = _a.event,
       _b = _a.sx,
@@ -29,8 +27,6 @@ var EventPreviewCard = function EventPreviewCard(_a) {
   var router = navigation_1.useRouter();
   var metadata = eventUtils_1.getEventMetadata(event);
   var name = metadata.title || t("error.event.noName");
-  var formattedStartTime = metadata.start ? date_1.formatDate(metadata.start, t("error.event.invalidDate")) : t("error.event.noDate");
-  var formattedEndTime = metadata.end ? date_1.formatDate(metadata.end, t("error.event.invalidDate")) : t("error.event.noDate");
 
   var handleClick = function handleClick() {
     var _a;
@@ -71,7 +67,7 @@ var EventPreviewCard = function EventPreviewCard(_a) {
       height: "100%",
       alignItems: "stretch"
     }
-  }, react_1["default"].createElement(material_1.CardMedia, {
+  }, metadata.image && react_1["default"].createElement(material_1.CardMedia, {
     component: "img",
     image: metadata.image,
     alt: name,

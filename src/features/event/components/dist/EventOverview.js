@@ -42,6 +42,7 @@ function EventOverview(_a) {
         return React.createElement(material_1.Typography, { variant: "h4" }, t("error.event.invalidId"));
     }
     var metadata = eventUtils_1.getEventMetadata(event);
+    console.log("event: ", event.id);
     metadata.hashtags = ["test", "event", "overview"];
     console.log("metadata: ", metadata);
     return (React.createElement(material_1.Container, { maxWidth: "lg", sx: { mb: 4 } },

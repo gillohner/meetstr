@@ -57,6 +57,8 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   const metadata = getEventMetadata(event);
 
+  console.log("event: ", event.id);
+
   metadata.hashtags = ["test", "event", "overview"];
 
   console.log("metadata: ", metadata);

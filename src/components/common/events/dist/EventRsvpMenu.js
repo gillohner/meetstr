@@ -72,13 +72,15 @@ function EventRsvpMenu(_a) {
         var rsvpEvent = new ndk_1.NDKEvent(ndk);
         rsvpEvent.content = status;
         rsvpEvent.kind = 31925;
-        console.log("event: ", event.pubkey);
-        var aTag = "31922:" + event.pubkey + ":" + event.tagValue("d");
+        console.log("event: ", event);
+        var eTag = "" + event.id;
+        var aTag = event.kind + ":" + event.pubkey + ":" + event.tagValue["d"];
         rsvpEvent.tags = [
+            ["e", eTag],
             ["a", aTag],
             ["d", uuid_1.v4()],
             ["status", status],
-            ["p", activeUser.pubkey],
+            ["p", event.id],
         ];
         rsvpEvent.publish();
     }, [ndk, activeUser]);
