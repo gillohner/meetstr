@@ -75,7 +75,11 @@
       "withdraw": "Withdraw RSVP",
       "accepted": "Accepted",
       "tentative": "Maybe",
-      "declined": "Declined"
+      "declined": "Declined",
+      "success": "RSVP submitted",
+      "error": "RSVP error",
+      "deleted": "RSVP deleted",
+      "deleteError": "RSVP deletion error"
     },
     "location": "Location",
     "noLocation": "No Location",

@@ -17,7 +17,11 @@
       "withdraw": "Teilnahme zurücknehmen",
       "accepted": "Akzeptiert",
       "tentative": "Vielleicht",
-      "declined": "Abgelehnt"
+      "declined": "Abgelehnt",
+      "success": "RSVP erfolgreich",
+      "error": "RSVP error",
+      "deleted": "RSVP gelöscht",
+      "deleteError": "RSVP löschen fehlgeschlagen"
     },
     "location": "Standort",
     "noLocation": "Kein Standort",
