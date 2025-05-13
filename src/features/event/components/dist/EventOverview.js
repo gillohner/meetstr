@@ -57,7 +57,7 @@ function EventOverview(_a) {
                         React.createElement(material_1.Typography, { variant: "body1", paragraph: true }, metadata.summary)),
                     React.createElement(material_1.Grid, { size: 3 }, event && React.createElement(EventRsvpMenu_1["default"], { event: event }))),
                 React.createElement(material_1.Divider, { sx: { my: 2 } }),
-                React.createElement(material_1.Box, { sx: { mt: 3 } }, metadata.references.map(function (reference, index) { return (React.createElement(material_1.Link, { href: reference, key: "link-" + index, variant: "body2", sx: { mr: 2 } }, reference)); })),
+                React.createElement(material_1.Box, { sx: { mt: 3 } }, metadata.references.map(function (reference, index) { return (React.createElement(material_1.Link, { href: reference, key: "link-" + index, target: "_blank", variant: "body2", sx: { mr: 2 } }, reference)); })),
                 React.createElement(material_1.Box, { sx: { mt: 3 } },
                     metadata.hashtags.map(function (hashtag, index) { return (React.createElement(material_1.Chip, { key: "hashtag-" + index, label: "#" + hashtag, size: "small", sx: { m: 0.5 } })); }),
                     metadata.labels.map(function (label, index) { return (React.createElement(material_1.Chip, { key: "label-" + index, label: "" + label, size: "small", sx: { m: 0.5 } })); })))),

@@ -94,7 +94,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
           <Box sx={{ mt: 3 }}>
             {metadata.references.map((reference, index) => (
-              <Link href={reference} key={`link-${index}`} variant="body2" sx={{ mr: 2 }}>
+              <Link href={reference} key={`link-${index}`} target="_blank" variant="body2" sx={{ mr: 2 }}>
                 {reference}
               </Link>
             ))}
