@@ -26,8 +26,15 @@ import { useActiveUser } from "nostr-hooks";
 import { useSnackbar } from "@/context/SnackbarContext";
 import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWithPreview";
 import FormTextField from "@/components/common/form/FormTextField";
+import dynamic from "next/dynamic";
 import DateTimeSection from "@/components/common/events/DateTimeSection";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
+const FormGeoSearchField = dynamic(
+  () => import('@/components/common/form/FormGeoSearchField'),
+  { 
+    ssr: false,
+  }
+);
 
 // Import icons
 import EventIcon from "@mui/icons-material/Event";
@@ -40,6 +47,18 @@ import ImageIcon from "@mui/icons-material/Image";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+// Define the GeoSearchResult interface for location data
+interface GeoSearchResult {
+  x: number; // longitude
+  y: number; // latitude
+  label: string; // formatted address
+  bounds: [
+    [number, number], // south, west - lat, lon
+    [number, number], // north, east - lat, lon
+  ];
+  raw: any; // raw provider result
+}
+
 export default function CreateNewEventDialog() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -50,6 +69,7 @@ export default function CreateNewEventDialog() {
   const [eventImage, setEventImage] = useState<string | null>(null);
   const { uploadFile } = useBlossomUpload();
   const { showSnackbar } = useSnackbar();
+  const [location, setLocation] = useState<GeoSearchResult | null>(null);
 
   const handleImageUploaded = (imageUrl: string) => {
     setEventImage(imageUrl);
@@ -58,6 +78,27 @@ export default function CreateNewEventDialog() {
 
   const handleImageRemoved = () => {
     setEventImage(null);
+  };
+
+  const handleLocationChange = (newLocation: GeoSearchResult | null) => {
+    setLocation(newLocation);
+  };
+
+  const onSubmit = async function () {
+    if (!activeUser) return;
+
+    try {
+      console.log("Location:", location);
+      console.log("Event Image:", eventImage);
+
+      showSnackbar(t("event.createEvent.success"));
+    } catch (error) {
+      console.error("Error creating event:", error);
+      showSnackbar(t("event.createEvent.error"), "error");
+    } finally {
+      setLoading(false);
+      setOpen(false);
+    }
   };
 
   if (activeUser === undefined || activeUser === null) return "";
@@ -110,10 +151,12 @@ export default function CreateNewEventDialog() {
                     />
                   </Grid>
                   <Grid size={12}>
-                    <FormTextField
+                    <FormGeoSearchField
                       label={t("event.createEvent.form.location")}
                       name="location"
                       icon={<LocationOnIcon color="primary" />}
+                      value={location}
+                      onChange={handleLocationChange}
                     />
                   </Grid>
                 </Grid>
@@ -127,6 +170,7 @@ export default function CreateNewEventDialog() {
             <Divider sx={{ my: 3, borderColor: "divider" }} />
 
             <DialogActionsSection
+              onSubmit={() => onSubmit()}
               onCancel={() => setOpen(false)}
               submitLabel={t("event.createEvent.submit")}
             />
