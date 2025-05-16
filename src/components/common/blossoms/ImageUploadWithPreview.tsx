@@ -46,7 +46,7 @@ const ImageUploadWithPreview: React.FC<ImageUploadWithPreviewProps> = ({
       const imageUrl = await uploadFunction(file);
 
       if (!imageUrl || imageUrl === "error") {
-        showSnackbar(t("event.createEvent.imageUpload.error"));
+        showSnackbar(t("event.createEvent.imageUpload.error"), "error");
       }
 
       // Update preview with actual URL from server

@@ -92,7 +92,7 @@ export default function CreateNewEventDialog() {
         timezone,
       });
 
-      showSnackbar(t("event.createEvent.success"));
+      showSnackbar(t("event.createEvent.success"), "success");
     } catch (error) {
       console.error("Error creating event:", error);
       showSnackbar(t("event.createEvent.error"), "error");
