@@ -57,7 +57,16 @@ export const FormGeoSearchField = ({
           setLoading(true);
           try {
             const results = await provider.search({ query: input });
-            setOptions(results);
+            const mappedResults: GeoSearchResult[] = results
+              .filter((r) => r.bounds !== null)
+              .map((r) => ({
+                x: r.x,
+                y: r.y,
+                label: r.label,
+                bounds: r.bounds as [[number, number], [number, number]],
+                raw: r.raw,
+              }));
+            setOptions(mappedResults);
           } catch (error) {
             console.error("Error searching for location:", error);
             setOptions([]);

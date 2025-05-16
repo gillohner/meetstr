@@ -9,26 +9,29 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "@/context/SnackbarContext";
+import { useBlossomUpload } from "@/hooks/useBlossomUpload";
 
 interface ImageUploadWithPreviewProps {
   initialPreview?: string;
   onImageUploaded: (imageUrl: string) => void;
   onImageRemoved?: () => void;
-  uploadFunction: (file: File) => Promise<string>;
   showControls?: boolean;
+  loading?: boolean;
+  setLoading?: (loading: boolean) => void;
 }
 
 const ImageUploadWithPreview: React.FC<ImageUploadWithPreviewProps> = ({
   initialPreview = "",
   onImageUploaded,
   onImageRemoved,
-  uploadFunction,
   showControls = true,
+  loading = false,
+  setLoading = () => {},
 }) => {
   const { t } = useTranslation();
   const { showSnackbar } = useSnackbar();
   const [preview, setPreview] = useState<string>(initialPreview);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { uploadFile } = useBlossomUpload();
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -43,17 +46,17 @@ const ImageUploadWithPreview: React.FC<ImageUploadWithPreviewProps> = ({
       setPreview(localPreview);
 
       // Upload file to server
-      const imageUrl = await uploadFunction(file);
+      const imageUrl = await uploadFile(file);
 
       if (!imageUrl || imageUrl === "error") {
+        setPreview("");
         showSnackbar(t("event.createEvent.imageUpload.error"), "error");
+        onImageUploaded("");
+      } else {
+        setPreview(imageUrl);
+        showSnackbar(t("event.createEvent.imageUpload.success"), "success");
+        onImageUploaded(imageUrl);
       }
-
-      // Update preview with actual URL from server
-      setPreview(imageUrl);
-
-      // Notify parent component
-      onImageUploaded(imageUrl);
     } catch (error) {
       console.error("Upload failed:", error);
       setPreview("");

@@ -12,7 +12,6 @@ import { Grid } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import { useBlossomUpload } from "@/hooks/useBlossomUpload";
 import { useActiveUser } from "nostr-hooks";
 import { useSnackbar } from "@/context/SnackbarContext";
 import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWithPreview";
@@ -49,7 +48,6 @@ export default function CreateNewEventDialog() {
   const [open, setOpen] = useState(false);
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
   const { activeUser } = useActiveUser();
-  const { uploadFile } = useBlossomUpload();
   const { showSnackbar } = useSnackbar();
   const [formValues, setFormValues] = useState({
     title: "",
@@ -59,8 +57,13 @@ export default function CreateNewEventDialog() {
   });
   const [location, setLocation] = useState<GeoSearchResult | null>(null);
   const [eventImage, setEventImage] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState<boolean>(false);
   const isFormValid = Boolean(
-    formValues.title.trim() && formValues.description.trim() && formValues.startDate && location
+    formValues.title.trim() &&
+      formValues.description.trim() &&
+      formValues.startDate &&
+      location &&
+      !imageLoading
   );
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -70,7 +73,6 @@ export default function CreateNewEventDialog() {
 
   const handleImageUploaded = (imageUrl: string) => {
     setEventImage(imageUrl);
-    showSnackbar(t("event.createEvent.imageUpload.success"), "success");
   };
 
   const handleImageRemoved = () => {
@@ -156,7 +158,9 @@ export default function CreateNewEventDialog() {
                       initialPreview={eventImage || ""}
                       onImageUploaded={handleImageUploaded}
                       onImageRemoved={handleImageRemoved}
-                      uploadFunction={uploadFile}
+                      showControls={true}
+                      loading={imageLoading}
+                      setLoading={setImageLoading}
                     />
                   </Grid>
                   <Grid size={12}>
