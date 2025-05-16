@@ -3,22 +3,13 @@ import * as React from "react";
 import { useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { Grid } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import InputAdornment from "@mui/material/InputAdornment";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { useBlossomUpload } from "@/hooks/useBlossomUpload";
@@ -29,20 +20,14 @@ import FormTextField from "@/components/common/form/FormTextField";
 import dynamic from "next/dynamic";
 import DateTimeSection from "@/components/common/events/DateTimeSection";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
-const FormGeoSearchField = dynamic(
-  () => import('@/components/common/form/FormGeoSearchField'),
-  { 
-    ssr: false,
-  }
-);
+const FormGeoSearchField = dynamic(() => import("@/components/common/form/FormGeoSearchField"), {
+  ssr: false,
+});
 
 // Import icons
 import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import PublicIcon from "@mui/icons-material/Public";
-import ImageIcon from "@mui/icons-material/Image";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -63,17 +48,29 @@ export default function CreateNewEventDialog() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
-  const [preview, setPreview] = useState("");
-  const [loading, setLoading] = useState(false);
   const { activeUser } = useActiveUser();
-  const [eventImage, setEventImage] = useState<string | null>(null);
   const { uploadFile } = useBlossomUpload();
   const { showSnackbar } = useSnackbar();
+  const [formValues, setFormValues] = useState({
+    title: "",
+    description: "",
+    startDate: null as dayjs.Dayjs | null,
+    endDate: null as dayjs.Dayjs | null,
+  });
   const [location, setLocation] = useState<GeoSearchResult | null>(null);
+  const [eventImage, setEventImage] = useState<string | null>(null);
+  const isFormValid = Boolean(
+    formValues.title.trim() && formValues.description.trim() && formValues.startDate && location
+  );
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit();
+  };
 
   const handleImageUploaded = (imageUrl: string) => {
     setEventImage(imageUrl);
-    showSnackbar(t("event.createEvent.imageUpload.success"));
+    showSnackbar(t("event.createEvent.imageUpload.success"), "success");
   };
 
   const handleImageRemoved = () => {
@@ -88,16 +85,19 @@ export default function CreateNewEventDialog() {
     if (!activeUser) return;
 
     try {
-      console.log("Location:", location);
-      console.log("Event Image:", eventImage);
+      console.log("Form Values:", {
+        ...formValues,
+        location,
+        eventImage,
+        timezone,
+      });
 
       showSnackbar(t("event.createEvent.success"));
     } catch (error) {
       console.error("Error creating event:", error);
       showSnackbar(t("event.createEvent.error"), "error");
     } finally {
-      setLoading(false);
-      setOpen(false);
+      // setOpen(false);
     }
   };
 
@@ -116,7 +116,7 @@ export default function CreateNewEventDialog() {
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ bgcolor: "background.paper" }}>
-          <form>
+          <form onSubmit={handleFormSubmit}>
             <Grid container spacing={2} direction="row" sx={{ marginTop: 1 }}>
               <Grid size={{ xs: 12, md: 6 }}>
                 {" "}
@@ -125,6 +125,10 @@ export default function CreateNewEventDialog() {
                     <FormTextField
                       label={t("event.createEvent.form.title")}
                       name="title"
+                      value={formValues.title}
+                      onChange={(e) =>
+                        setFormValues((prev) => ({ ...prev, title: e.target.value }))
+                      }
                       icon={<EventIcon color="primary" />}
                       required
                     />
@@ -133,8 +137,13 @@ export default function CreateNewEventDialog() {
                     <FormTextField
                       label={t("event.createEvent.form.description")}
                       name="description"
+                      value={formValues.description}
+                      onChange={(e) =>
+                        setFormValues((prev) => ({ ...prev, description: e.target.value }))
+                      }
                       icon={<DescriptionIcon color="primary" />}
                       multiline
+                      required
                     />
                   </Grid>
                 </Grid>
@@ -157,22 +166,32 @@ export default function CreateNewEventDialog() {
                       icon={<LocationOnIcon color="primary" />}
                       value={location}
                       onChange={handleLocationChange}
+                      required={true}
                     />
                   </Grid>
                 </Grid>
               </Grid>
 
               <Grid size={12}>
-                <DateTimeSection timezone={timezone} onTimezoneChange={setTimezone} />
+                <DateTimeSection
+                  timezone={timezone}
+                  startDate={formValues.startDate}
+                  endDate={formValues.endDate}
+                  onStartDateChange={(date) =>
+                    setFormValues((prev) => ({ ...prev, startDate: date }))
+                  }
+                  onEndDateChange={(date) => setFormValues((prev) => ({ ...prev, endDate: date }))}
+                  onTimezoneChange={setTimezone}
+                />
               </Grid>
             </Grid>
 
             <Divider sx={{ my: 3, borderColor: "divider" }} />
 
             <DialogActionsSection
-              onSubmit={() => onSubmit()}
-              onCancel={() => setOpen(false)}
               submitLabel={t("event.createEvent.submit")}
+              disabled={!isFormValid}
+              onCancel={() => setOpen(false)}
             />
           </form>
         </DialogContent>

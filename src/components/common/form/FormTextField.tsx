@@ -1,20 +1,21 @@
 // src/components/common/form/FormTextField.tsx
 import { useTranslation } from "react-i18next";
-import { TextField, InputAdornment } from "@mui/material";
+import { TextField, InputAdornment, TextFieldProps } from "@mui/material";
+
+interface FormTextFieldProps extends Omit<TextFieldProps, "label"> {
+  label: string;
+  icon: React.ReactElement;
+}
 
 export const FormTextField = ({
   label,
   name,
+  value,
+  onChange,
   icon,
   multiline = false,
   required = false,
-}: {
-  label: string;
-  name: string;
-  icon: React.ReactElement;
-  multiline?: boolean;
-  required?: boolean;
-}) => {
+}: FormTextFieldProps) => {
   const { t } = useTranslation();
 
   return (
@@ -22,6 +23,8 @@ export const FormTextField = ({
       fullWidth
       label={t(label)}
       name={name}
+      value={value}
+      onChange={onChange}
       required={required}
       multiline={multiline}
       minRows={multiline ? 4 : undefined}

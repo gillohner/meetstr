@@ -1,10 +1,10 @@
 // src/components/common/form/FormGeoSearchField.tsx
-import React, { useState, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Autocomplete, TextField, InputAdornment, CircularProgress } from '@mui/material';
-import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import throttle from 'lodash/throttle';
-import 'leaflet-geosearch/dist/geosearch.css';
+import React, { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { Autocomplete, TextField, InputAdornment, CircularProgress } from "@mui/material";
+import { OpenStreetMapProvider } from "leaflet-geosearch";
+import throttle from "lodash/throttle";
+import "leaflet-geosearch/dist/geosearch.css";
 
 interface GeoSearchResult {
   x: number; // longitude
@@ -33,14 +33,13 @@ export const FormGeoSearchField = ({
   value?: GeoSearchResult | null;
 }) => {
   const { t } = useTranslation();
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<GeoSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-  
-  
+
   // Initialize the OpenStreetMapProvider
   const provider = useMemo(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return new OpenStreetMapProvider();
     }
     return null;
@@ -48,39 +47,43 @@ export const FormGeoSearchField = ({
 
   const searchLocation = useMemo(
     () =>
-      throttle(async (input: string) => {
-        if (!provider || input.trim() === '') {
-          setOptions([]);
+      throttle(
+        async (input: string) => {
+          if (!provider || input.trim() === "") {
+            setOptions([]);
+            setLoading(false);
+            return;
+          }
+          setLoading(true);
+          try {
+            const results = await provider.search({ query: input });
+            setOptions(results);
+          } catch (error) {
+            console.error("Error searching for location:", error);
+            setOptions([]);
+          }
           setLoading(false);
-          return;
-        }
-        setLoading(true);
-        try {
-          const results = await provider.search({ query: input });
-          setOptions(results);
-        } catch (error) {
-          console.error('Error searching for location:', error);
-          setOptions([]);
-        }
-        setLoading(false);
-      }, 1000, { leading: false, trailing: true }),
+        },
+        300,
+        { leading: false, trailing: true }
+      ),
     [provider]
   );
-  
+
   useEffect(() => {
-    if (inputValue === '') {
+    if (inputValue === "") {
       setOptions(value ? [value] : []);
       return;
     }
-    
+
     searchLocation(inputValue);
-    
+
     // Cleanup function
     return () => {
       searchLocation.cancel();
     };
   }, [inputValue, searchLocation, value]);
-  
+
   return (
     <Autocomplete
       id={name}
@@ -99,7 +102,7 @@ export const FormGeoSearchField = ({
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
       }}
-      getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+      getOptionLabel={(option) => (typeof option === "string" ? option : option.label)}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -123,7 +126,7 @@ export const FormGeoSearchField = ({
         />
       )}
       renderOption={(props, option) => (
-        <li {...props} key={option.label}>
+        <li {...props} key={`${option.label}-${option.y}-${option.x}`}>
           {option.label}
         </li>
       )}
