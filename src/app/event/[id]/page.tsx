@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 
 export default function Event() {
   const params = useParams();
-  const id = params?.id; // Access the dynamic route parameter
+  const id = params?.id?.toString() || ""; // Access the dynamic route parameter
 
   return (
     <Container maxWidth="lg">
