@@ -21,6 +21,9 @@ import FormTextField from "@/components/common/form/FormTextField";
 import dynamic from "next/dynamic";
 import DateTimeSection from "@/components/common/events/DateTimeSection";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
+import { encodeGeohash } from "@/utils/location/geohash";
+import TagInputField from "@/components/common/form/TagInputField";
+
 const FormGeoSearchField = dynamic(() => import("@/components/common/form/FormGeoSearchField"), {
   ssr: false,
 });
@@ -61,6 +64,8 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
     startDate: null as dayjs.Dayjs | null,
     endDate: null as dayjs.Dayjs | null,
   });
+  const [hashtags, setHashtags] = useState<string[]>([]);
+  const [references, setReferences] = useState<string[]>([]);
   const [location, setLocation] = useState<GeoSearchResult | null>(null);
   const [eventImage, setEventImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
@@ -132,13 +137,17 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
       // Add location information
       if (location) {
         event.tags.push(["location", location.label]);
-
-        // If we have coordinates, include them
-        if (location.y && location.x) {
-          // TODO: In a real implementation, add geohash
-          console.log("Location coordinates:", { lat: location.y, lng: location.x });
-        }
       }
+
+      // Add geohash if coordinates are available
+      if (location?.x && location?.y) {
+        const geohash = encodeGeohash(location.y, location.x, 9);
+        event.tags.push(["g", geohash]);
+      }
+
+      // Add hashtags and references
+      hashtags.forEach((tag) => event.tags.push(["t", tag]));
+      references.forEach((ref) => event.tags.push(["r", ref]));
 
       // Add image if available
       if (eventImage) {
@@ -162,12 +171,6 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
 
     // The event reference coordinate
     const eventCoordinate = `31923:${activeUser?.pubkey}:${uniqueId}`;
-
-    console.log("isCalendarOwner:", isCalendarOwner);
-    console.log("calendarEvent:", calendarEvent);
-    console.log("calendarDTag:", calendarDTag);
-    console.log("eventCoordinate:", eventCoordinate);
-    console.log("activeUser:", activeUser);
 
     if (isCalendarOwner && calendarEvent && calendarDTag) {
       // Add the calendar reference to the event
@@ -302,6 +305,24 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
                   }
                   onEndDateChange={(date) => setFormValues((prev) => ({ ...prev, endDate: date }))}
                   onTimezoneChange={setTimezone}
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TagInputField
+                  label={t("event.createEvent.form.hashtags")}
+                  values={hashtags}
+                  onChange={setHashtags}
+                  placeholder={t("event.createEvent.form.addHashtag")}
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TagInputField
+                  label={t("event.createEvent.form.references")}
+                  values={references}
+                  onChange={setReferences}
+                  placeholder={t("event.createEvent.form.addReference")}
                 />
               </Grid>
             </Grid>
