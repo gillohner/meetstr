@@ -10,10 +10,12 @@ import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
+import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 
 export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
   const { ndk } = useNdk();
   const { t } = useTranslation();
+  const { updateUrlWithNip19 } = useNostrUrlUpdate();
   const { event: calendarEvent, loading, errorCode, fetchEvent } = useNostrEvent();
   const [upcomingEvents, setUpcomingEvents] = useState<NDKEvent[]>([]);
   const [pastEvents, setPastEvents] = useState<NDKEvent[]>([]);
@@ -21,12 +23,15 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
 
   useEffect(() => {
     if (calendarId) {
-      console.log("Fetching calendar event with ID:", calendarId);
-      console.log("Expected kinds:", expectedKinds);
-      console.log("ndk instance:", ndk);
       fetchEvent(calendarId, expectedKinds);
     }
   }, [calendarId, fetchEvent, expectedKinds, ndk]);
+
+  useEffect(() => {
+    if (calendarEvent) {
+      updateUrlWithNip19(calendarEvent);
+    }
+  }, [calendarEvent, updateUrlWithNip19]);
 
   // Handle calendar events fetch
   useEffect(() => {

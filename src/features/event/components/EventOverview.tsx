@@ -21,10 +21,12 @@ import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventLocationMapCard from "@/components/common/events/EventLocationMapCard";
 import EventRsvpMenu from "@/components/common/events/EventRsvpMenu";
 import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
+import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
   const { event, loading, errorCode, fetchEvent } = useNostrEvent();
+  const { updateUrlWithNip19 } = useNostrUrlUpdate();
   const expectedKinds = useMemo(() => [31922, 31923], []);
 
   useEffect(() => {
@@ -32,6 +34,12 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
       fetchEvent(eventId, expectedKinds);
     }
   }, [eventId, fetchEvent, expectedKinds]);
+
+  useEffect(() => {
+    if (event) {
+      updateUrlWithNip19(event);
+    }
+  }, [event, updateUrlWithNip19]);
 
   const errorMessage = useMemo(() => {
     if (!errorCode) return null;

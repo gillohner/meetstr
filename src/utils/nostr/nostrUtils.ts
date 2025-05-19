@@ -138,3 +138,62 @@ const getStartTime = (event: NDKEvent): number | undefined => {
   const startTag = event.tags.find((t) => t[0] === "start");
   return startTag ? parseInt(startTag[1]) : undefined;
 };
+
+/**
+ * Encodes an event into a NIP-19 nevent format
+ */
+export const encodeEventToNevent = (event: NDKEvent): string => {
+  try {
+    // Get relays from the event if available
+    const relays = event.relayUrls ? Array.from(event.relayUrls) : [];
+
+    return nip19.neventEncode({
+      id: event.id,
+      author: event.pubkey,
+      kind: event.kind,
+      relays,
+    });
+  } catch (error) {
+    console.error("Error encoding event to nevent:", error);
+    return "";
+  }
+};
+
+/**
+ * Encodes an addressable event into a NIP-19 naddr format
+ */
+export const encodeEventToNaddr = (event: NDKEvent): string => {
+  try {
+    // Extract d tag for the identifier
+    const dTag = event.tags.find((t) => t[0] === "d")?.[1] || "";
+
+    // Get relays from the event if available
+    const relays = event.relayUrls ? Array.from(event.relayUrls) : [];
+
+    return nip19.naddrEncode({
+      identifier: dTag,
+      pubkey: event.pubkey,
+      kind: event.kind,
+      relays,
+    });
+  } catch (error) {
+    console.error("Error encoding event to naddr:", error);
+    return "";
+  }
+};
+
+/**
+ * Gets the appropriate NIP-19 encoding for an event based on its kind
+ */
+export const getEventNip19Encoding = (event: NDKEvent): string => {
+  // Replaceable/Parameterized replaceable events should use naddr
+  if (
+    [30023, 31922, 31923, 31924].includes(event.kind) ||
+    (event.kind >= 30000 && event.kind < 40000)
+  ) {
+    return encodeEventToNaddr(event);
+  }
+
+  // Regular events use nevent
+  return encodeEventToNevent(event);
+};
