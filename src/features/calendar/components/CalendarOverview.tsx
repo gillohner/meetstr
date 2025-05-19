@@ -12,7 +12,11 @@ import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 
-export default function CalendarOverview({ calendarId }: { calendarId?: string }) {
+interface CalendarOverviewProps {
+  calendarId?: string;
+}
+
+export default function CalendarOverview({ calendarId }: CalendarOverviewProps) {
   const { ndk } = useNdk();
   const { t } = useTranslation();
   const { updateUrlWithNip19 } = useNostrUrlUpdate();
