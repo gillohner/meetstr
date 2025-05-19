@@ -14,6 +14,9 @@ export const useNostrEvent = () => {
 
   const fetchEvent = useCallback(
     async (identifier?: string, expectedKinds: number[] = []) => {
+      console.log("Fetching event with ID:", identifier);
+      console.log("Expected kinds:", expectedKinds);
+      console.log("ndk instance:", ndk);
       if (!ndk || !identifier) {
         setErrorCode(null);
         setEvent(null);
@@ -29,11 +32,14 @@ export const useNostrEvent = () => {
         const fetchedEvent = await fetchEventById(ndk, identifier, controller.signal);
 
         if (!fetchedEvent) {
+          console.error("Event not found");
           setErrorCode("not_found");
           setEvent(null);
           return;
         }
 
+        console.log("Fetched event:", fetchedEvent);
+        console.log("Fetched event kind:", fetchedEvent.kind);
         if (expectedKinds.length > 0 && !expectedKinds.includes(fetchedEvent.kind)) {
           setErrorCode("invalid_kind");
           setEvent(null);

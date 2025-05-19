@@ -2,8 +2,6 @@
 import * as React from "react";
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useNdk } from "nostr-hooks";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
 import {
   Card,
   CardContent,
@@ -16,7 +14,6 @@ import {
   Grid,
   Link,
 } from "@mui/material";
-import { fetchEventById } from "@/utils/nostr/nostrUtils";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import EventLocationText from "@/components/common/events/EventLocationText";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
@@ -94,7 +91,13 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
           <Box sx={{ mt: 3 }}>
             {metadata.references.map((reference, index) => (
-              <Link href={reference} key={`link-${index}`} target="_blank" variant="body2" sx={{ mr: 2 }}>
+              <Link
+                href={reference}
+                key={`link-${index}`}
+                target="_blank"
+                variant="body2"
+                sx={{ mr: 2 }}
+              >
                 {reference}
               </Link>
             ))}

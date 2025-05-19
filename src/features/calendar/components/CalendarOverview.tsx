@@ -21,9 +21,12 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
 
   useEffect(() => {
     if (calendarId) {
+      console.log("Fetching calendar event with ID:", calendarId);
+      console.log("Expected kinds:", expectedKinds);
+      console.log("ndk instance:", ndk);
       fetchEvent(calendarId, expectedKinds);
     }
-  }, [calendarId, fetchEvent, expectedKinds]);
+  }, [calendarId, fetchEvent, expectedKinds, ndk]);
 
   // Handle calendar events fetch
   useEffect(() => {
@@ -36,19 +39,6 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
     };
     loadCalendarEvents();
   }, [calendarEvent, ndk]);
-
-  // Error message handling
-  const errorMessage = useMemo(() => {
-    if (!errorCode) return null;
-    switch (errorCode) {
-      case "not_found":
-        return t("error.event.notFound");
-      case "invalid_kind":
-        return t("error.event.invalidKind");
-      default:
-        return t("error.generic");
-    }
-  }, [errorCode, t]);
 
   if (!calendarEvent) {
     if (loading) return <Typography>{t("common.loading")}</Typography>;

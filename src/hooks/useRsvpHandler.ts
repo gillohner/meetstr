@@ -9,7 +9,11 @@ import { useTranslation } from "react-i18next";
 
 export type RsvpStatus = "accepted" | "tentative" | "declined" | null;
 
-export function useRsvpHandler(event: any) {
+interface EventWithTags extends NDKEvent {
+  tags: string[][];
+}
+
+export function useRsvpHandler(event: EventWithTags) {
   const { ndk } = useNdk();
   const { activeUser } = useActiveUser();
   const { showSnackbar } = useSnackbar();
