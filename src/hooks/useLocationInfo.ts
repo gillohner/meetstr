@@ -14,4 +14,5 @@ export function useLocationInfo(locationName?: string | null, geohash?: string |
     enabled: Boolean(locationName || geohash),
     staleTime: 1000 * 60 * 60, // 1 hour
   });
+  console.log("useLocationInfo", locationName, geohash);
 }
