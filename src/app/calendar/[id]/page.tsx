@@ -21,7 +21,7 @@ export default function Calendar() {
           alignItems: "center",
         }}
       >
-        <CalendarOverview calendarId={id} />
+        {id && <CalendarOverview calendarId={id} />}
       </Box>
     </Container>
   );
