@@ -36,7 +36,6 @@ const formatDateRange = (startTime: string, endTime?: string, fallbackText: stri
       minute: "2-digit",
     });
 
-    console.log("month: ", startDate.getMonth());
     if (!endDate) {
       return formattedStartDate;
     }

@@ -81,7 +81,9 @@ export default function CalendarOverview({ calendarId }: { calendarId?: string }
                 {metadata.summary || ""}
               </Typography>
             </Grid>
-            <Grid size={2}>{event && <CreateNewEventDialog event={event} />}</Grid>
+            <Grid size={2}>
+              {calendarEvent && <CreateNewEventDialog calendarEvent={calendarEvent} />}
+            </Grid>
           </Grid>
         </CardContent>
       </Card>

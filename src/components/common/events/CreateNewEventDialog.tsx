@@ -12,7 +12,9 @@ import { Grid } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import { useActiveUser } from "nostr-hooks";
+import { useNdk, useActiveUser } from "nostr-hooks";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { nanoid } from "nanoid";
 import { useSnackbar } from "@/context/SnackbarContext";
 import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWithPreview";
 import FormTextField from "@/components/common/form/FormTextField";
@@ -31,7 +33,10 @@ import DescriptionIcon from "@mui/icons-material/Description";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-// Define the GeoSearchResult interface for location data
+interface CreateNewEventDialogProps {
+  calendarEvent?: NDKEvent;
+}
+
 interface GeoSearchResult {
   x: number; // longitude
   y: number; // latitude
@@ -43,8 +48,9 @@ interface GeoSearchResult {
   raw: any; // raw provider result
 }
 
-export default function CreateNewEventDialog() {
+export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDialogProps) {
   const { t } = useTranslation();
+  const { ndk } = useNdk();
   const [open, setOpen] = useState(false);
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
   const { activeUser } = useActiveUser();
@@ -84,23 +90,133 @@ export default function CreateNewEventDialog() {
   };
 
   const onSubmit = async function () {
-    if (!activeUser) return;
+    if (!activeUser || !ndk) return;
 
     try {
-      console.log("Form Values:", {
-        ...formValues,
-        location,
-        eventImage,
-        timezone,
-      });
+      // Generate a unique identifier for the event
+      const uniqueId = nanoid(8);
 
-      showSnackbar(t("event.createEvent.success"), "success");
+      // Create a new event
+      const event = new NDKEvent(ndk);
+      event.kind = 31923; // Time-Based Calendar Event
+      event.content = formValues.description || ""; // Required by NIP-52 update
+
+      // Add required tags
+      event.tags = [
+        ["d", uniqueId],
+        ["title", formValues.title],
+      ];
+
+      // Add summary if available
+      if (formValues.description) {
+        event.tags.push(["summary", formValues.description]);
+      }
+
+      // Add start and end times
+      if (formValues.startDate) {
+        event.tags.push(["start", Math.floor(formValues.startDate.unix()).toString()]);
+      } else {
+        throw new Error("Start date is required for time-based events");
+      }
+
+      if (formValues.endDate) {
+        event.tags.push(["end", Math.floor(formValues.endDate.unix()).toString()]);
+      }
+
+      // Add timezone information
+      if (timezone) {
+        event.tags.push(["start_tzid", timezone]);
+        event.tags.push(["end_tzid", timezone]);
+      }
+
+      // Add location information
+      if (location) {
+        event.tags.push(["location", location.label]);
+
+        // If we have coordinates, include them
+        if (location.y && location.x) {
+          // TODO: In a real implementation, add geohash
+          console.log("Location coordinates:", { lat: location.y, lng: location.x });
+        }
+      }
+
+      // Add image if available
+      if (eventImage) {
+        event.tags.push(["image", eventImage]);
+      }
+
+      // Process the rest based on calendar ownership
+      handleCalendarReferences(event, uniqueId);
     } catch (error) {
       console.error("Error creating event:", error);
       showSnackbar(t("event.createEvent.error"), "error");
-    } finally {
-      // setOpen(false);
     }
+  };
+
+  const handleCalendarReferences = async (event: NDKEvent, uniqueId: string) => {
+    // Get the calendar's d tag if available
+    const calendarDTag = calendarEvent?.tags.find((t) => t[0] === "d")?.[1];
+
+    // Check if we're in a calendar context and if the user is the owner
+    const isCalendarOwner = calendarEvent && calendarEvent.pubkey === activeUser?.pubkey;
+
+    // The event reference coordinate
+    const eventCoordinate = `31923:${activeUser?.pubkey}:${uniqueId}`;
+
+    console.log("isCalendarOwner:", isCalendarOwner);
+    console.log("calendarEvent:", calendarEvent);
+    console.log("calendarDTag:", calendarDTag);
+    console.log("eventCoordinate:", eventCoordinate);
+    console.log("activeUser:", activeUser);
+
+    if (isCalendarOwner && calendarEvent && calendarDTag) {
+      // Add the calendar reference to the event
+      event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
+
+      // Sign and publish the event
+      await event.sign();
+      await event.publish();
+
+      // Log the created event
+      console.log("Created event:", JSON.stringify(event, null, 2));
+
+      // Now update the calendar to include the new event
+      const updatedCalendar = new NDKEvent(ndk);
+      updatedCalendar.kind = 31924; // Calendar
+
+      // Copy existing tags but avoid duplicates
+      updatedCalendar.tags = calendarEvent.tags.filter(
+        (tag) => !(tag[0] === "a" && tag[1] === eventCoordinate)
+      );
+
+      // Add the new event reference to the calendar
+      updatedCalendar.tags.push(["a", eventCoordinate]);
+
+      // Ensure the calendar has content (required by May 19, 2025 update)
+      updatedCalendar.content = calendarEvent.content || "";
+
+      // Sign and publish the updated calendar
+      await updatedCalendar.sign();
+      await updatedCalendar.publish();
+
+      // Log the updated calendar
+      console.log("Updated calendar:", JSON.stringify(updatedCalendar, null, 2));
+    } else {
+      // We're not the calendar owner, just create the event with a reference to the calendar
+      if (calendarEvent && calendarDTag) {
+        event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
+      }
+
+      // Sign and publish the event
+      await event.sign();
+      await event.publish();
+
+      // Log the created event
+      console.log("Created event (approval needed):", JSON.stringify(event, null, 2));
+    }
+
+    showSnackbar(t("event.createEvent.success"), "success");
+    setOpen(false);
   };
 
   if (activeUser === undefined || activeUser === null) return "";

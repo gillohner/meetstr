@@ -1,6 +1,5 @@
 // src/utils/nostr/eventUtils.ts
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { get } from "http";
 
 export const getEventMetadata = (event: NDKEvent) => {
   const getTagValue = (tagName: string) => event.tags.find((t) => t[0] === tagName)?.[1];
@@ -8,11 +7,6 @@ export const getEventMetadata = (event: NDKEvent) => {
   // Fetch all values for repeatable tags
   const getTagValues = (tagName: string) =>
     event.tags.filter((t) => t[0] === tagName).map((t) => t.slice(1));
-
-  console.log("title: ", getTagValue("title"));
-  console.log("name: ", getTagValue("name"));
-  console.log("summary: ", getTagValue("summary"));
-  console.log("description: ", getTagValue("description"));
 
   return {
     title: getTagValue("title") ? getTagValue("title") : getTagValue("name"),

@@ -3,7 +3,6 @@ import { useState, useCallback } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useNdk } from "nostr-hooks";
 import { TextField, Button, Box, Typography, Paper, Chip, Grid, Alert } from "@mui/material";
-import { RequireLogin } from "@/components/NostrLogin";
 import { useTranslation } from "react-i18next";
 
 export default function CreateCalendarForm() {
@@ -84,85 +83,83 @@ export default function CreateCalendarForm() {
   }, [title, description, imageUrl, calendarRefs, ndk]);
 
   return (
-    <RequireLogin>
-      <Paper elevation={3} sx={{ p: 3, maxWidth: 900, minWidth: 600, mt: 4 }}>
-        <Box component="form" noValidate sx={{ mt: 3, mb: 2 }}>
-          {/* Error Message */}
-          {errorMessage && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {errorMessage}
-            </Alert>
-          )}
+    <Paper elevation={3} sx={{ p: 3, maxWidth: 900, minWidth: 600, mt: 4 }}>
+      <Box component="form" noValidate sx={{ mt: 3, mb: 2 }}>
+        {/* Error Message */}
+        {errorMessage && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
 
-          {/* Title Input */}
-          <Grid sx={{ mb: 2 }}>
-            <TextField
-              required
-              fullWidth
-              label={t("createCalendar.titleInput.label")}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </Grid>
+        {/* Title Input */}
+        <Grid sx={{ mb: 2 }}>
+          <TextField
+            required
+            fullWidth
+            label={t("createCalendar.titleInput.label")}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Grid>
 
-          {/* Description Input */}
-          <Grid sx={{ mb: 2 }}>
-            <TextField
-              required
-              fullWidth
-              label={t("createCalendar.descriptionInput.label")}
-              multiline
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </Grid>
+        {/* Description Input */}
+        <Grid sx={{ mb: 2 }}>
+          <TextField
+            required
+            fullWidth
+            label={t("createCalendar.descriptionInput.label")}
+            multiline
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </Grid>
 
-          {/* Image URL Input */}
-          <Grid sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              label={t("createCalendar.imgUrlInput.label")}
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-            />
-          </Grid>
+        {/* Image URL Input */}
+        <Grid sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            label={t("createCalendar.imgUrlInput.label")}
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
+        </Grid>
 
-          {/* Calendar References Input */}
-          <Grid sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              label={t("createCalendar.calendarReferencesInput.label")}
-              value={currentRef}
-              onChange={(e) => setCurrentRef(e.target.value)}
-              onKeyDown={handleRefKeyDown}
-              placeholder={t("createCalendar.calendarReferencesInput.placeholder")}
-              helperText={t("createCalendar.calendarReferencesInput.helperText")}
-              sx={{ mb: 2 }}
-            />
+        {/* Calendar References Input */}
+        <Grid sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            label={t("createCalendar.calendarReferencesInput.label")}
+            value={currentRef}
+            onChange={(e) => setCurrentRef(e.target.value)}
+            onKeyDown={handleRefKeyDown}
+            placeholder={t("createCalendar.calendarReferencesInput.placeholder")}
+            helperText={t("createCalendar.calendarReferencesInput.helperText")}
+            sx={{ mb: 2 }}
+          />
 
-            {/* Display Reference Chips */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-              {calendarRefs.map((ref, index) => (
-                <Chip
-                  key={index}
-                  label={ref}
-                  onDelete={() => handleDeleteRef(index)}
-                  color="primary"
-                  sx={{ my: 0.5 }}
-                />
-              ))}
-            </Box>
-          </Grid>
+          {/* Display Reference Chips */}
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+            {calendarRefs.map((ref, index) => (
+              <Chip
+                key={index}
+                label={ref}
+                onDelete={() => handleDeleteRef(index)}
+                color="primary"
+                sx={{ my: 0.5 }}
+              />
+            ))}
+          </Box>
+        </Grid>
 
-          {/* Publish Button */}
-          <Grid sx={{ mb: 2 }}>
-            <Button variant="contained" color="primary" size="large" onClick={handlePublish}>
-              {t("createCalendar.publish")}
-            </Button>
-          </Grid>
-        </Box>
-      </Paper>
-    </RequireLogin>
+        {/* Publish Button */}
+        <Grid sx={{ mb: 2 }}>
+          <Button variant="contained" color="primary" size="large" onClick={handlePublish}>
+            {t("createCalendar.publish")}
+          </Button>
+        </Grid>
+      </Box>
+    </Paper>
   );
 }
