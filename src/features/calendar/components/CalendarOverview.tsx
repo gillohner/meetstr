@@ -4,9 +4,16 @@ import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNdk } from "nostr-hooks";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { Card, CardContent, CardMedia, Typography, Container, Grid } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Container,
+  Grid,
+} from "@mui/material";
 import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
-wmport { useNostrEvent } from "@/hooks/useNostrEvent";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
@@ -16,11 +23,18 @@ interface CalendarOverviewProps {
   calendarId?: string;
 }
 
-export default function CalendarOverview({ calendarId }: CalendarOverviewProps) {
+export default function CalendarOverview({
+  calendarId,
+}: CalendarOverviewProps) {
   const { ndk } = useNdk();
   const { t } = useTranslation();
   const { updateUrlWithNip19 } = useNostrUrlUpdate();
-  const { event: calendarEvent, loading, errorCode, fetchEvent } = useNostrEvent();
+  const {
+    event: calendarEvent,
+    loading,
+    errorCode,
+    fetchEvent,
+  } = useNostrEvent();
   const [upcomingEvents, setUpcomingEvents] = useState<NDKEvent[]>([]);
   const [pastEvents, setPastEvents] = useState<NDKEvent[]>([]);
   const expectedKinds = useMemo(() => [31924], []);
@@ -41,7 +55,10 @@ export default function CalendarOverview({ calendarId }: CalendarOverviewProps) 
   useEffect(() => {
     const loadCalendarEvents = async () => {
       if (calendarEvent) {
-        const { upcoming, past } = await fetchCalendarEvents(ndk, calendarEvent);
+        const { upcoming, past } = await fetchCalendarEvents(
+          ndk,
+          calendarEvent
+        );
         setUpcomingEvents(upcoming);
         setPastEvents(past);
       }
@@ -81,7 +98,9 @@ export default function CalendarOverview({ calendarId }: CalendarOverviewProps) 
               </Typography>
             </Grid>
             <Grid size={2}>
-              {calendarEvent && <CreateNewEventDialog calendarEvent={calendarEvent} />}
+              {calendarEvent && (
+                <CreateNewEventDialog calendarEvent={calendarEvent} />
+              )}
             </Grid>
           </Grid>
         </CardContent>
