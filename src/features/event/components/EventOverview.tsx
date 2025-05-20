@@ -41,22 +41,10 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
     }
   }, [event, updateUrlWithNip19]);
 
-  const errorMessage = useMemo(() => {
-    if (!errorCode) return null;
-    switch (errorCode) {
-      case "not_found":
-        return t("error.event.notFound");
-      case "invalid_kind":
-        return t("error.event.invalidKind");
-      default:
-        return t("error.generic");
-    }
-  }, [errorCode, t]);
-
   if (loading) return <Typography>{t("common.loading")}</Typography>;
   if (errorCode) return <Typography color="error">{errorCode}</Typography>;
 
-  if (!event) {
+  if (!event || !eventId) {
     return <Typography variant="h4">{t("error.event.invalidId")}</Typography>;
   }
 
@@ -86,7 +74,10 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName", "Unnamed Event")}
               </Typography>
-              <EventTimeDisplay startTime={metadata.start} endTime={metadata.end} />
+              <EventTimeDisplay
+                startTime={metadata.start}
+                endTime={metadata.end}
+              />
               <EventLocationText location={metadata.location} />
               <Typography variant="body1" paragraph>
                 {metadata.summary}
@@ -113,10 +104,20 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
           <Box sx={{ mt: 3 }}>
             {metadata.hashtags.map((hashtag, index) => (
-              <Chip key={`hashtag-${index}`} label={`#${hashtag}`} size="small" sx={{ m: 0.5 }} />
+              <Chip
+                key={`hashtag-${index}`}
+                label={`#${hashtag}`}
+                size="small"
+                sx={{ m: 0.5 }}
+              />
             ))}
             {metadata.labels.map((label, index) => (
-              <Chip key={`label-${index}`} label={`${label}`} size="small" sx={{ m: 0.5 }} />
+              <Chip
+                key={`label-${index}`}
+                label={`${label}`}
+                size="small"
+                sx={{ m: 0.5 }}
+              />
             ))}
           </Box>
         </CardContent>
