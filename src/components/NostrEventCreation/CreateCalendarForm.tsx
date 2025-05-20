@@ -10,7 +10,7 @@ export default function CreateCalendarForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [calendarRefs, setCalendarRefs] = useState([]);
+  const [calendarRefs, setCalendarRefs] = useState<string[]>([]);
   const [currentRef, setCurrentRef] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // New state for error messages
 
@@ -18,7 +18,7 @@ export default function CreateCalendarForm() {
 
   // Add a calendar reference when pressing Enter
   const handleRefKeyDown = useCallback(
-    (e) => {
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
         e.preventDefault();
         const value = currentRef.trim();
@@ -32,7 +32,7 @@ export default function CreateCalendarForm() {
   );
 
   // Remove a calendar reference
-  const handleDeleteRef = useCallback((index) => {
+  const handleDeleteRef = useCallback((index: number) => {
     setCalendarRefs((prev) => prev.filter((_, i) => i !== index));
   }, []);
 

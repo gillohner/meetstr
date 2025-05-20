@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "post-update": "echo \"codesandbox preview only, need an update\" && pnpm update --latest"
+    "prebuild": "npm run lint",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@emotion/cache": "latest",
@@ -41,13 +42,15 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.16",
-    "@types/node": "latest",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "eslint": "latest",
+    "eslint": "^9.27.0",
+    "@typescript-eslint/parser": "^8.32.1",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@next/eslint-plugin-next": "^15.0.0",
     "eslint-config-next": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-tailwindcss": "^3.16.0",
+    "eslint-plugin-testing-library": "^6.2.0",
     "prettier": "^3.5.3",
-    "typescript": "latest"
+    "typescript": "^5.4.0"
   }
 }

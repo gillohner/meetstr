@@ -2,6 +2,7 @@
 "use client";
 import { useState } from "react";
 import { AppBar, Container, IconButton, Toolbar, Box } from "@mui/material";
+// @ts-ignore
 import MenuIcon from "@mui/icons-material/Menu";
 import Logo from "@/components/common/layout/AppBar/Logo/Logo";
 import {
@@ -22,7 +23,7 @@ export default function CustomAppBar() {
   const pages = ["newCalendar", "pricing", "blog"];
   const settings = [t("logout")];
 
-  const handleOpenNavMenu = (event) => {
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
 

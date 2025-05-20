@@ -6,7 +6,7 @@ import { useNdk } from "nostr-hooks";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Card, CardContent, CardMedia, Typography, Container, Grid } from "@mui/material";
 import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
-import { useNostrEvent } from "@/hooks/useNostrEvent";
+wmport { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";

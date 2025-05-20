@@ -1,0 +1,28 @@
+name: Next.js CI/CD
+on: [push, pull_request]
+
+jobs:
+  lint-build:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            .next
+            public
+            package.json
