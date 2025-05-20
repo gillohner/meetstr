@@ -20,23 +20,16 @@ export default function EventLocationText({
   return (
     <Box sx={{ display: "flex", mb: 2 }}>
       <LocationOnIcon sx={{ mr: 1, color: "text.secondary" }} />
-      <Typography
-        variant="body1"
-        color="text.secondary"
-        {...typographyProps}
-        sx={{ whiteSpace: "pre-line", ...typographyProps?.sx }}
-      >
-        {location && (
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            {...typographyProps}
-            sx={{ whiteSpace: "pre-line", ...typographyProps?.sx }}
-          >
-            {formatTextWithLineBreaks(location)}
-          </Typography>
-        )}
-      </Typography>
+      {location && (
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          {...typographyProps}
+          sx={{ whiteSpace: "pre-line", ...typographyProps?.sx }}
+        >
+          {formatTextWithLineBreaks(location)}
+        </Typography>
+      )}
     </Box>
   );
 }

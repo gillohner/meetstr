@@ -20,7 +20,13 @@ export default function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
-  const pages = ["new-calendar", "pricing", "blog"];
+  const pages = [
+    { title: t("nav.new-calendar"), path: "/new-calendar" },
+    {
+      title: t("nav.dezentralschweiz"),
+      path: "/calendar/naddr1qqyrsdeevfskxvfjqydhwumn8ghj7mn0wd68ytnnwa5hxuedv4hxjemdvyhxx6qzyzym2fnu9uvw04mq5lyzjwvat5x6jgaksl2nagn2dlf45ac0nxhqzqcyqqq8edqr02a67",
+    },
+  ];
   const settings = [t("logout")];
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {

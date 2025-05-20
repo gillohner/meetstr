@@ -1,4 +1,8 @@
 {
+  "nav": {
+    "new-calendar": "New Calendar",
+    "dezentralschweiz": "Dezentralschweiz Calendar"
+  },
   "navbar": {
     "login": {
       "login": "Login",

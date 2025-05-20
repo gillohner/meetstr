@@ -1,11 +1,18 @@
 // src/components/common/layout/AppBar/NavigationMenu/NavigationMenu.tsx
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import Link from "next/link";
 
+// Updated interface definitions
 interface MobileNavigationProps {
   anchorElNav: null | HTMLElement;
   handleCloseNavMenu: () => void;
-  pages: string[];
+  pages: Array<{ title: string; path: string }>;
+}
+
+interface DesktopNavigationProps {
+  pages: Array<{ title: string; path: string }>;
+  handleCloseNavMenu: () => void;
 }
 
 export const MobileNavigation = ({
@@ -25,19 +32,20 @@ export const MobileNavigation = ({
         sx={{ display: { xs: "block", md: "none" } }}
       >
         {pages.map((page) => (
-          <MenuItem key={page} onClick={handleCloseNavMenu}>
-            <Typography textAlign="center">{t(`nav.${page}`)}</Typography>
+          <MenuItem
+            key={page.path}
+            onClick={handleCloseNavMenu}
+            component={Link}
+            href={page.path}
+            passHref
+          >
+            <Typography textAlign="center">{page.title}</Typography>
           </MenuItem>
         ))}
       </Menu>
     </Box>
   );
 };
-
-interface DesktopNavigationProps {
-  pages: string[];
-  handleCloseNavMenu: () => void;
-}
 
 export const DesktopNavigation = ({
   pages,
@@ -49,11 +57,13 @@ export const DesktopNavigation = ({
     <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
       {pages.map((page) => (
         <Button
-          key={page}
+          key={page.path}
           onClick={handleCloseNavMenu}
+          component={Link}
+          href={page.path}
           sx={{ my: 2, color: "white", display: "block" }}
         >
-          {t(`nav.${page}`)}
+          {page.title}
         </Button>
       ))}
     </Box>
