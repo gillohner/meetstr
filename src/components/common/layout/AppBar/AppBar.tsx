@@ -17,10 +17,10 @@ import { useTranslation } from "react-i18next";
 
 export default function CustomAppBar() {
   const { t } = useTranslation();
-  const [anchorElNav, setAnchorElNav] = useState(null);
-  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
-  const pages = ["newCalendar", "pricing", "blog"];
+  const pages = ["new-calendar", "pricing", "blog"];
   const settings = [t("logout")];
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -31,8 +31,8 @@ export default function CustomAppBar() {
     setAnchorElNav(null);
   };
 
-  const handleUserMenu = (event) => {
-    setAnchorElUser(event?.currentTarget || null);
+  const handleUserMenu = (event?: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event ? event.currentTarget : null);
   };
 
   return (
@@ -58,7 +58,10 @@ export default function CustomAppBar() {
             pages={pages}
           />
 
-          <DesktopNavigation pages={pages} handleCloseNavMenu={handleCloseNavMenu} />
+          <DesktopNavigation
+            pages={pages}
+            handleCloseNavMenu={handleCloseNavMenu}
+          />
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <NotificationCenter />

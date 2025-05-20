@@ -28,7 +28,10 @@ interface EventAttendeesCardProps {
   event: any;
 }
 
-const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) => {
+const EventAttendeesCard = ({
+  participants,
+  event,
+}: EventAttendeesCardProps) => {
   const { t } = useTranslation();
   const { ndk } = useNdk();
   const [rsvpAccepted, setRsvpAccepted] = useState<Participant[]>([]);
@@ -47,6 +50,7 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
 
     const filters: NDKFilter[] = [
       {
+        // @ts-ignore
         kinds: [31925],
         "#e": [event.id],
       },
@@ -54,6 +58,7 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
 
     if (eventCoordinates) {
       filters.push({
+        // @ts-ignore
         kinds: [31925],
         "#a": [eventCoordinates],
       });
@@ -71,9 +76,15 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
         status: status || "accepted",
       };
 
-      setRsvpAccepted((prev) => updateParticipants(prev, participant, "accepted"));
-      setRsvpTentative((prev) => updateParticipants(prev, participant, "tentative"));
-      setRsvpDeclined((prev) => updateParticipants(prev, participant, "declined"));
+      setRsvpAccepted((prev) =>
+        updateParticipants(prev, participant, "accepted")
+      );
+      setRsvpTentative((prev) =>
+        updateParticipants(prev, participant, "tentative")
+      );
+      setRsvpDeclined((prev) =>
+        updateParticipants(prev, participant, "declined")
+      );
     });
 
     return () => {
@@ -82,7 +93,11 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
     };
   }, [ndk, event?.id, eventCoordinates]);
 
-  const updateParticipants = (existing: Participant[], newPart: Participant, status: string) => {
+  const updateParticipants = (
+    existing: Participant[],
+    newPart: Participant,
+    status: string
+  ) => {
     const filtered = existing.filter((p) => p.pubkey !== newPart.pubkey);
     return newPart.status === status ? [...filtered, newPart] : filtered;
   };
@@ -97,7 +112,9 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
   );
 
   const totalAttendees = useMemo(
-    () => categorizedParticipants.accepted.length + categorizedParticipants.tentative.length,
+    () =>
+      categorizedParticipants.accepted.length +
+      categorizedParticipants.tentative.length,
     [categorizedParticipants]
   );
 
@@ -136,13 +153,15 @@ const EventAttendeesCard = ({ participants, event }: EventAttendeesCardProps) =>
 };
 
 const AttendanceCategory = ({ title, participants, loading, color }: any) => (
-  <Box sx={{ display: "flex", justifyContent: "flex-start", flexWrap: "wrap"}}>
+  <Box sx={{ display: "flex", justifyContent: "flex-start", flexWrap: "wrap" }}>
     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
       <Chip label={title} size="small" color={color} />
-      {!loading && <Typography variant="caption">({participants.length})</Typography>}
+      {!loading && (
+        <Typography variant="caption">({participants.length})</Typography>
+      )}
     </Stack>
 
-    <AvatarGroup sx={{ gap: 1.2}}>
+    <AvatarGroup sx={{ gap: 1.2 }}>
       {participants.map((p: Participant) => (
         <ParticipantAvatar key={p.pubkey} pubkey={p.pubkey} status={p.status} />
       ))}
@@ -150,8 +169,14 @@ const AttendanceCategory = ({ title, participants, loading, color }: any) => (
   </Box>
 );
 
-const ParticipantAvatar = ({ pubkey, status }: { pubkey: string; status?: string }) => {
-  const { profile, isLoading } = useProfile({ pubkey });
+const ParticipantAvatar = ({
+  pubkey,
+  status,
+}: {
+  pubkey: string;
+  status?: string;
+}) => {
+  const { profile } = useProfile({ pubkey });
   const npub = useMemo(() => nip19.npubEncode(pubkey), [pubkey]);
 
   return (
@@ -165,7 +190,11 @@ const ParticipantAvatar = ({ pubkey, status }: { pubkey: string; status?: string
             status
               ? `2px solid ${
                   theme.palette[
-                    status === "accepted" ? "success" : status === "tentative" ? "warning" : "error"
+                    status === "accepted"
+                      ? "success"
+                      : status === "tentative"
+                        ? "warning"
+                        : "error"
                   ].main
                 }`
               : "none",
@@ -173,7 +202,7 @@ const ParticipantAvatar = ({ pubkey, status }: { pubkey: string; status?: string
         }}
         onClick={() => window.open(`https://njump.me/${npub}`, "_blank")}
       >
-        {!isLoading &&
+        {profile &&
           !profile?.image &&
           (profile?.displayName?.[0]?.toUpperCase() || npub.slice(0, 2))}
       </Avatar>

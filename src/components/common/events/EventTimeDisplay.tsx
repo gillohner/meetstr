@@ -1,11 +1,11 @@
 // src/components/common/events/EventTimeDisplay.tsx
-import { Box, Typography, TypographyProps } from "@mui/material";
+import { Box, Typography, type TypographyProps } from "@mui/material";
 import { formatDate, formatDateRange } from "@/utils/formatting/date";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useTranslation } from "react-i18next";
 
 interface EventTimeDisplayProps {
-  startTime: string;
+  startTime?: string | null;
   endTime?: string | null;
   typographyProps?: TypographyProps;
 }
@@ -15,6 +15,7 @@ export default function EventTimeDisplay({
   endTime,
   typographyProps,
 }: EventTimeDisplayProps) {
+  if (!startTime) return null;
   const { t } = useTranslation();
 
   const formattedDateRange = formatDateRange(

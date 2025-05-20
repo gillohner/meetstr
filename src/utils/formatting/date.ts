@@ -15,7 +15,7 @@ const formatDate = (timestamp: string, fallbackText: string) => {
   }
 };
 
-const isDatesEqual = (date1, date2) => {
+const isDatesEqual = (date1: Date, date2: Date) => {
   return (
     date1.getFullYear() === date2.getFullYear() &&
     date1.getMonth() === date2.getMonth() &&
@@ -23,7 +23,11 @@ const isDatesEqual = (date1, date2) => {
   );
 };
 
-const formatDateRange = (startTime: string, endTime?: string, fallbackText: string) => {
+const formatDateRange = (
+  startTime: string,
+  endTime?: string | null,
+  fallbackText?: string | null
+) => {
   try {
     const startDate = new Date(parseInt(startTime) * 1000);
     const endDate = endTime ? new Date(parseInt(endTime) * 1000) : null;
@@ -54,7 +58,7 @@ const formatDateRange = (startTime: string, endTime?: string, fallbackText: stri
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
-      minute: "2",
+      minute: "2-digit",
     });
 
     return formattedStartDate + " - " + formattedEndDate;

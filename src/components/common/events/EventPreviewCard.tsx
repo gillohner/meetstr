@@ -1,12 +1,16 @@
 // src/components/common/events/EventPreviewCard.tsx
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { type NDKEvent } from "@nostr-dev-kit/ndk";
 import { useRouter } from "next/navigation";
 import { nip19 } from "nostr-tools";
-import { Card, CardActionArea, CardContent, CardMedia, Typography, Box } from "@mui/material";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Typography,
+} from "@mui/material";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import EventLocationText from "@/components/common/events/EventLocationText";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
@@ -16,7 +20,10 @@ interface EventPreviewCardProps {
   sx?: object;
 }
 
-const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ event, sx = {} }) => {
+const EventPreviewCard: React.FC<EventPreviewCardProps> = ({
+  event,
+  sx = {},
+}) => {
   const { t } = useTranslation();
   const router = useRouter();
 

@@ -42,7 +42,7 @@
     "login": {
       "title": "Login",
       "extension": "Login with extension",
-      "remoteSignerInput": "NIP-64 string todo",
+      "remoteSignerInput": "NIP-46 string",
       "remoteSigner": "Login with remote signer",
       "privateKeyInput": "Private Key string todo",
       "privateKey": "Login with private key"

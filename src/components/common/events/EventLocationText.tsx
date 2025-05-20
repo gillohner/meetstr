@@ -1,9 +1,8 @@
 // src/components/common/events/EventLocationText.tsx
-import { Box, Typography, TypographyProps } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import type { TypographyProps } from "@mui/material/Typography";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { CircularProgress } from "@mui/material";
 import { formatTextWithLineBreaks } from "@/utils/formatting/text";
-import { useLocationInfo } from "@/hooks/useLocationInfo";
 
 interface EventLocationTextProps {
   location?: string | null;
@@ -16,37 +15,28 @@ export default function EventLocationText({
   geohash,
   typographyProps,
 }: EventLocationTextProps) {
-  if (!location && !geohash) return null;
-
-  // TODO: Fix Nomination Caching and Batch fetching before displaying nice looking address in preview cards
-  // const { data: locationData, isLoading } = useLocationInfo(location, geohash);
-  const locationData = []; // Placeholder for the actual data fetching logic
-  const isLoading = true; // Placeholder for the loading state
+  if (!location) return null;
 
   return (
     <Box sx={{ display: "flex", mb: 2 }}>
       <LocationOnIcon sx={{ mr: 1, color: "text.secondary" }} />
-      {isLoading ? (
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          {...typographyProps}
-          sx={{ whiteSpace: "pre-line", ...typographyProps?.sx }}
-        >
-          {formatTextWithLineBreaks(location)}
-        </Typography>
-      ) : (
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          {...typographyProps}
-          sx={{ whiteSpace: "pre-line", ...typographyProps?.sx }}
-        >
-          {formatTextWithLineBreaks(locationData?.formattedName)}
-          {locationData?.formattedName && locationData?.formattedAddress && <br />}
-          {formatTextWithLineBreaks(locationData?.formattedAddress)}
-        </Typography>
-      )}
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        {...typographyProps}
+        sx={{ whiteSpace: "pre-line", ...typographyProps?.sx }}
+      >
+        {location && (
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            {...typographyProps}
+            sx={{ whiteSpace: "pre-line", ...typographyProps?.sx }}
+          >
+            {formatTextWithLineBreaks(location)}
+          </Typography>
+        )}
+      </Typography>
     </Box>
   );
 }

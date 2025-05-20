@@ -1,8 +1,9 @@
 // src/utils/nostr/eventUtils.ts
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export const getEventMetadata = (event: NDKEvent) => {
-  const getTagValue = (tagName: string) => event.tags.find((t) => t[0] === tagName)?.[1];
+  const getTagValue = (tagName: string) =>
+    event.tags.find((t) => t[0] === tagName)?.[1];
 
   // Fetch all values for repeatable tags
   const getTagValues = (tagName: string) =>
@@ -14,7 +15,9 @@ export const getEventMetadata = (event: NDKEvent) => {
     end: getTagValue("end"),
     start_tzid: getTagValue("start_tzid"),
     end_tzid: getTagValue("end_tzid"),
-    summary: getTagValue("summary") ? getTagValue("summary") : getTagValue("description"),
+    summary: getTagValue("summary")
+      ? getTagValue("summary")
+      : getTagValue("description"),
     image: getTagValue("image"),
     // Repeatable tags:
     location: getTagValue("location"),

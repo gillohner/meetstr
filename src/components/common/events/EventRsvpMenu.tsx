@@ -2,7 +2,13 @@
 
 import * as React from "react";
 import { styled, alpha } from "@mui/material/styles";
-import { Button, CircularProgress, Menu, MenuItem, MenuProps } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Menu,
+  MenuItem,
+  type MenuProps,
+} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import CloseIcon from "@mui/icons-material/Close";
@@ -10,7 +16,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
 import { useActiveUser } from "nostr-hooks";
-import { useRsvpHandler, RsvpStatus } from "@/hooks/useRsvpHandler";
+import { useRsvpHandler, type RsvpStatus } from "@/hooks/useRsvpHandler";
+import { type NDKEvent } from "@nostr-dev-kit/ndk";
 
 // Keep the styled menu component as is...
 const StyledRsvpMenu = styled((props: MenuProps) => (
@@ -46,7 +53,7 @@ const StyledRsvpMenu = styled((props: MenuProps) => (
   },
 }));
 
-export default function EventRsvpMenu({ event }) {
+export default function EventRsvpMenu({ event }: { event: NDKEvent }) {
   const { t } = useTranslation();
   const { activeUser } = useActiveUser();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

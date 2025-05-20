@@ -1,7 +1,7 @@
 // src/providers/ClientProviders.tsx
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { I18nextProvider } from "react-i18next";
 import { ThemeProvider } from "@mui/material/styles";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
@@ -29,7 +29,6 @@ export default function ClientProviders({
   children: ReactNode;
   serverLang: string;
 }) {
-  const [isReady, setIsReady] = useState(false);
   const i18n = initI18n(serverLang);
   const { initNdk, ndk } = useNdk();
   const { loginFromLocalStorage } = useLogin();

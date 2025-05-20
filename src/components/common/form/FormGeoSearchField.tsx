@@ -1,7 +1,12 @@
 // src/components/common/form/FormGeoSearchField.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Autocomplete, TextField, InputAdornment, CircularProgress } from "@mui/material";
+import {
+  Autocomplete,
+  TextField,
+  InputAdornment,
+  CircularProgress,
+} from "@mui/material";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
 import throttle from "lodash/throttle";
 import "leaflet-geosearch/dist/geosearch.css";
@@ -111,7 +116,9 @@ export const FormGeoSearchField = ({
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
       }}
-      getOptionLabel={(option) => (typeof option === "string" ? option : option.label)}
+      getOptionLabel={(option) =>
+        typeof option === "string" ? option : option.label
+      }
       renderInput={(params) => (
         <TextField
           {...params}
@@ -127,7 +134,9 @@ export const FormGeoSearchField = ({
             ),
             endAdornment: (
               <>
-                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
                 {params.InputProps.endAdornment}
               </>
             ),

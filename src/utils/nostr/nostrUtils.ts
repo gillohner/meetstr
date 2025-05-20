@@ -1,5 +1,6 @@
 // src/utils/nostr/nostrUtils.ts
-import { NDK, NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import type NDK from "@nostr-dev-kit/ndk";
+import { type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
 
 /**
@@ -9,7 +10,10 @@ import { nip19 } from "nostr-tools";
  * @param identifier - Can be an event ID, naddr, or other identifier
  * @returns Promise that resolves to the event or null if not found
  */
-export const fetchEventById = async (ndk: NDK, identifier: string): Promise<NDKEvent | null> => {
+export const fetchEventById = async (
+  ndk: NDK,
+  identifier: string
+): Promise<NDKEvent | null> => {
   if (!ndk) {
     throw new Error("NDK instance not provided");
   }
@@ -94,14 +98,16 @@ export const fetchCalendarEvents = async (
 
     try {
       const event = await ndk.fetchEvent({
-        kinds: [kind],
+        kinds: [kind as number],
         authors: [pubkey],
         "#d": [dTag],
       });
 
       if (!event) return null;
 
-      const startTime = parseInt(event.tags.find((t) => t[0] === "start")?.[1] || "0");
+      const startTime = parseInt(
+        event.tags.find((t) => t[0] === "start")?.[1] || "0"
+      );
 
       return { event, startTime };
     } catch (error) {
@@ -123,9 +129,11 @@ export const fetchCalendarEvents = async (
   });
 
   // Sort functions
-  const sortAsc = (a: NDKEvent, b: NDKEvent) => (getStartTime(a) || 0) - (getStartTime(b) || 0);
+  const sortAsc = (a: NDKEvent, b: NDKEvent) =>
+    (getStartTime(a) || 0) - (getStartTime(b) || 0);
 
-  const sortDesc = (a: NDKEvent, b: NDKEvent) => (getStartTime(b) || 0) - (getStartTime(a) || 0);
+  const sortDesc = (a: NDKEvent, b: NDKEvent) =>
+    (getStartTime(b) || 0) - (getStartTime(a) || 0);
 
   return {
     upcoming: upcoming.sort(sortAsc),
@@ -145,13 +153,12 @@ const getStartTime = (event: NDKEvent): number | undefined => {
 export const encodeEventToNevent = (event: NDKEvent): string => {
   try {
     // Get relays from the event if available
-    const relays = event.relayUrls ? Array.from(event.relayUrls) : [];
+    // TODO: add explicit relays
 
     return nip19.neventEncode({
       id: event.id,
       author: event.pubkey,
       kind: event.kind,
-      relays,
     });
   } catch (error) {
     console.error("Error encoding event to nevent:", error);
@@ -167,14 +174,11 @@ export const encodeEventToNaddr = (event: NDKEvent): string => {
     // Extract d tag for the identifier
     const dTag = event.tags.find((t) => t[0] === "d")?.[1] || "";
 
-    // Get relays from the event if available
-    const relays = event.relayUrls ? Array.from(event.relayUrls) : [];
-
+    // TODO: add explicit relays
     return nip19.naddrEncode({
       identifier: dTag,
       pubkey: event.pubkey,
       kind: event.kind,
-      relays,
     });
   } catch (error) {
     console.error("Error encoding event to naddr:", error);

@@ -1,14 +1,18 @@
 // src/context/SnackbarContext.tsx
 import React, { createContext, useContext, useState } from "react";
-import { Snackbar, Alert, AlertColor } from "@mui/material";
+import { Snackbar, Alert, type AlertColor } from "@mui/material";
 
 type SnackbarContextType = {
   showSnackbar: (message: string, severity: AlertColor) => void;
 };
 
-const SnackbarContext = createContext<SnackbarContextType>({} as SnackbarContextType);
+const SnackbarContext = createContext<SnackbarContextType>(
+  {} as SnackbarContextType
+);
 
-export const SnackbarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SnackbarProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState<AlertColor>("info");

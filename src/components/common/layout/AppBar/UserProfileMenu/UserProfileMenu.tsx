@@ -1,5 +1,13 @@
 // src/components/common/layout/AppBar/UserProfileMenu/UserProfileMenu.tsx
-import { Avatar, Box, IconButton, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useActiveUser, useLogin, useProfile } from "nostr-hooks";
 import LoginButton from "@/components/common/auth/NostrLogin/LoginButton";
 import { useTranslation } from "react-i18next";
@@ -45,7 +53,9 @@ export default function UserProfileMenu({
             id="user-menu"
             anchorEl={anchorElUser}
             open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
+            onClose={(event, reason) =>
+              handleCloseUserMenu(event as React.MouseEvent<HTMLElement>)
+            }
           >
             {settings.map((setting) => (
               <MenuItem key={setting} onClick={() => handleMenuAction(setting)}>
@@ -55,7 +65,7 @@ export default function UserProfileMenu({
           </Menu>
         </>
       ) : (
-        <LoginButton color="inherit" />
+        <LoginButton color="primary" />
       )}
     </Box>
   );

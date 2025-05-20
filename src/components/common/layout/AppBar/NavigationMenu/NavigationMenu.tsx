@@ -2,7 +2,17 @@
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-export const MobileNavigation = ({ anchorElNav, handleCloseNavMenu, pages }) => {
+interface MobileNavigationProps {
+  anchorElNav: null | HTMLElement;
+  handleCloseNavMenu: () => void;
+  pages: string[];
+}
+
+export const MobileNavigation = ({
+  anchorElNav,
+  handleCloseNavMenu,
+  pages,
+}: MobileNavigationProps) => {
   const { t } = useTranslation();
 
   return (
@@ -24,7 +34,15 @@ export const MobileNavigation = ({ anchorElNav, handleCloseNavMenu, pages }) => 
   );
 };
 
-export const DesktopNavigation = ({ pages, handleCloseNavMenu }) => {
+interface DesktopNavigationProps {
+  pages: string[];
+  handleCloseNavMenu: () => void;
+}
+
+export const DesktopNavigation = ({
+  pages,
+  handleCloseNavMenu,
+}: DesktopNavigationProps) => {
   const { t } = useTranslation();
 
   return (

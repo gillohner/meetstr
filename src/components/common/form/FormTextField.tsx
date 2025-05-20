@@ -1,6 +1,6 @@
 // src/components/common/form/FormTextField.tsx
 import { useTranslation } from "react-i18next";
-import { TextField, InputAdornment, TextFieldProps } from "@mui/material";
+import { TextField, InputAdornment, type TextFieldProps } from "@mui/material";
 
 interface FormTextFieldProps extends Omit<TextFieldProps, "label"> {
   label: string;
@@ -29,7 +29,9 @@ export const FormTextField = ({
       multiline={multiline}
       minRows={multiline ? 4 : undefined}
       InputProps={{
-        startAdornment: <InputAdornment position="start">{icon}</InputAdornment>,
+        startAdornment: (
+          <InputAdornment position="start">{icon}</InputAdornment>
+        ),
       }}
     />
   );

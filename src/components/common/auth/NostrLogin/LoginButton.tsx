@@ -1,17 +1,10 @@
 // src/components/common/auth/NostrLogin/LoginButton.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import TextField from "@mui/material/TextField";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLogin } from "nostr-hooks";
-import { Divider } from "@mui/material";
-import { useActiveUser } from "nostr-hooks";
-import { useProfile } from "nostr-hooks";
+import { Divider, Button, Typography, Modal, Box } from "@mui/material";
+import { useActiveUser, useLogin, useProfile } from "nostr-hooks";
 
 const style = {
   position: "absolute",
@@ -26,13 +19,24 @@ const style = {
   textAlign: "center",
 };
 
+interface LoginButtonProps {
+  variant?: "text" | "contained" | "outlined";
+  color?: "primary" | "secondary" | "error" | "warning" | "info" | "success";
+  errorColor?:
+    | "primary"
+    | "secondary"
+    | "error"
+    | "warning"
+    | "info"
+    | "success";
+}
+
 export default function LoginButton({
   variant = "contained",
   color = "primary",
   errorColor = "error",
-}) {
+}: LoginButtonProps) {
   const { t } = useTranslation();
-
   const [open, setOpen] = useState(false);
   const [remoteSignerKey, setRemoteSignerKey] = useState("");
   const [privateKey, setPrivateKey] = useState("");
@@ -46,21 +50,23 @@ export default function LoginButton({
     setErrorMessage("");
   };
 
-  const { loginWithExtension, loginWithRemoteSigner, loginWithPrivateKey } = useLogin();
+  const { loginWithExtension } = useLogin();
 
-  const handleLoginWithRemoteSigner = async () => {
+  const handleExtensionLogin = async () => {
     try {
-      await loginWithRemoteSigner(remoteSignerKey);
-    } catch (error) {
-      setErrorMessage(t("error.remoteSignerFailure"));
-    }
-  };
-
-  const handleLoginWithPrivateKey = async () => {
-    try {
-      await loginWithPrivateKey(privateKey);
-    } catch (error) {
-      setErrorMessage(t("error.invalidPrivateKey"));
+      await loginWithExtension({
+        onSuccess: (signer) => {
+          // Handle successful login
+          handleClose();
+        },
+        onError: (err) => {
+          setErrorMessage(t("errors.login_failed"));
+          console.error("Login failed:", err);
+        },
+      });
+    } catch (err) {
+      setErrorMessage(t("errors.login_failed"));
+      console.error("Login error:", err);
     }
   };
 
@@ -91,36 +97,22 @@ export default function LoginButton({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={2}>
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            marginBottom={2}
+          >
             {t("modal.login.title")}
           </Typography>
-          <Button variant={variant} color={color} onClick={loginWithExtension}>
+          <Button
+            variant={variant}
+            color={color}
+            onClick={handleExtensionLogin}
+          >
             {t("modal.login.extension")}
           </Button>
           <Divider sx={{ my: 2 }} />
-          <TextField
-            label={t("modal.login.remoteSignerInput")}
-            variant="outlined"
-            fullWidth
-            value={remoteSignerKey}
-            onChange={(e) => setRemoteSignerKey(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <Button variant={variant} color={color} onClick={handleLoginWithRemoteSigner}>
-            {t("modal.login.remoteSigner")}
-          </Button>
-          <Divider sx={{ my: 2 }} />
-          <TextField
-            label={t("modal.login.privateKeyInput")}
-            variant="outlined"
-            fullWidth
-            value={privateKey}
-            onChange={(e) => setPrivateKey(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <Button variant={variant} color={color} onClick={handleLoginWithPrivateKey}>
-            {t("modal.login.privateKey")}
-          </Button>
           {errorMessage && (
             <Typography color="error" sx={{ mt: 2 }}>
               {errorMessage}

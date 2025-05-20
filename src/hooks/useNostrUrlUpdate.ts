@@ -1,8 +1,7 @@
 // src/hooks/useNostrUrlUpdate.ts
-
 import { useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { type NDKEvent } from "@nostr-dev-kit/ndk";
 import { getEventNip19Encoding } from "@/utils/nostr/nostrUtils";
 
 export const useNostrUrlUpdate = () => {

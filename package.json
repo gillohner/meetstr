@@ -1,6 +1,7 @@
 {
-  "name": "material-ui-nextjs-ts",
+  "name": "dezentralbot-web",
   "version": "5.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -31,7 +32,7 @@
     "lodash": "^4.17.21",
     "maplibre-gl": "^5.5.0",
     "ndk": "^1.0.0",
-    "next": "^15.0.0",
+    "next": "^15.3.2",
     "nostr-hooks": "^4.3.3",
     "opencage-api-client": "^1.1.0",
     "react": "^19.1.0",
@@ -42,10 +43,11 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "eslint": "^9.27.0",
-    "@typescript-eslint/parser": "^8.32.1",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@next/eslint-plugin-next": "^15.0.0",
+    "@types/lodash": "^4.17.16",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
     "eslint-config-next": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-tailwindcss": "^3.16.0",

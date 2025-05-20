@@ -14,9 +14,8 @@ import {
   Box,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { useNdk } from "nostr-hooks";
-import { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-import { useActiveUser } from "nostr-hooks";
+import { useNdk, useActiveUser } from "nostr-hooks";
+import { type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
 
@@ -39,6 +38,7 @@ export default function NotificationCenter() {
     if (!ndk || !activeUser) return;
 
     const filter: NDKFilter = {
+      // @ts-ignore
       kinds: [31922, 31923, 31925],
       "#p": [activeUser.pubkey],
       since: Math.floor(Date.now() / 1000) - 604800, // 1 week
@@ -85,7 +85,10 @@ export default function NotificationCenter() {
   return (
     <Box>
       <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
-        <Badge badgeContent={notifications.filter((n) => !n.read).length} color="error">
+        <Badge
+          badgeContent={notifications.filter((n) => !n.read).length}
+          color="error"
+        >
           <NotificationsIcon />
         </Badge>
       </IconButton>

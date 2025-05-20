@@ -3,7 +3,7 @@ import * as React from "react";
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNdk } from "nostr-hooks";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { type NDKEvent } from "@nostr-dev-kit/ndk";
 import {
   Card,
   CardContent,
@@ -54,7 +54,7 @@ export default function CalendarOverview({
   // Handle calendar events fetch
   useEffect(() => {
     const loadCalendarEvents = async () => {
-      if (calendarEvent) {
+      if (calendarEvent && ndk) {
         const { upcoming, past } = await fetchCalendarEvents(
           ndk,
           calendarEvent

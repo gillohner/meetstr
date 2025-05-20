@@ -1,10 +1,14 @@
 // src/hooks/useNostrEvent.ts
 import { useState, useCallback } from "react";
 import { useNdk } from "nostr-hooks";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { type NDKEvent } from "@nostr-dev-kit/ndk";
 import { fetchEventById } from "@/utils/nostr/nostrUtils";
 
-export type NostrEventError = "not_found" | "invalid_kind" | "network_error" | null;
+export type NostrEventError =
+  | "not_found"
+  | "invalid_kind"
+  | "network_error"
+  | null;
 
 export const useNostrEvent = () => {
   const { ndk } = useNdk();
@@ -29,7 +33,7 @@ export const useNostrEvent = () => {
       const controller = new AbortController();
 
       try {
-        const fetchedEvent = await fetchEventById(ndk, identifier, controller.signal);
+        const fetchedEvent = await fetchEventById(ndk, identifier);
 
         if (!fetchedEvent) {
           console.error("Event not found");
@@ -40,7 +44,10 @@ export const useNostrEvent = () => {
 
         console.log("Fetched event:", fetchedEvent);
         console.log("Fetched event kind:", fetchedEvent.kind);
-        if (expectedKinds.length > 0 && !expectedKinds.includes(fetchedEvent.kind)) {
+        if (
+          expectedKinds.length > 0 &&
+          !expectedKinds.includes(fetchedEvent.kind)
+        ) {
           setErrorCode("invalid_kind");
           setEvent(null);
           return;

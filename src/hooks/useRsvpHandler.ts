@@ -1,8 +1,7 @@
 // src/hooks/useRsvpHandler.ts
-
 import { useState, useEffect, useCallback } from "react";
 import { useNdk, useActiveUser } from "nostr-hooks";
-import { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { v4 as uuidv4 } from "uuid";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useTranslation } from "react-i18next";
@@ -38,6 +37,7 @@ export function useRsvpHandler(event: EventWithTags) {
 
     const filters: NDKFilter[] = [
       {
+        // @ts-ignore
         kinds: [31925],
         "#e": [event.id],
         authors: [activeUser.pubkey],
@@ -47,6 +47,7 @@ export function useRsvpHandler(event: EventWithTags) {
     const eventCoordinates = getEventCoordinates();
     if (eventCoordinates) {
       filters.push({
+        // @ts-ignore
         kinds: [31925],
         "#a": [eventCoordinates],
         authors: [activeUser.pubkey],
@@ -57,7 +58,9 @@ export function useRsvpHandler(event: EventWithTags) {
 
     sub.on("event", (rsvpEvent) => {
       setCurrentRsvp(rsvpEvent);
-      const statusTag = rsvpEvent.tags?.find((t: string[]) => t[0] === "status");
+      const statusTag = rsvpEvent.tags?.find(
+        (t: string[]) => t[0] === "status"
+      );
       if (statusTag && statusTag[1]) {
         setRsvpStatus(statusTag[1] as RsvpStatus);
       }
