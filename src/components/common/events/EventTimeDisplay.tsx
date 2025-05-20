@@ -1,6 +1,6 @@
 // src/components/common/events/EventTimeDisplay.tsx
 import { Box, Typography, type TypographyProps } from "@mui/material";
-import { formatDate, formatDateRange } from "@/utils/formatting/date";
+import { formatDateRange } from "@/utils/formatting/date";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useTranslation } from "react-i18next";
 
