@@ -107,16 +107,22 @@ export default function CalendarOverview({
   console.log("Calendar metadata:", metadata);
   // Merge unapproved events into the correct sections if toggle is on
   const allUpcomingEvents = showUnapproved
-    ? [...upcomingEvents, ...unapprovedEvents.filter(ev => {
-        const startTag = ev.tags.find((t) => t[0] === "start");
-        return startTag && parseInt(startTag[1]) > Date.now() / 1000;
-      })]
+    ? [
+        ...upcomingEvents,
+        ...unapprovedEvents.filter((ev) => {
+          const startTag = ev.tags.find((t) => t[0] === "start");
+          return startTag && parseInt(startTag[1]) > Date.now() / 1000;
+        }),
+      ]
     : upcomingEvents;
   const allPastEvents = showUnapproved
-    ? [...pastEvents, ...unapprovedEvents.filter(ev => {
-        const startTag = ev.tags.find((t) => t[0] === "start");
-        return startTag && parseInt(startTag[1]) <= Date.now() / 1000;
-      })]
+    ? [
+        ...pastEvents,
+        ...unapprovedEvents.filter((ev) => {
+          const startTag = ev.tags.find((t) => t[0] === "start");
+          return startTag && parseInt(startTag[1]) <= Date.now() / 1000;
+        }),
+      ]
     : pastEvents;
 
   // ToggleButtonGroup for filtering
@@ -151,7 +157,7 @@ export default function CalendarOverview({
         </CardContent>
       </Card>
       {/* ToggleButtonGroup filter below card, left-aligned, orange color */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <ToggleButtonGroup
           value={filterValue}
           exclusive
@@ -159,10 +165,24 @@ export default function CalendarOverview({
           sx={{ ml: 0 }}
           size="small"
         >
-          <ToggleButton value="approved" sx={{ color: 'warning.main', borderColor: 'warning.main', fontWeight: 500 }}>
+          <ToggleButton
+            value="approved"
+            sx={{
+              color: "warning.main",
+              borderColor: "warning.main",
+              fontWeight: 500,
+            }}
+          >
             {t("calendar.onlyApproved", "Only Approved")}
           </ToggleButton>
-          <ToggleButton value="all" sx={{ color: 'warning.main', borderColor: 'warning.main', fontWeight: 500 }}>
+          <ToggleButton
+            value="all"
+            sx={{
+              color: "warning.main",
+              borderColor: "warning.main",
+              fontWeight: 500,
+            }}
+          >
             {t("calendar.allMeetups", "All Meetups")}
           </ToggleButton>
         </ToggleButtonGroup>

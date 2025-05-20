@@ -18,16 +18,16 @@ interface UserProfileMenuProps {
   settings: string[];
 }
 
-export default function UserProfileMenu({
-  settings,
-}: UserProfileMenuProps) {
+export default function UserProfileMenu({ settings }: UserProfileMenuProps) {
   const { t } = useTranslation();
   const { logout } = useLogin();
   const { activeUser } = useActiveUser();
   const userProfile = useProfile({ pubkey: activeUser?.pubkey });
 
   // Local state for anchor element
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
+    null
+  );
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
