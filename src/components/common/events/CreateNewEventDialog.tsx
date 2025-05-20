@@ -1,17 +1,19 @@
 // src/components/common/events/CreateNewEventDialog.tsx
 import * as React from "react";
 import { useState } from "react";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  Divider,
+  Typography,
+} from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { Grid } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import Divider from "@mui/material/Divider";
-import Typography from "@mui/material/Typography";
 import { useNdk, useActiveUser } from "nostr-hooks";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { nanoid } from "nanoid";
@@ -24,9 +26,12 @@ import DialogActionsSection from "@/components/common/layout/DialogActionsSectio
 import { encodeGeohash } from "@/utils/location/geohash";
 import TagInputField from "@/components/common/form/TagInputField";
 
-const FormGeoSearchField = dynamic(() => import("@/components/common/form/FormGeoSearchField"), {
-  ssr: false,
-});
+const FormGeoSearchField = dynamic(
+  () => import("@/components/common/form/FormGeoSearchField"),
+  {
+    ssr: false,
+  }
+);
 
 // Import icons
 import EventIcon from "@mui/icons-material/Event";
@@ -51,7 +56,9 @@ interface GeoSearchResult {
   raw: any; // raw provider result
 }
 
-export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDialogProps) {
+export default function CreateNewEventDialog({
+  calendarEvent,
+}: CreateNewEventDialogProps) {
   const { t } = useTranslation();
   const { ndk } = useNdk();
   const [open, setOpen] = useState(false);
@@ -119,13 +126,19 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
 
       // Add start and end times
       if (formValues.startDate) {
-        event.tags.push(["start", Math.floor(formValues.startDate.unix()).toString()]);
+        event.tags.push([
+          "start",
+          Math.floor(formValues.startDate.unix()).toString(),
+        ]);
       } else {
         throw new Error("Start date is required for time-based events");
       }
 
       if (formValues.endDate) {
-        event.tags.push(["end", Math.floor(formValues.endDate.unix()).toString()]);
+        event.tags.push([
+          "end",
+          Math.floor(formValues.endDate.unix()).toString(),
+        ]);
       }
 
       // Add timezone information
@@ -162,12 +175,16 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
     }
   };
 
-  const handleCalendarReferences = async (event: NDKEvent, uniqueId: string) => {
+  const handleCalendarReferences = async (
+    event: NDKEvent,
+    uniqueId: string
+  ) => {
     // Get the calendar's d tag if available
     const calendarDTag = calendarEvent?.tags.find((t) => t[0] === "d")?.[1];
 
     // Check if we're in a calendar context and if the user is the owner
-    const isCalendarOwner = calendarEvent && calendarEvent.pubkey === activeUser?.pubkey;
+    const isCalendarOwner =
+      calendarEvent && calendarEvent.pubkey === activeUser?.pubkey;
 
     // The event reference coordinate
     const eventCoordinate = `31923:${activeUser?.pubkey}:${uniqueId}`;
@@ -203,7 +220,10 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
       await updatedCalendar.publish();
 
       // Log the updated calendar
-      console.log("Updated calendar:", JSON.stringify(updatedCalendar, null, 2));
+      console.log(
+        "Updated calendar:",
+        JSON.stringify(updatedCalendar, null, 2)
+      );
     } else {
       // We're not the calendar owner, just create the event with a reference to the calendar
       if (calendarEvent && calendarDTag) {
@@ -215,7 +235,10 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
       await event.publish();
 
       // Log the created event
-      console.log("Created event (approval needed):", JSON.stringify(event, null, 2));
+      console.log(
+        "Created event (approval needed):",
+        JSON.stringify(event, null, 2)
+      );
     }
 
     showSnackbar(t("event.createEvent.success"), "success");
@@ -226,13 +249,27 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
 
   return (
     <>
-      <Button size="large" variant="contained" onClick={() => setOpen(true)} sx={{ width: "100%" }}>
+      <Button
+        size="large"
+        variant="contained"
+        onClick={() => setOpen(true)}
+        sx={{ width: "100%" }}
+      >
         {t("event.createEvent.title")}
       </Button>
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ bgcolor: "background.default", color: "text.primary" }}>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{ bgcolor: "background.default", color: "text.primary" }}
+        >
           <Typography variant="h5" component="div">
-            <EventIcon sx={{ mr: 1, verticalAlign: "middle", color: "primary.main" }} />
+            <EventIcon
+              sx={{ mr: 1, verticalAlign: "middle", color: "primary.main" }}
+            />
             {t("event.createEvent.newEvent")}
           </Typography>
         </DialogTitle>
@@ -248,7 +285,10 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
                       name="title"
                       value={formValues.title}
                       onChange={(e) =>
-                        setFormValues((prev) => ({ ...prev, title: e.target.value }))
+                        setFormValues((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
                       }
                       icon={<EventIcon color="primary" />}
                       required
@@ -260,7 +300,10 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
                       name="description"
                       value={formValues.description}
                       onChange={(e) =>
-                        setFormValues((prev) => ({ ...prev, description: e.target.value }))
+                        setFormValues((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
                       }
                       icon={<DescriptionIcon color="primary" />}
                       multiline
@@ -303,7 +346,9 @@ export default function CreateNewEventDialog({ calendarEvent }: CreateNewEventDi
                   onStartDateChange={(date) =>
                     setFormValues((prev) => ({ ...prev, startDate: date }))
                   }
-                  onEndDateChange={(date) => setFormValues((prev) => ({ ...prev, endDate: date }))}
+                  onEndDateChange={(date) =>
+                    setFormValues((prev) => ({ ...prev, endDate: date }))
+                  }
                   onTimezoneChange={setTimezone}
                 />
               </Grid>

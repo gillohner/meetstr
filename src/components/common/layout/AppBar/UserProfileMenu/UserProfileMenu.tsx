@@ -1,4 +1,5 @@
 // src/components/common/layout/AppBar/UserProfileMenu/UserProfileMenu.tsx
+import React from "react";
 import {
   Avatar,
   Box,
@@ -14,20 +15,26 @@ import { useTranslation } from "react-i18next";
 
 // Update prop types
 interface UserProfileMenuProps {
-  anchorElUser: HTMLElement | null;
-  handleCloseUserMenu: (event?: React.MouseEvent<HTMLElement>) => void;
   settings: string[];
 }
 
 export default function UserProfileMenu({
-  anchorElUser,
-  handleCloseUserMenu,
   settings,
 }: UserProfileMenuProps) {
   const { t } = useTranslation();
   const { logout } = useLogin();
   const { activeUser } = useActiveUser();
   const userProfile = useProfile({ pubkey: activeUser?.pubkey });
+
+  // Local state for anchor element
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
 
   const handleMenuAction = (setting: string) => {
     if (setting === t("logout")) {
@@ -41,7 +48,7 @@ export default function UserProfileMenu({
       {userProfile?.status === "success" ? (
         <>
           <Tooltip title={t("tooltip.openProfile")}>
-            <IconButton onClick={(e) => handleCloseUserMenu(e)} sx={{ p: 0 }}>
+            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
               <Avatar
                 alt={userProfile.profile?.name || "Anonymous"}
                 src={userProfile.profile?.image || "/default-avatar.png"}
@@ -49,13 +56,12 @@ export default function UserProfileMenu({
             </IconButton>
           </Tooltip>
           <Menu
-            sx={{ mt: "45px" }}
             id="user-menu"
             anchorEl={anchorElUser}
             open={Boolean(anchorElUser)}
-            onClose={(event, reason) =>
-              handleCloseUserMenu(event as React.MouseEvent<HTMLElement>)
-            }
+            onClose={handleCloseUserMenu}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
             {settings.map((setting) => (
               <MenuItem key={setting} onClick={() => handleMenuAction(setting)}>
