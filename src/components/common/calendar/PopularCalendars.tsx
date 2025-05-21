@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useNdk, useActiveUser } from "nostr-hooks";
-import { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import { type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import {
   Card,
   CardContent,
