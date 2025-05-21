@@ -266,9 +266,7 @@ const NotificationCard = ({
         {calendarInfo && (
           <Typography variant="caption" color="text.secondary" display="block">
             Calendar:{" "}
-            <a
-              href={`/calendar/${calendarInfo.pubkey}${calendarInfo.d ? `?d=${calendarInfo.d}` : ""}`}
-            >
+            <a href={`/calendar/${calendarInfo.pubkey}`}>
               {calendarInfo.d || calendarInfo.pubkey}
             </a>
           </Typography>

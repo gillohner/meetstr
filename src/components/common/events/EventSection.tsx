@@ -23,10 +23,10 @@ const EventSection: React.FC<EventSectionProps> = ({
 
     {events.length > 0 ? (
       <Grid container spacing={3}>
-        {events.map((event) => (
+        {events.map((event, idx) => (
           <Grid
             size={{ xs: 12, md: 6 }}
-            key={event.id || `event-${event.id}`}
+            key={`event-${event.id}-${idx}`}
             sx={{ width: "100%" }}
           >
             <EventPreviewCard event={event} />
