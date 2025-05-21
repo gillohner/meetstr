@@ -73,11 +73,7 @@ export default function CustomAppBar() {
             <NotificationCenter />
             <LanguageSwitcher />
             <ModeSwitch />
-            <UserProfileMenu
-              anchorElUser={anchorElUser}
-              handleCloseUserMenu={handleUserMenu}
-              settings={settings}
-            />
+            <UserProfileMenu settings={settings} />
           </Box>
         </Toolbar>
       </Container>
