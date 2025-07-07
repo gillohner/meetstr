@@ -209,10 +209,10 @@ export default function LoginButton({
               value={remoteSignerInput}
               onChange={(e) => setRemoteSignerInput(e.target.value)}
               error={
-                remoteSignerInput &&
+                !!remoteSignerInput &&
                 !validateRemoteSignerInput(remoteSignerInput)
               }
-              mb={2}
+              sx={{ mb: 2 }}
             />
             <Button
               variant="contained"
