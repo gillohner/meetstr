@@ -45,12 +45,34 @@
   },
   "modal": {
     "login": {
-      "title": "Login",
-      "extension": "Login with extension",
-      "remoteSignerInput": "NIP-46 string",
-      "remoteSigner": "Login with remote signer",
-      "privateKeyInput": "Private Key string todo",
-      "privateKey": "Login with private key"
+      "title": "Login to Nostr",
+      "securityNotice": "🔒 For your security, we do not support private key login. Use browser extensions or remote signers to keep your keys safe.",
+      "tabs": {
+        "extension": "Browser Extension",
+        "qr": "QR Code",
+        "remoteSigner": "Remote Signer"
+      },
+      "extension": {
+        "description": "Use a browser extension like Alby or nos2x to securely manage your keys.",
+        "button": "Login with Extension",
+        "error": "Extension login failed. Please check your browser extension."
+      },
+      "qr": {
+        "description": "Scan with Amber or another NIP-46 compatible signer app on your mobile device.",
+        "generate": "Generate QR Code",
+        "regenerate": "Generate New Code",
+        "waitingScan": "Waiting for you to scan the QR code with your signer app...",
+        "pendingApproval": "Please check your signer app and approve the connection request.",
+        "error": "Failed to generate QR code. Please try again."
+      },
+      "remoteSigner": {
+        "description": "Connect using a bunker URL or NIP-05 address from a remote signing service.",
+        "inputLabel": "Bunker URL or NIP-05 Address",
+        "inputHelper": "Example: bunker://pubkey?relay=wss://relay.com or alice@nsec.app",
+        "inputRequired": "Please enter a valid bunker URL or NIP-05 address.",
+        "button": "Connect Remote Signer",
+        "error": "Remote signer connection failed. Please check your URL and try again."
+      }
     }
   },
   "error": {
@@ -65,7 +87,8 @@
       "invalidKind": "Invalid Nostr Kind",
       "invalidId": "The provided event id is not valid"
     },
-    "remoteSignerFailure": "Remote signer faillure",
+    "login_failed": "Login failed",
+    "remoteSignerFailure": "Remote signer failure",
     "invalidPrivateKey": "Invalid private key",
     "generic": "Something failed"
   },
@@ -131,5 +154,15 @@
     "noUpcomingEvents": "No upcoming Events",
     "pastEvents": "Past Events",
     "noPastEvents": "No Past Events"
+  },
+  "notification": {
+    "noNotifications": "No notifications",
+    "eventDetails": "Event Details",
+    "rsvpStatus": "RSVP Status",
+    "rsvpEventLink": "View Event",
+    "unknownEvent": "Unknown Event",
+    "location": "Location",
+    "accepted": "Accept",
+    "dismiss": "Dismiss"
   }
 }

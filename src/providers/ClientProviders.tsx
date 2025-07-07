@@ -13,6 +13,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { useNdk, useLogin } from "nostr-hooks";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import SessionManager from "@/lib/sessionManager";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,7 +36,16 @@ export default function ClientProviders({
 
   useEffect(() => {
     initNdk({
-      explicitRelayUrls: ["wss://multiplexer.huszonegy.world/"],
+      explicitRelayUrls: [
+        "wss://multiplexer.huszonegy.world/",
+        "wss://relay.damus.io",
+        "wss://nos.lol",
+        "wss://relay.primal.net",
+        "wss://relay.nostr.band",
+        "wss://relay.nostr.watch",
+        "wss://relay.snort.social",
+        "wss://relay.nostr.band",
+      ],
     });
   }, [initNdk]);
 
@@ -43,25 +53,20 @@ export default function ClientProviders({
     ndk?.connect(); // This will also reconnect when the instance changes
   }, [ndk]);
 
-  // Login from local storage
-  useEffect(() => {
-    loginFromLocalStorage();
-  }, [loginFromLocalStorage]);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-        <I18nextProvider i18n={i18n}>
+      <I18nextProvider i18n={i18n}>
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
+            <InitColorSchemeScript attribute="class" />
+            <CssBaseline />
             <SnackbarProvider>
-              <InitColorSchemeScript attribute="class" />
               <CustomAppBar />
-              <CssBaseline />
               {children}
             </SnackbarProvider>
           </ThemeProvider>
-        </I18nextProvider>
-      </AppRouterCacheProvider>
+        </AppRouterCacheProvider>
+      </I18nextProvider>
     </QueryClientProvider>
   );
 }
