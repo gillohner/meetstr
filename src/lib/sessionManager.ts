@@ -1,5 +1,5 @@
 // src/lib/sessionManager.ts
-import { NDKSigner } from "@nostr-dev-kit/ndk";
+import type { NDKSigner } from "@nostr-dev-kit/ndk";
 
 interface NostrSession {
   token: string;
