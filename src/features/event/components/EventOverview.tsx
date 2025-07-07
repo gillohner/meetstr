@@ -50,12 +50,6 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   const metadata = getEventMetadata(event);
 
-  console.log("event: ", event.id);
-
-  metadata.hashtags = ["test", "event", "overview"];
-
-  console.log("metadata: ", metadata);
-
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Card sx={{ width: "100%", mb: 4 }}>
