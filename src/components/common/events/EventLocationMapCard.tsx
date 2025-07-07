@@ -1,5 +1,14 @@
 // src/components/common/events/EventLocationMapCard.tsx
-import { Box, Card, CardContent, Typography, Link, Chip, Stack, Tooltip } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Link,
+  Chip,
+  Stack,
+  Tooltip,
+} from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useLocationInfo } from "@/hooks/useLocationInfo"; // New custom hook
 import { CircularProgress } from "@mui/material";
@@ -16,9 +25,14 @@ interface EventLocationMapCardProps {
   };
 }
 
-const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata }) => {
+const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({
+  metadata,
+}) => {
   const { t } = useTranslation();
-  const { data: locationData, isLoading } = useLocationInfo(metadata.location, metadata.geohash);
+  const { data: locationData, isLoading } = useLocationInfo(
+    metadata.location,
+    metadata.geohash
+  );
 
   const renderPaymentBadges = () => {
     if (!locationData?.paymentMethods.acceptsBitcoin) return null;
@@ -122,8 +136,14 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
       sx={{ mt: 1, flexWrap: "wrap", gap: 1.5, fontSize: "0.8rem" }}
     >
       {locationData?.mapLinks.osm && (
-        <Link href={locationData.mapLinks.osm} target="_blank" display="flex" alignItems="center">
-          {t("service.openstreetmap")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+        <Link
+          href={locationData.mapLinks.osm}
+          target="_blank"
+          display="flex"
+          alignItems="center"
+        >
+          {t("service.openstreetmap")}{" "}
+          <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
       {locationData?.mapLinks.btcmap && (
@@ -133,7 +153,8 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
           display="flex"
           alignItems="center"
         >
-          {t("service.btcmap")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+          {t("service.btcmap")}{" "}
+          <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
       {locationData?.mapLinks.google && (
@@ -143,7 +164,8 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
           display="flex"
           alignItems="center"
         >
-          {t("service.googlemaps")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+          {t("service.googlemaps")}{" "}
+          <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
       {locationData?.mapLinks.apple && (
@@ -153,7 +175,8 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({ metadata })
           display="flex"
           alignItems="center"
         >
-          {t("service.applemaps")} <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
+          {t("service.applemaps")}{" "}
+          <OpenInNewIcon fontSize="inherit" sx={{ ml: 0.5 }} />
         </Link>
       )}
     </Stack>

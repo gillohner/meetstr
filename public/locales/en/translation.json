@@ -19,7 +19,8 @@
     "loading": "Loading...",
     "change": "Change",
     "remove": "Remove",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "posting": "Posting..."
   },
   "createCalendar": {
     "title": "Create Calendar",
@@ -93,6 +94,18 @@
     "generic": "Something failed"
   },
   "event": {
+    "comments": {
+      "title": "Comments",
+      "placeholder": "Add a comment...",
+      "post": "Post",
+      "reply": "Reply",
+      "replies": "Replies",
+      "replyPlaceholder": "Reply to this comment...",
+      "empty": "No comments yet. Be the first to comment!",
+      "copyProfile": "Copy Profile Link",
+      "viewProfile": "View Profile",
+      "signerRequired": "You need to be logged in to post comments"
+    },
     "rsvp": {
       "title": "RSVP",
       "accept": "Accept",

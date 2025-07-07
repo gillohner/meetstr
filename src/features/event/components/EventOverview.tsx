@@ -21,6 +21,7 @@ import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventLocationMapCard from "@/components/common/events/EventLocationMapCard";
 import EventRsvpMenu from "@/components/common/events/EventRsvpMenu";
 import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
+import EventCommentsCard from "@/components/common/events/EventCommentsCard"; // New import
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
@@ -116,9 +117,12 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           </Box>
         </CardContent>
       </Card>
-      <Grid container>
-        <Grid size={{ xs: 12, md: 7, lg: 8 }}></Grid>
-        <Grid size={{ xs: 12, md: 5, lg: 4 }}>
+      <Grid container spacing={3}>
+        {/* On xs/sm screens, map+attendees on top, comments below. On md+ screens, comments left, map+attendees right */}
+        <Grid size={{ xs: 12, md: 7, lg: 8 }} order={{ xs: 2, md: 1 }}>
+          <EventCommentsCard event={event} />
+        </Grid>
+        <Grid size={{ xs: 12, md: 5, lg: 4 }} order={{ xs: 1, md: 2 }}>
           <EventLocationMapCard metadata={metadata} />
           <EventAttendeesCard
             participants={metadata.participants.map((p) => ({ pubkey: p[0] }))}
