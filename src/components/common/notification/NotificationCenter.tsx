@@ -12,13 +12,14 @@ import {
   Button,
   Typography,
   Box,
+  Tooltip,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNdk, useActiveUser, useProfile } from "nostr-hooks";
 import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
-import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
 import { nip19 } from "nostr-tools";
+import { useTranslation } from "react-i18next";
 
 interface Notification {
   id: string;
@@ -29,6 +30,7 @@ interface Notification {
 }
 
 export default function NotificationCenter() {
+  const { t } = useTranslation();
   const { ndk } = useNdk();
   const { activeUser } = useActiveUser();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -36,7 +38,9 @@ export default function NotificationCenter() {
   const [calendarEvents, setCalendarEvents] = useState<NDKEvent[]>([]);
   const [dismissed, setDismissed] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
-      return JSON.parse(localStorage.getItem("dismissedNotifications") || "[]");
+      return JSON.parse(
+        sessionStorage.getItem("dismissedNotifications") || "[]"
+      );
     }
     return [];
   });
@@ -128,6 +132,7 @@ export default function NotificationCenter() {
     });
   };
 
+  // Fetch calendar notifications on mount and when calendarEvents or dismissed changes
   useEffect(() => {
     fetchCalendarNotifications();
   }, [fetchCalendarNotifications, calendarEvents, dismissed]);
@@ -171,11 +176,18 @@ export default function NotificationCenter() {
   const handleDismiss = (notificationId: string) => {
     setDismissed((prev) => {
       const updated = [...prev, notificationId];
-      localStorage.setItem("dismissedNotifications", JSON.stringify(updated));
+      sessionStorage.setItem("dismissedNotifications", JSON.stringify(updated));
       return updated;
     });
     setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
   };
+
+  // Sort notifications: calendar_invite first, then rsvp_update
+  const sortedNotifications = notifications.sort((a, b) => {
+    if (a.type === "calendar_invite" && b.type !== "calendar_invite") return -1;
+    if (a.type !== "calendar_invite" && b.type === "calendar_invite") return 1;
+    return b.timestamp - a.timestamp;
+  });
 
   return (
     <Box>
@@ -197,7 +209,7 @@ export default function NotificationCenter() {
           <Typography variant="h6" gutterBottom>
             Notifications
           </Typography>
-          {notifications.map((notification) => (
+          {sortedNotifications.map((notification) => (
             <NotificationCard
               key={notification.id}
               notification={notification}
@@ -207,7 +219,7 @@ export default function NotificationCenter() {
           ))}
           {notifications.length === 0 && (
             <Typography variant="body2" color="text.secondary">
-              No new notifications
+              {t("notification.noNotifications")}
             </Typography>
           )}
         </Box>
@@ -226,64 +238,83 @@ const NotificationCard = ({
   onAccept: (id: string) => void;
   onDismiss: (id: string) => void;
 }) => {
+  const { t } = useTranslation();
   const metadata = getEventMetadata(notification.event);
-  // Find inviter (first 'p' tag not the active user)
   const inviterPubkey = notification.event.tags.find((t) => t[0] === "p")?.[1];
   const { profile } = useProfile({ pubkey: inviterPubkey });
   const npub = inviterPubkey ? nip19.npubEncode(inviterPubkey) : null;
-  // Calendar info (from 'a' tag or similar)
+  const shortenedNpub = npub ? `${npub.slice(0, 8)}...${npub.slice(-4)}` : null;
   const calendarRef = notification.event.tags.find((t) => t[0] === "a");
   let calendarInfo = null;
   if (calendarRef) {
     const [kind, pubkey, d] = calendarRef[1]?.split(":") || [];
     calendarInfo = { kind, pubkey, d };
   }
+
+  const rsvpStatus = notification.event.tags.find((t) => t[0] === "status")?.[1];
+
   return (
     <Card sx={{ mb: 2 }}>
       <CardHeader
         avatar={
-          profile && npub ? (
+          npub ? (
             <IconButton
               onClick={() => window.open(`https://njump.me/${npub}`, "_blank")}
             >
               <img
-                src={profile.image || "/default-avatar.png"}
-                alt={profile.displayName || npub}
+                src={profile?.image || "/default-avatar.png"}
+                alt={profile?.displayName || ""}
                 style={{ width: 40, height: 40, borderRadius: "50%" }}
               />
             </IconButton>
           ) : null
         }
-        title={metadata.title || "New Event"}
-        subheader={<EventTimeDisplay startTime={metadata.start} />}
+        title={
+          profile?.displayName
+            ? profile.displayName
+            : npub && (
+                <Tooltip title={npub} arrow>
+                  <span>{shortenedNpub}</span>
+                </Tooltip>
+              )
+        }
+        subheader={
+          notification.type === "calendar_invite"
+            ? t("notification.eventDetails", {
+                calendar: calendarInfo?.d || calendarInfo?.pubkey,
+              })
+            : notification.type === "rsvp_update"
+            ? t("notification.rsvpStatus", {
+                status: rsvpStatus,
+              })
+            : null
+        }
       />
       <CardContent>
-        {profile && (
-          <Typography variant="subtitle2" gutterBottom>
-            Invited by: {profile.displayName || npub}
-          </Typography>
-        )}
-        {calendarInfo && (
-          <Typography variant="caption" color="text.secondary" display="block">
-            Calendar:{" "}
-            <a href={`/calendar/${calendarInfo.pubkey}`}>
-              {calendarInfo.d || calendarInfo.pubkey}
+        {notification.type === "rsvp_update" && (
+          <Typography variant="body2">
+            {t("notification.rsvpEventLink")}: {" "}
+            <a
+              href={`/event/${calendarInfo?.d}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {calendarInfo?.d || t("notification.unknownEvent")}
             </a>
           </Typography>
         )}
-        <Typography variant="body2">{metadata.summary}</Typography>
         {metadata.location && (
           <Typography variant="caption" color="text.secondary">
-            Location: {metadata.location}
+            {t("notification.location", { location: metadata.location })}
           </Typography>
         )}
       </CardContent>
       <CardActions>
         <Button size="small" onClick={() => onAccept(notification.id)}>
-          Accept
+          {t("notification.accept")}
         </Button>
         <Button size="small" onClick={() => onDismiss(notification.id)}>
-          Dismiss
+          {t("notification.dismiss")}
         </Button>
       </CardActions>
     </Card>

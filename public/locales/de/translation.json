@@ -1,4 +1,5 @@
 {
+  "appName": "Meetstr",
   "navbar": {
     "login": "Anmelden",
     "calendar": "Kalender"

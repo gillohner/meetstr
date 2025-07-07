@@ -1,11 +1,8 @@
-![dezentralbot-web](https://socialify.git.ci/gillohner/dezentralbot-web/image?font=Jost&forks=1&issues=1&language=1&name=1&owner=1&pattern=Circuit+Board&pulls=1&stargazers=1&theme=Dark)
+![Meetstr](https://socialify.git.ci/gillohner/meetstr/image?font=Jost&forks=1&issues=1&language=1&name=1&owner=1&pattern=Circuit+Board&pulls=1&stargazers=1&theme=Dark)
 
-# Dezentralbot Web
+# Meetstr
 
-Dezentralbot Web is an open-source web application for discovering, previewing, and managing decentralized calendars using the Nostr protocol. It provides a modern, React-based interface for browsing Nostr event calendars, viewing event details, and exploring upcoming and past events.
-
-    WARNING:
-    This project is in early development and is not ready for beta usage. Expect incomplete features, bugs, and breaking changes. Do not use in production.
+Meetstr is an open-source web nostr client for discovering, viewing, and managing NIP-52 based calendars. It provides a modern, React-based interface for browsing Nostr event calendars, viewing event details, and exploring upcoming and past events.
 
 ## Features
 
@@ -20,7 +17,7 @@ Requirements:
 
 - Node.js v22
 
-Install and run Dezentralbot Web with npm:
+Install and run Meetstr with npm:
 
 ```bash
 npm install
