@@ -291,7 +291,7 @@ export default function CreateNewEventDialog({
               <Grid size={{ xs: 12, md: 6 }}>
                 {" "}
                 <Grid container spacing={2} direction="column">
-                  <Grid size={{ xs: 12, md: 6 }}>
+                  <Grid size={12}>
                     <FormTextField
                       label={t("event.createEvent.form.title")}
                       name="title"

@@ -14,7 +14,7 @@ export const DialogActionsSection = ({
   const { t } = useTranslation();
 
   return (
-    <DialogActions sx={{ bgcolor: "background.default" }}>
+    <DialogActions>
       <Button onClick={onCancel} sx={{ color: "text.primary" }}>
         {t("common.cancel")}
       </Button>

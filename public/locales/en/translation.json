@@ -23,7 +23,7 @@
     "posting": "Posting..."
   },
   "createCalendar": {
-    "title": "Create Calendar",
+    "title": "Create New Calendar",
     "publish": "Publish Calendar",
     "titleInput": {
       "label": "Title"
@@ -39,10 +39,15 @@
       "placeholder": "Format: naddr of event kind 31922, 31923",
       "helperText": "Press Enter to add"
     },
-    "error": {
-      "requiredFields": "Fill all required fields",
-      "publishFailed": "Calendar creation failed"
-    }
+    "form": {
+      "title": "Calendar Title",
+      "description": "Calendar Description",
+      "calendarReferences": "Calendar Event References",
+      "addReference": "Add calendar event reference..."
+    },
+    "submit": "Create Calendar",
+    "success": "Calendar created successfully!",
+    "error": "Failed to create calendar. Please try again."
   },
   "modal": {
     "login": {
