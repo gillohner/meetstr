@@ -1,6 +1,6 @@
 // src/utils/nostr/eventUtils.ts
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import NDK from "@nostr-dev-kit/ndk";
+import type NDK from "@nostr-dev-kit/ndk";
 import { NDKEvent as NDKEventClass } from "@nostr-dev-kit/ndk";
 
 export const getEventMetadata = (event: NDKEvent) => {
