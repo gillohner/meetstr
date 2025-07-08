@@ -3,8 +3,6 @@ import * as React from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import ProTip from "@/components/ProTip";
-import Copyright from "@/components/Copyright";
 import PopularCalendars from "@/components/common/calendar/PopularCalendars";
 
 export default function Home() {
