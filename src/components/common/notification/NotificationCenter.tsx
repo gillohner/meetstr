@@ -251,7 +251,9 @@ const NotificationCard = ({
     calendarInfo = { kind, pubkey, d };
   }
 
-  const rsvpStatus = notification.event.tags.find((t) => t[0] === "status")?.[1];
+  const rsvpStatus = notification.event.tags.find(
+    (t) => t[0] === "status"
+  )?.[1];
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -284,16 +286,16 @@ const NotificationCard = ({
                 calendar: calendarInfo?.d || calendarInfo?.pubkey,
               })
             : notification.type === "rsvp_update"
-            ? t("notification.rsvpStatus", {
-                status: rsvpStatus,
-              })
-            : null
+              ? t("notification.rsvpStatus", {
+                  status: rsvpStatus,
+                })
+              : null
         }
       />
       <CardContent>
         {notification.type === "rsvp_update" && (
           <Typography variant="body2">
-            {t("notification.rsvpEventLink")}: {" "}
+            {t("notification.rsvpEventLink")}:{" "}
             <a
               href={`/event/${calendarInfo?.d}`}
               target="_blank"

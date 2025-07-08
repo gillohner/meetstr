@@ -18,7 +18,6 @@ import { useTranslation } from "react-i18next";
 export default function CustomAppBar() {
   const { t } = useTranslation();
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
   const pages = [
     { title: t("nav.new-calendar"), path: "/new-calendar" },
@@ -35,10 +34,6 @@ export default function CustomAppBar() {
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
-  };
-
-  const handleUserMenu = (event?: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event ? event.currentTarget : null);
   };
 
   return (
@@ -68,11 +63,12 @@ export default function CustomAppBar() {
             pages={pages}
             handleCloseNavMenu={handleCloseNavMenu}
           />
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <NotificationCenter />
-            <LanguageSwitcher />
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1, ml: "auto" }}
+          >
             <ModeSwitch />
+            <LanguageSwitcher />
+            <NotificationCenter />
             <UserProfileMenu settings={settings} />
           </Box>
         </Toolbar>
