@@ -105,7 +105,6 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
 
   useEffect(() => {
     fetchComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchComments]);
 
   // Extract parent comment ID from comment event tags
