@@ -22,6 +22,7 @@ import EventLocationMapCard from "@/components/common/events/EventLocationMapCar
 import EventRsvpMenu from "@/components/common/events/EventRsvpMenu";
 import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
 import EventCommentsCard from "@/components/common/events/EventCommentsCard"; // New import
+import EventHost from "@/components/common/events/EventHost";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
@@ -51,6 +52,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   const metadata = getEventMetadata(event);
 
+  console.log("Event metadata:", metadata);
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Card sx={{ width: "100%", mb: 4 }}>
@@ -69,6 +71,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName", "Unnamed Event")}
               </Typography>
+              <EventHost hostPubkey={event.pubkey} />
               <EventTimeDisplay
                 startTime={metadata.start}
                 endTime={metadata.end}

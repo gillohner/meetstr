@@ -21,6 +21,7 @@ import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
+import EventHost from "@/components/common/events/EventHost";
 
 interface CalendarOverviewProps {
   calendarId?: string;
@@ -144,6 +145,7 @@ export default function CalendarOverview({
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName")}
               </Typography>
+              <EventHost hostPubkey={calendarEvent.pubkey} />
               <Typography variant="body1" color="text.secondary">
                 {metadata.summary || ""}
               </Typography>

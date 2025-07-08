@@ -12,7 +12,6 @@ interface EventLocationTextProps {
 
 export default function EventLocationText({
   location,
-  geohash,
   typographyProps,
 }: EventLocationTextProps) {
   if (!location) return null;
