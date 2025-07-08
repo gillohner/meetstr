@@ -25,7 +25,8 @@ class SessionManager {
     metadata?: any
   ): Promise<void> {
     try {
-      if (!signer.user?.pubkey) {
+      const user = await signer.user();
+      if (!user?.pubkey) {
         throw new Error("Signer does not have a valid pubkey");
       }
 
@@ -35,10 +36,9 @@ class SessionManager {
       const token = Array.from(tokenBytes, (b) =>
         b.toString(16).padStart(2, "0")
       ).join("");
-
       const session: NostrSession = {
         token,
-        pubkey: signer.user.pubkey,
+        pubkey: user.pubkey,
         signerType,
         timestamp: Date.now(),
         metadata,

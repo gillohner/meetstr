@@ -45,7 +45,7 @@ export const useEnhancedLogin = () => {
       try {
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-        await loginWithExtension({
+        loginWithExtension({
           onSuccess: async (signer) => {
             try {
               // Save session
@@ -99,7 +99,7 @@ export const useEnhancedLogin = () => {
       try {
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-        await loginWithRemoteSigner({
+        loginWithRemoteSigner({
           nip46Address: options?.nip46Address,
           onSuccess: async (signer) => {
             try {
@@ -130,7 +130,10 @@ export const useEnhancedLogin = () => {
             setState((prev) => ({
               ...prev,
               isLoading: false,
-              error: error.message || "Remote signer connection failed",
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Remote signer connection failed",
             }));
             options?.onError?.(error);
           },
@@ -155,7 +158,7 @@ export const useEnhancedLogin = () => {
       SessionManager.clearSession();
 
       // Call original logout
-      await originalLogout();
+      originalLogout();
 
       setState((prev) => ({
         ...prev,
