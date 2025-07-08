@@ -53,6 +53,10 @@ export default function ClientProviders({
     ndk?.connect(); // This will also reconnect when the instance changes
   }, [ndk]);
 
+  useEffect(() => {
+    loginFromLocalStorage();
+  }, [loginFromLocalStorage]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
