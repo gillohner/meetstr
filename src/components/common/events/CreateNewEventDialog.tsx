@@ -1,6 +1,5 @@
-// src/components/common/events/CreateNewEventDialog.tsx
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Dialog,
@@ -25,15 +24,13 @@ import DateTimeSection from "@/components/common/events/DateTimeSection";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
 import { encodeGeohash } from "@/utils/location/geohash";
 import TagInputField from "@/components/common/form/TagInputField";
+import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
 const FormGeoSearchField = dynamic(
   () => import("@/components/common/form/FormGeoSearchField"),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
-// Import icons
 import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -43,6 +40,10 @@ dayjs.extend(timezone);
 
 interface CreateNewEventDialogProps {
   calendarEvent?: NDKEvent;
+  initialEvent?: NDKEvent | null;
+  onEventUpdated?: (event: NDKEvent) => void;
+  open?: boolean;
+  onClose?: () => void;
 }
 
 interface GeoSearchResult {
@@ -58,10 +59,14 @@ interface GeoSearchResult {
 
 export default function CreateNewEventDialog({
   calendarEvent,
+  initialEvent = null,
+  onEventUpdated,
+  open: controlledOpen,
+  onClose: controlledOnClose,
 }: CreateNewEventDialogProps) {
   const { t } = useTranslation();
   const { ndk } = useNdk();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
   const { activeUser } = useActiveUser();
   const { showSnackbar } = useSnackbar();
@@ -76,6 +81,9 @@ export default function CreateNewEventDialog({
   const [location, setLocation] = useState<GeoSearchResult | null>(null);
   const [eventImage, setEventImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
+  const isEditMode = Boolean(initialEvent);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const onClose = controlledOnClose || (() => setInternalOpen(false));
   const isFormValid = Boolean(
     formValues.title.trim() &&
       formValues.description.trim() &&
@@ -83,6 +91,41 @@ export default function CreateNewEventDialog({
       location &&
       !imageLoading
   );
+
+  // Pre-populate form when editing
+  useEffect(() => {
+    if (initialEvent) {
+      const metadata = getEventMetadata(initialEvent);
+
+      setFormValues({
+        title: metadata.title || "",
+        description: metadata.summary || "",
+        startDate: metadata.start ? dayjs.unix(parseInt(metadata.start)) : null,
+        endDate: metadata.end ? dayjs.unix(parseInt(metadata.end)) : null,
+      });
+
+      setHashtags(metadata.hashtags || []);
+      setReferences(metadata.references || []);
+      setEventImage(metadata.image || null);
+
+      if (metadata.location) {
+        setLocation({
+          x: 0,
+          y: 0,
+          label: metadata.location,
+          bounds: [
+            [0, 0],
+            [0, 0],
+          ],
+          raw: null,
+        });
+      }
+
+      if (metadata.start_tzid) {
+        setTimezone(metadata.start_tzid);
+      }
+    }
+  }, [initialEvent]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,26 +148,33 @@ export default function CreateNewEventDialog({
     if (!activeUser || !ndk) return;
 
     try {
-      // Generate a unique identifier for the event
-      const uniqueId = nanoid(8);
+      let event: NDKEvent;
+      let uniqueId: string;
 
-      // Create a new event
-      const event = new NDKEvent(ndk);
-      event.kind = 31923; // Time-Based Calendar Event
-      event.content = formValues.description || ""; // Required by NIP-52 update
+      if (isEditMode && initialEvent) {
+        event = new NDKEvent(ndk);
+        event.kind = initialEvent.kind;
+        event.content = formValues.description || "";
+        uniqueId =
+          initialEvent.tags.find((t) => t[0] === "d")?.[1] || nanoid(8);
+        event.tags = [
+          ["d", uniqueId],
+          ["title", formValues.title],
+        ];
+      } else {
+        uniqueId = nanoid(8);
+        event = new NDKEvent(ndk);
+        event.kind = 31923;
+        event.content = formValues.description || "";
+        event.tags = [
+          ["d", uniqueId],
+          ["title", formValues.title],
+        ];
+      }
 
-      // Add required tags
-      event.tags = [
-        ["d", uniqueId],
-        ["title", formValues.title],
-      ];
-
-      // Add summary if available
       if (formValues.description) {
         event.tags.push(["summary", formValues.description]);
       }
-
-      // Add start and end times
       if (formValues.startDate) {
         event.tags.push([
           "start",
@@ -133,44 +183,36 @@ export default function CreateNewEventDialog({
       } else {
         throw new Error("Start date is required for time-based events");
       }
-
       if (formValues.endDate) {
         event.tags.push([
           "end",
           Math.floor(formValues.endDate.unix()).toString(),
         ]);
       }
-
-      // Add timezone information
       if (timezone) {
         event.tags.push(["start_tzid", timezone]);
         event.tags.push(["end_tzid", timezone]);
       }
-
-      // Add location information
       if (location) {
         event.tags.push(["location", location.label]);
       }
-
-      // Add geohash if coordinates are available
       if (location?.x && location?.y) {
         const geohash = encodeGeohash(location.y, location.x, 9);
         event.tags.push(["g", geohash]);
       }
-
-      // Add hashtags and references
       hashtags.forEach((tag) => event.tags.push(["t", tag]));
       references.forEach((ref) => event.tags.push(["r", ref]));
-
-      // Add image if available
       if (eventImage) {
         event.tags.push(["image", eventImage]);
       }
 
-      // Process the rest based on calendar ownership
-      handleCalendarReferences(event, uniqueId);
+      await handleCalendarReferences(event, uniqueId);
+
+      if (isEditMode && onEventUpdated) {
+        onEventUpdated(event);
+      }
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("Error creating/updating event:", error);
       showSnackbar(t("event.createEvent.error"), "error");
     }
   };
@@ -179,90 +221,57 @@ export default function CreateNewEventDialog({
     event: NDKEvent,
     uniqueId: string
   ) => {
-    // Get the calendar's d tag if available
     const calendarDTag = calendarEvent?.tags.find((t) => t[0] === "d")?.[1];
-
-    // Check if we're in a calendar context and if the user is the owner
     const isCalendarOwner =
       calendarEvent && calendarEvent.pubkey === activeUser?.pubkey;
-
-    // The event reference coordinate
     const eventCoordinate = `31923:${activeUser?.pubkey}:${uniqueId}`;
 
     if (isCalendarOwner && calendarEvent && calendarDTag) {
-      // Add the calendar reference to the event
       event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
-
-      // Sign and publish the event
       await event.sign();
       await event.publish();
 
-      // Log the created event
-      console.log("Created event:", JSON.stringify(event, null, 2));
-
-      // Now update the calendar to include the new event
-      const updatedCalendar = new NDKEvent(ndk);
-      updatedCalendar.kind = 31924; // Calendar
-
-      // Copy existing tags but avoid duplicates
-      updatedCalendar.tags = calendarEvent.tags.filter(
-        (tag) => !(tag[0] === "a" && tag[1] === eventCoordinate)
-      );
-
-      // Add the new event reference to the calendar
-      updatedCalendar.tags.push(["a", eventCoordinate]);
-
-      // Ensure the calendar has content (required by May 19, 2025 update)
-      updatedCalendar.content = calendarEvent.content || "";
-
-      // Sign and publish the updated calendar
-      await updatedCalendar.sign();
-      await updatedCalendar.publish();
-
-      // Log the updated calendar
-      console.log(
-        "Updated calendar:",
-        JSON.stringify(updatedCalendar, null, 2)
-      );
+      if (!isEditMode) {
+        const updatedCalendar = new NDKEvent(ndk);
+        updatedCalendar.kind = 31924;
+        updatedCalendar.tags = calendarEvent.tags.filter(
+          (tag) => !(tag[0] === "a" && tag[1] === eventCoordinate)
+        );
+        updatedCalendar.tags.push(["a", eventCoordinate]);
+        updatedCalendar.content = calendarEvent.content || "";
+        await updatedCalendar.sign();
+        await updatedCalendar.publish();
+      }
     } else {
-      // We're not the calendar owner, just create the event with a reference to the calendar
       if (calendarEvent && calendarDTag) {
         event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
       }
-
-      // Sign and publish the event
       await event.sign();
       await event.publish();
-
-      // Log the created event
-      console.log(
-        "Created event (approval needed):",
-        JSON.stringify(event, null, 2)
-      );
     }
 
-    showSnackbar(t("event.createEvent.success"), "success");
-    setOpen(false);
+    showSnackbar(
+      isEditMode ? t("event.edit.success") : t("event.createEvent.success"),
+      "success"
+    );
+    onClose();
   };
 
-  if (activeUser === undefined || activeUser === null) return "";
+  if (activeUser === undefined || activeUser === null) return null;
 
   return (
     <>
-      <Button
-        size="large"
-        variant="contained"
-        onClick={() => setOpen(true)}
-        sx={{ width: "100%" }}
-      >
-        {t("event.createEvent.title")}
-      </Button>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
+      {!controlledOpen && !isEditMode && (
+        <Button
+          size="large"
+          variant="contained"
+          onClick={() => setInternalOpen(true)}
+          sx={{ width: "100%" }}
+        >
+          {t("event.createEvent.title")}
+        </Button>
+      )}
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
         <DialogTitle
           sx={{ bgcolor: "background.default", color: "text.primary" }}
         >
@@ -270,7 +279,9 @@ export default function CreateNewEventDialog({
             <EventIcon
               sx={{ mr: 1, verticalAlign: "middle", color: "primary.main" }}
             />
-            {t("event.createEvent.newEvent")}
+            {isEditMode
+              ? t("event.edit.title")
+              : t("event.createEvent.newEvent")}
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ bgcolor: "background.paper" }}>
@@ -297,7 +308,7 @@ export default function CreateNewEventDialog({
                   <Grid size={12}>
                     <FormTextField
                       label={t("event.createEvent.form.description")}
-                      name="description"
+                      name={t("event.createEvent.form.description")}
                       value={formValues.description}
                       onChange={(e) =>
                         setFormValues((prev) => ({
@@ -329,7 +340,7 @@ export default function CreateNewEventDialog({
                     <FormGeoSearchField
                       label={t("event.createEvent.form.location")}
                       name="location"
-                      icon={<LocationOnIcon color="primary" />}
+                      icon={<LocationOnIcon />}
                       value={location}
                       onChange={handleLocationChange}
                       required={true}
@@ -337,12 +348,11 @@ export default function CreateNewEventDialog({
                   </Grid>
                 </Grid>
               </Grid>
-
               <Grid size={12}>
                 <DateTimeSection
-                  timezone={timezone}
                   startDate={formValues.startDate}
                   endDate={formValues.endDate}
+                  timezone={timezone}
                   onStartDateChange={(date) =>
                     setFormValues((prev) => ({ ...prev, startDate: date }))
                   }
@@ -371,13 +381,15 @@ export default function CreateNewEventDialog({
                 />
               </Grid>
             </Grid>
-
             <Divider sx={{ my: 3, borderColor: "divider" }} />
-
             <DialogActionsSection
-              submitLabel={t("event.createEvent.submit")}
+              onCancel={onClose}
               disabled={!isFormValid}
-              onCancel={() => setOpen(false)}
+              submitLabel={
+                isEditMode
+                  ? t("event.edit.submit")
+                  : t("event.createEvent.submit")
+              }
             />
           </form>
         </DialogContent>

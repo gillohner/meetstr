@@ -140,11 +140,30 @@
         "timezone": "Timezone",
         "title": "Title",
         "description": "Description",
-        "location": "Location"
+        "location": "Location",
+        "hashtags": "Hashtags",
+        "addHashtag": "Add hashtag...",
+        "references": "References",
+        "addReference": "Add reference URL..."
       },
-      "submit": "Create Event"
+      "submit": "Create Event",
+      "error": "Failed to create event",
+      "success": "Event created successfully"
     },
-    "attendees": "Attendees"
+    "attendees": "Attendees",
+    "edit": {
+      "title": "Edit Event",
+      "button": "Edit",
+      "submit": "Update Event",
+      "success": "Event updated successfully"
+    },
+    "delete": {
+      "button": "Delete",
+      "confirm": "Are you sure you want to delete this event?",
+      "reason": "Event deleted by author",
+      "success": "Event deleted successfully",
+      "error": "Failed to delete event"
+    }
   },
   "payment": {
     "bitcoinAccepted": "Bitcoin Accepted",

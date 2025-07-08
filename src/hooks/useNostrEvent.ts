@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { useNdk } from "nostr-hooks";
 import { type NDKEvent } from "@nostr-dev-kit/ndk";
 import { fetchEventById } from "@/utils/nostr/nostrUtils";
+import { republishEvent, deleteEvent } from "@/utils/nostr/eventUtils";
 
 export type NostrEventError =
   | "not_found"
@@ -18,9 +19,6 @@ export const useNostrEvent = () => {
 
   const fetchEvent = useCallback(
     async (identifier?: string, expectedKinds: number[] = []) => {
-      console.log("Fetching event with ID:", identifier);
-      console.log("Expected kinds:", expectedKinds);
-      console.log("ndk instance:", ndk);
       if (!ndk || !identifier) {
         setErrorCode(null);
         setEvent(null);
@@ -75,10 +73,33 @@ export const useNostrEvent = () => {
     [ndk]
   );
 
+  const updateEvent = useCallback(
+    async (originalEvent: NDKEvent, mutate: (e: NDKEvent) => void) => {
+      if (!ndk) throw new Error("NDK not available");
+
+      const updated = await republishEvent(ndk, originalEvent, mutate);
+      setEvent(updated);
+      return updated;
+    },
+    [ndk]
+  );
+
+  const removeEvent = useCallback(
+    async (eventToDelete: NDKEvent, reason?: string) => {
+      if (!ndk) throw new Error("NDK not available");
+
+      await deleteEvent(ndk, eventToDelete, reason);
+      setEvent(null);
+    },
+    [ndk]
+  );
+
   return {
     event,
     loading,
     errorCode,
     fetchEvent,
+    updateEvent,
+    removeEvent,
   };
 };

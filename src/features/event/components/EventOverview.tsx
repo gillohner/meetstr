@@ -1,4 +1,3 @@
-// src/features/event/components/EventOverview.tsx
 import * as React from "react";
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,7 +12,11 @@ import {
   Divider,
   Grid,
   Link,
+  Stack,
+  Button,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import EventLocationText from "@/components/common/events/EventLocationText";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
@@ -21,14 +24,21 @@ import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventLocationMapCard from "@/components/common/events/EventLocationMapCard";
 import EventRsvpMenu from "@/components/common/events/EventRsvpMenu";
 import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
-import EventCommentsCard from "@/components/common/events/EventCommentsCard"; // New import
+import EventCommentsCard from "@/components/common/events/EventCommentsCard";
 import EventHost from "@/components/common/events/EventHost";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
+import { useActiveUser } from "nostr-hooks";
+import { useSnackbar } from "@/context/SnackbarContext";
+import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
-  const { event, loading, errorCode, fetchEvent } = useNostrEvent();
+  const { event, loading, errorCode, fetchEvent, removeEvent } =
+    useNostrEvent();
   const { updateUrlWithNip19 } = useNostrUrlUpdate();
+  const { activeUser } = useActiveUser();
+  const { showSnackbar } = useSnackbar();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const expectedKinds = useMemo(() => [31922, 31923], []);
 
   useEffect(() => {
@@ -43,16 +53,42 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
     }
   }, [event, updateUrlWithNip19]);
 
+  const isOwner = activeUser && event && activeUser.pubkey === event.pubkey;
+
+  const handleEdit = () => {
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!event || !isOwner) return;
+
+    if (window.confirm(t("event.delete.confirm"))) {
+      try {
+        await removeEvent(event, t("event.delete.reason"));
+        showSnackbar(t("event.delete.success"), "success");
+        window.history.back();
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        showSnackbar(t("event.delete.error"), "error");
+      }
+    }
+  };
+
+  const handleEventUpdated = (updatedEvent: any) => {
+    showSnackbar(t("event.edit.success"), "success");
+    setEditDialogOpen(false);
+    fetchEvent(updatedEvent.id, expectedKinds);
+  };
+
   if (loading) return <Typography>{t("common.loading")}</Typography>;
-  if (errorCode) return <Typography color="error">{errorCode}</Typography>;
+  if (errorCode) return <Typography>{errorCode}</Typography>;
 
   if (!event || !eventId) {
-    return <Typography variant="h4">{t("error.event.invalidId")}</Typography>;
+    return <Typography>{t("error.event.invalidId")}</Typography>;
   }
 
   const metadata = getEventMetadata(event);
 
-  console.log("Event metadata:", metadata);
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Card sx={{ width: "100%", mb: 4 }}>
@@ -67,6 +103,32 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         )}
         <CardContent>
           <Grid container>
+            <Grid
+              size={12}
+              sx={{ display: "flex", justifyContent: "space-between" }}
+            >
+              {isOwner && (
+                <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<EditIcon />}
+                    onClick={handleEdit}
+                  >
+                    {t("event.edit.button")}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    startIcon={<DeleteIcon />}
+                    onClick={handleDelete}
+                  >
+                    {t("event.delete.button")}
+                  </Button>
+                </Stack>
+              )}
+            </Grid>
             <Grid size={10}>
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName", "Unnamed Event")}
@@ -83,9 +145,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
             </Grid>
             <Grid size={2}>{event && <EventRsvpMenu event={event} />}</Grid>
           </Grid>
-
           <Divider sx={{ my: 2 }} />
-
           <Box sx={{ mt: 3 }}>
             {metadata.references.map((reference, index) => (
               <Link
@@ -99,7 +159,6 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               </Link>
             ))}
           </Box>
-
           <Box sx={{ mt: 3 }}>
             {metadata.hashtags.map((hashtag, index) => (
               <Chip
@@ -133,6 +192,13 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           />
         </Grid>
       </Grid>
+
+      <CreateNewEventDialog
+        initialEvent={event}
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        onEventUpdated={handleEventUpdated}
+      />
     </Container>
   );
 }

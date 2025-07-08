@@ -13,7 +13,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { useNdk, useLogin } from "nostr-hooks";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import SessionManager from "@/lib/sessionManager";
 
 const queryClient = new QueryClient({
   defaultOptions: {

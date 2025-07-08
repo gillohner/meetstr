@@ -105,6 +105,19 @@ export const fetchCalendarEvents = async (
 
       if (!event) return null;
 
+      // Check for deletion events (NIP-09)
+      const isDeleted = await checkForDeletionEvents(
+        ndk,
+        event,
+        pubkey,
+        kind,
+        dTag
+      );
+
+      if (isDeleted) {
+        return null; // Skip deleted events
+      }
+
       const startTime = parseInt(
         event.tags.find((t) => t[0] === "start")?.[1] || "0"
       );
@@ -140,6 +153,61 @@ export const fetchCalendarEvents = async (
     past: past.sort(sortDesc),
   };
 };
+
+/**
+ * Checks if an event has been deleted according to NIP-09
+ *
+ * @param ndk - NDK instance
+ * @param event - The event to check
+ * @param pubkey - The event author's public key
+ * @param kind - The event kind
+ * @param dTag - The d-tag identifier for replaceable events
+ * @returns Promise<boolean> - True if the event has been deleted
+ */
+async function checkForDeletionEvents(
+  ndk: NDK,
+  event: NDKEvent,
+  pubkey: string,
+  kind: number,
+  dTag: string
+): Promise<boolean> {
+  try {
+    // Query for deletion events (kind 5) from the same author
+    const deletionEvents = await ndk.fetchEvents({
+      kinds: [5],
+      authors: [pubkey],
+      // Optional: Add time constraint to improve performance
+      since: event.created_at ? event.created_at - 86400 : undefined, // 24 hours before event
+    });
+
+    // Check if any deletion event references this calendar event
+    for (const deletionEvent of deletionEvents) {
+      // Check for 'a' tags that match our event
+      const aTags = deletionEvent.tags.filter((tag) => tag[0] === "a");
+
+      for (const aTag of aTags) {
+        if (aTag[1] === `${kind}:${pubkey}:${dTag}`) {
+          // Verify the deletion event was created after the original event
+          if (
+            deletionEvent.created_at &&
+            event.created_at &&
+            deletionEvent.created_at >= event.created_at
+          ) {
+            console.log(
+              `Event ${event.id} has been deleted by ${deletionEvent.pubkey}`
+            );
+            return true; // Event has been deleted
+          }
+        }
+      }
+    }
+
+    return false; // No deletion found
+  } catch (error) {
+    console.error("Error checking for deletion events:", error);
+    return false; // On error, assume not deleted
+  }
+}
 
 // Helper function to extract start time from event tags
 const getStartTime = (event: NDKEvent): number | undefined => {
