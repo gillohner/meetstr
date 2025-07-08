@@ -49,7 +49,8 @@ export default function ClientProviders({
   }, [initNdk]);
 
   useEffect(() => {
-    ndk?.connect(); // This will also reconnect when the instance changes
+    if (!ndk) return;
+    ndk.connect(); // This will also reconnect when the instance changes
   }, [ndk]);
 
   useEffect(() => {
