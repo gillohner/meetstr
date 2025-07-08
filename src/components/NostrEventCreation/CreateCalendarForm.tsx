@@ -10,6 +10,7 @@ import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWith
 import FormTextField from "@/components/common/form/FormTextField";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
 import TagInputField from "@/components/common/form/TagInputField";
+import { useRouter } from "next/navigation";
 
 // Icons
 import EventIcon from "@mui/icons-material/Event";
@@ -21,6 +22,7 @@ export default function CreateCalendarForm() {
   const { ndk } = useNdk();
   const { activeUser } = useActiveUser();
   const { showSnackbar } = useSnackbar();
+  const router = useRouter();
 
   const [formValues, setFormValues] = useState({
     title: "",
@@ -93,6 +95,11 @@ export default function CreateCalendarForm() {
 
       showSnackbar(t("createCalendar.success"), "success");
 
+      // Redirect to the new calendar page
+      if (event.id) {
+        router.push(`/calendar/${event.id}`);
+      }
+
       // Reset form fields
       setFormValues({
         title: "",
@@ -115,6 +122,7 @@ export default function CreateCalendarForm() {
     isFormValid,
     showSnackbar,
     t,
+    router,
   ]);
 
   if (activeUser === undefined || activeUser === null) return null;

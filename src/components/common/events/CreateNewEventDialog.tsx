@@ -26,6 +26,7 @@ import DialogActionsSection from "@/components/common/layout/DialogActionsSectio
 import { encodeGeohash } from "@/utils/location/geohash";
 import TagInputField from "@/components/common/form/TagInputField";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
+import { useRouter } from "next/navigation";
 
 const FormGeoSearchField = dynamic(
   () => import("@/components/common/form/FormGeoSearchField"),
@@ -71,6 +72,7 @@ export default function CreateNewEventDialog({
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
   const { activeUser } = useActiveUser();
   const { showSnackbar } = useSnackbar();
+  const router = useRouter();
   const [formValues, setFormValues] = useState({
     title: "",
     description: "",
@@ -208,6 +210,11 @@ export default function CreateNewEventDialog({
       }
 
       await handleCalendarReferences(event, uniqueId);
+
+      // Redirect to the new event page if not edit mode
+      if (!isEditMode && event.id) {
+        router.push(`/event/${event.id}`);
+      }
 
       if (isEditMode && onEventUpdated) {
         onEventUpdated(event);
