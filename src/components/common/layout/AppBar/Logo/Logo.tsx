@@ -1,5 +1,5 @@
 // src/components/common/layout/AppBar/Logo/Logo.tsx
-import AdbIcon from "@mui/icons-material/Adb";
+import EventIcon from "@mui/icons-material/Event";
 import { Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -7,7 +7,7 @@ export default function Logo({ isMobile = false }) {
   const { t } = useTranslation();
   return (
     <>
-      <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+      <EventIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
       <Typography
         variant={isMobile ? "h5" : "h6"}
         noWrap
