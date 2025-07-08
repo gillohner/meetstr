@@ -468,6 +468,7 @@ const CommentThread = ({
               onPostReply={onPostReply}
               posting={posting}
               depth={depth + 1}
+              signer={signer}
             />
           ))}
         </Box>
