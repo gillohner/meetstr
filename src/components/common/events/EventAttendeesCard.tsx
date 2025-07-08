@@ -119,7 +119,7 @@ const EventAttendeesCard = ({
   );
 
   return (
-    <Card elevation={3} sx={{ mt: 3 }}>
+    <Card sx={{ mt: 3 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
           {t("event.attendees")} {loading ? "" : `(${totalAttendees})`}
