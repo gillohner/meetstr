@@ -1,3 +1,4 @@
+// src/components/common/events/CreateNewEventDialog.tsx
 import * as React from "react";
 import { useState, useEffect } from "react";
 import {

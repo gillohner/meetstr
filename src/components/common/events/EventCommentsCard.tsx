@@ -59,7 +59,7 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
   }, [event]);
 
   // Fetch comments for this event
-  useEffect(() => {
+  const fetchComments = useCallback(() => {
     if (!ndk || !event?.id || !eventCoordinates) return;
 
     const filters: NDKFilter[] = [
@@ -76,8 +76,7 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
     ];
 
     const sub = ndk.subscribe(filters, { closeOnEose: false });
-    const timeout = setTimeout(() => setLoading(false), 3000);
-
+    setLoading(true);
     const fetchedComments = new Map<string, Comment>();
 
     sub.on("event", (commentEvent: NDKEvent) => {
@@ -100,13 +99,14 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
       );
       setComments(commentTree);
       setLoading(false);
-    });
-
-    return () => {
       sub.stop();
-      clearTimeout(timeout);
-    };
+    });
   }, [ndk, event?.id, eventCoordinates]);
+
+  useEffect(() => {
+    fetchComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchComments]);
 
   // Extract parent comment ID from comment event tags
   const getParentId = (commentEvent: NDKEvent): string | undefined => {
@@ -176,13 +176,13 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
       await commentEvent.publish();
 
       setNewComment("");
-      // The comment will appear via the subscription
+      fetchComments(); // fetch comments after posting
     } catch (error) {
       console.error("Failed to post comment:", error);
     } finally {
       setPosting(false);
     }
-  }, [ndk, signer, event, newComment, eventCoordinates]);
+  }, [ndk, signer, event, newComment, eventCoordinates, fetchComments]);
 
   // Post a reply to a comment
   const handlePostReply = useCallback(
@@ -221,13 +221,14 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
 
         setReplyText("");
         setReplyTo(null);
+        fetchComments(); // fetch comments after posting reply
       } catch (error) {
         console.error("Failed to post reply:", error);
       } finally {
         setPosting(false);
       }
     },
-    [ndk, signer, event, replyText, eventCoordinates, comments]
+    [ndk, signer, event, replyText, eventCoordinates, comments, fetchComments]
   );
 
   // Helper function to find comment by ID in tree

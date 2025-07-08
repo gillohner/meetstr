@@ -1,3 +1,4 @@
+// src/components/common/layout/DialogActionsSection.tsx
 import { Button, DialogActions } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -17,7 +18,12 @@ export const DialogActionsSection = ({
       <Button onClick={onCancel} sx={{ color: "text.primary" }}>
         {t("common.cancel")}
       </Button>
-      <Button type="submit" variant="contained" color="primary" disabled={disabled}>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={disabled}
+      >
         {t(submitLabel)}
       </Button>
     </DialogActions>
