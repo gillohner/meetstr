@@ -15,7 +15,7 @@ export async function GET(
   const url = new URL(req.url);
   const fromIso = url.searchParams.get("from") ?? undefined;
   const toIso = url.searchParams.get("to") ?? undefined;
-  const includePast = url.searchParams.get("includePast") !== "false";
+  const includePast = url.searchParams.get("includePast") === "true";
 
   const ndk = getNdk();
 
