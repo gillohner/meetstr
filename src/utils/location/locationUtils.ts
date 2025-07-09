@@ -4,6 +4,24 @@ import { fetchOsmTags } from "@/utils/location/osmTags";
 import addressFormatter from "@fragaria/address-formatter";
 import type { LocationData } from "@/types/location";
 
+// In-memory cache for Nominatim and OSM API calls (keyed by URL)
+const nominatimCache: Record<string, any> = {};
+
+// Helper to fetch with cache
+async function fetchWithCache(url: string) {
+  console.log("url: ", url);
+  if (nominatimCache[url]) {
+    console.log("Cache hit for URL:", url);
+    return nominatimCache[url];
+  }
+  console.log("Cache miss for URL:", url);
+  const response = await fetch(url, { headers: { "User-Agent": "meetstr" } });
+  if (!response.ok) return null;
+  const data = await response.json();
+  nominatimCache[url] = data;
+  return data;
+}
+
 export async function getLocationInfo(
   locationName: string,
   geohash?: string
@@ -15,36 +33,21 @@ export async function getLocationInfo(
 
     // Try location name search first
     if (locationName) {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`
-      );
-
-      console.log(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`
-      );
-      console.log("Location search response:", response);
-
-      if (response.ok) {
-        const results = await response.json();
-        osmResult = results[0];
-      }
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`;
+      const results = await fetchWithCache(url);
+      osmResult = results?.[0];
     }
 
     // Fallback to geohash reverse geocoding
     if (!osmResult && geohash) {
       const decoded = decodeGeohash(geohash);
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${decoded.latitude}&lon=${decoded.longitude}&format=json`
-      );
-
-      if (response.ok) {
-        osmResult = await response.json();
-      }
+      const url = `https://nominatim.openstreetmap.org/reverse?lat=${decoded.latitude}&lon=${decoded.longitude}&format=json`;
+      osmResult = await fetchWithCache(url);
     }
 
     if (!osmResult) return null;
 
-    // Fetch complete payment tags from Overpass
+    // Fetch complete payment tags from Overpass (no cache here, but could be added similarly)
     const osmTags = await fetchOsmTags(osmResult.osm_type, osmResult.osm_id);
 
     const paymentMethods = {
@@ -70,7 +73,8 @@ export async function getLocationInfo(
     };
 
     const addressComponents = {
-      houseNumber: osmTags["addr:housenumber"] || osmResult.address?.house_number,
+      houseNumber:
+        osmTags["addr:housenumber"] || osmResult.address?.house_number,
       road: osmTags["addr:street"] || osmResult.address?.road,
       city: osmTags["addr:city"] || osmResult.address?.city,
       postcode: osmTags["addr:postcode"] || osmResult.address?.postcode,
@@ -94,6 +98,9 @@ export async function getLocationInfo(
       mapLinks,
       formattedName,
       formattedAddress,
+      // Add raw OSM/Nominatim result for API integration
+      nominatim: osmResult,
+      osmTags,
     };
   } catch (error) {
     console.error("Location service error:", error);

@@ -4,6 +4,7 @@ import { getNdk } from "@/lib/ndkClient";
 import { fetchCalendarEvents, fetchEventById } from "@/utils/nostr/nostrUtils";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { nip19 } from "nostr-tools";
+import { getLocationInfo } from "@/utils/location/locationUtils";
 
 export async function GET(
   req: Request,
@@ -13,6 +14,7 @@ export async function GET(
   const url = new URL(req.url);
   const fromIso = url.searchParams.get("from") ?? undefined;
   const toIso = url.searchParams.get("to") ?? undefined;
+  const includePast = url.searchParams.get("includePast") === "false";
 
   const ndk = getNdk();
 
@@ -31,9 +33,39 @@ export async function GET(
   // 3. Fetch upcoming & past events
   const { upcoming, past } = await fetchCalendarEvents(ndk, calendarEvent);
 
-  // 4. Serialize events to plain JSON-safe objects
-  const serialize = (evt: any) => {
+  // 4. Filter by from/to date if provided
+  const from = fromIso ? Date.parse(fromIso) / 1000 : undefined;
+  const to = toIso ? Date.parse(toIso) / 1000 : undefined;
+
+  function filterByDate(events: any[]) {
+    return events.filter((evt) => {
+      const meta = getEventMetadata(evt);
+      const start = meta.start ? parseInt(meta.start) : undefined;
+      if (start === undefined) return false;
+      if (from && start < from) return false;
+      if (to && start > to) return false;
+      return true;
+    });
+  }
+
+  const filteredUpcoming = filterByDate(upcoming);
+  const filteredPast = filterByDate(past);
+
+  // 5. Serialize events to plain JSON-safe objects
+  const serialize = async (evt: any) => {
     const meta = getEventMetadata(evt);
+    let locationInfo = null;
+    // Only fetch location info for events in the filtered range
+    const start = meta.start ? parseInt(meta.start) : undefined;
+    const inRange =
+      (!from || (start && start >= from)) && (!to || (start && start <= to));
+    if (inRange && (meta.location || meta.geohash)) {
+      console.log("------------------------------------");
+      console.log("Fetching location info for:", meta.location, meta.geohash);
+      locationInfo = getLocationInfo(meta.location || "", meta.geohash);
+      console.log("Location info:", locationInfo);
+      console.log("------------------------------------");
+    }
     return {
       id: nip19.neventEncode({
         id: evt.id,
@@ -42,13 +74,17 @@ export async function GET(
       }),
       created_at: evt.created_at,
       metadata: meta,
+      locationInfo,
     };
   };
 
-  const upcomingJson = upcoming.map(serialize);
-  const pastJson = past.map(serialize);
+  // Use Promise.all to await all location info
+  const upcomingJson = await Promise.all(filteredUpcoming.map(serialize));
+  const pastJson = includePast
+    ? await Promise.all(filteredPast.map(serialize))
+    : [];
 
-  // 5. Return JSON
+  // 6. Return JSON
   return NextResponse.json({
     metadata,
     upcoming: upcomingJson,
