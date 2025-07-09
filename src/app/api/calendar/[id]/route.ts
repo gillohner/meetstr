@@ -4,7 +4,8 @@ import { getNdk } from "@/lib/ndkClient";
 import { fetchCalendarEvents, fetchEventById } from "@/utils/nostr/nostrUtils";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { nip19 } from "nostr-tools";
-import { getLocationInfo } from "@/utils/location/locationUtils";
+import { locationLoader } from "@/utils/location/loader";
+import type { LocationData } from "@/types/location";
 
 export async function GET(
   req: Request,
@@ -14,7 +15,7 @@ export async function GET(
   const url = new URL(req.url);
   const fromIso = url.searchParams.get("from") ?? undefined;
   const toIso = url.searchParams.get("to") ?? undefined;
-  const includePast = url.searchParams.get("includePast") === "false";
+  const includePast = url.searchParams.get("includePast") !== "false";
 
   const ndk = getNdk();
 
@@ -49,23 +50,13 @@ export async function GET(
   }
 
   const filteredUpcoming = filterByDate(upcoming);
-  const filteredPast = filterByDate(past);
+  const filteredPast = includePast ? filterByDate(past) : [];
 
-  // 5. Serialize events to plain JSON-safe objects
-  const serialize = async (evt: any) => {
+  // 5. Combine and serialize events
+  const allEvents = [...filteredUpcoming, ...filteredPast];
+
+  const serializedEvents = allEvents.map((evt) => {
     const meta = getEventMetadata(evt);
-    let locationInfo = null;
-    // Only fetch location info for events in the filtered range
-    const start = meta.start ? parseInt(meta.start) : undefined;
-    const inRange =
-      (!from || (start && start >= from)) && (!to || (start && start <= to));
-    if (inRange && (meta.location || meta.geohash)) {
-      console.log("------------------------------------");
-      console.log("Fetching location info for:", meta.location, meta.geohash);
-      locationInfo = getLocationInfo(meta.location || "", meta.geohash);
-      console.log("Location info:", locationInfo);
-      console.log("------------------------------------");
-    }
     return {
       id: nip19.neventEncode({
         id: evt.id,
@@ -74,20 +65,73 @@ export async function GET(
       }),
       created_at: evt.created_at,
       metadata: meta,
-      locationInfo,
+      isUpcoming: filteredUpcoming.includes(evt),
     };
-  };
+  });
 
-  // Use Promise.all to await all location info
-  const upcomingJson = await Promise.all(filteredUpcoming.map(serialize));
-  const pastJson = includePast
-    ? await Promise.all(filteredPast.map(serialize))
-    : [];
+  // 6. Deduplicate location keys for batch processing
+  const locationKeys = new Map<
+    string,
+    { locationName: string; geohash?: string }
+  >();
 
-  // 6. Return JSON
+  serializedEvents.forEach((evt) => {
+    const loc = evt.metadata.location;
+    const geo = evt.metadata.geohash;
+
+    if (loc || geo) {
+      const key = `${loc || ""}|${geo || ""}`;
+      if (!locationKeys.has(key)) {
+        locationKeys.set(key, { locationName: loc || "", geohash: geo });
+      }
+    }
+  });
+
+  // 7. Batch load all location data using DataLoader (respects rate limiting)
+  const uniqueLocationKeys = Array.from(locationKeys.values());
+  console.log(`Batch loading ${uniqueLocationKeys.length} unique locations`);
+
+  const locationDataList = await locationLoader.loadMany(uniqueLocationKeys);
+
+  // 8. Create location map for quick lookup
+  const locationMap = new Map<string, LocationData | null>();
+  uniqueLocationKeys.forEach((key, index) => {
+    const mapKey = `${key.locationName}|${key.geohash || ""}`;
+    locationMap.set(mapKey, locationDataList[index] as LocationData | null);
+  });
+
+  // 9. Enrich events with location data
+  const enrichedEvents = serializedEvents.map((evt) => {
+    const loc = evt.metadata.location;
+    const geo = evt.metadata.geohash;
+    const mapKey = `${loc || ""}|${geo || ""}`;
+    const locationData = locationMap.get(mapKey) || null;
+
+    return {
+      ...evt,
+      locationData,
+      // Generate convenient link object
+      links: locationData
+        ? {
+            osm: locationData.mapLinks.osm,
+            google: locationData.mapLinks.google,
+            apple: locationData.mapLinks.apple,
+            ...(locationData.mapLinks.btcmap && {
+              btcmap: locationData.mapLinks.btcmap,
+            }),
+          }
+        : null,
+    };
+  });
+
+  // 10. Split back into upcoming and past
+  const upcomingWithLocation = enrichedEvents.filter((evt) => evt.isUpcoming);
+  const pastWithLocation = enrichedEvents.filter((evt) => !evt.isUpcoming);
+
+  // 11. Return JSON
   return NextResponse.json({
     metadata,
-    upcoming: upcomingJson,
-    past: pastJson,
+    upcoming: upcomingWithLocation.map(({ isUpcoming, ...evt }) => evt),
+    past: pastWithLocation.map(({ isUpcoming, ...evt }) => evt),
   });
 }
