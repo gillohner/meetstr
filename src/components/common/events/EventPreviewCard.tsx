@@ -53,7 +53,6 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({
           sm: "row", // Desktop horizontal layout
         },
         height: "100%",
-        minHeight: 300, // Ensure minimum mobile height
       }}
     >
       <CardActionArea

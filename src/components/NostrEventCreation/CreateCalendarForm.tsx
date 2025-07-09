@@ -9,7 +9,9 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWithPreview";
 import FormTextField from "@/components/common/form/FormTextField";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
-import TagInputField from "@/components/common/form/TagInputField";
+import EventReferencesField, {
+  type EventReference,
+} from "@/components/common/form/EventReferencesField";
 import { useRouter } from "next/navigation";
 
 // Icons
@@ -29,7 +31,7 @@ export default function CreateCalendarForm() {
     description: "",
   });
 
-  const [calendarRefs, setCalendarRefs] = useState<string[]>([]);
+  const [calendarRefs, setCalendarRefs] = useState<EventReference[]>([]);
   const [calendarImage, setCalendarImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -85,9 +87,9 @@ export default function CreateCalendarForm() {
         event.tags.push(["image", calendarImage]);
       }
 
-      // Add calendar references as "a" tags
+      // Add calendar references as "a" tags (only 31922/31923)
       calendarRefs.forEach((ref) => {
-        event.tags.push(["a", ref]);
+        event.tags.push(["a", ref.aTag]);
       });
 
       await event.sign();
@@ -196,11 +198,17 @@ export default function CreateCalendarForm() {
           </Grid>
 
           <Grid size={12}>
-            <TagInputField
+            <EventReferencesField
               label={t("createCalendar.form.calendarReferences")}
-              values={calendarRefs}
+              value={calendarRefs}
               onChange={setCalendarRefs}
-              placeholder={t("createCalendar.form.addReference")}
+              placeholder={t(
+                "createCalendar.form.addReferenceNaddr",
+                "Paste event naddr or meetstr URL"
+              )}
+              allowedKinds={[31922, 31923]}
+              showRemoveInPreview={true}
+              maxHeight={350}
             />
           </Grid>
         </Grid>

@@ -3,7 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { locationLoader } from "@/utils/location/loader";
 import type { LocationData } from "@/types/location";
 
-export function useLocationInfo(locationName?: string | null, geohash?: string | null) {
+export function useLocationInfo(
+  locationName?: string | null,
+  geohash?: string | null
+) {
   return useQuery<LocationData | null>({
     queryKey: ["location", locationName, geohash],
     queryFn: () =>
@@ -14,5 +17,4 @@ export function useLocationInfo(locationName?: string | null, geohash?: string |
     enabled: Boolean(locationName || geohash),
     staleTime: 1000 * 60 * 60, // 1 hour
   });
-  console.log("useLocationInfo", locationName, geohash);
 }
