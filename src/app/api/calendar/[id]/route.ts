@@ -110,17 +110,6 @@ export async function GET(
     return {
       ...evt,
       locationData,
-      // Generate convenient link object
-      links: locationData
-        ? {
-            osm: locationData.mapLinks.osm,
-            google: locationData.mapLinks.google,
-            apple: locationData.mapLinks.apple,
-            ...(locationData.mapLinks.btcmap && {
-              btcmap: locationData.mapLinks.btcmap,
-            }),
-          }
-        : null,
     };
   });
 
