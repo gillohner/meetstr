@@ -7,9 +7,9 @@ import { nip19 } from "nostr-tools";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const calendarNaddr = params.id;
+  const { id: calendarNaddr } = await params;
   const url = new URL(req.url);
   const fromIso = url.searchParams.get("from") ?? undefined;
   const toIso = url.searchParams.get("to") ?? undefined;
@@ -29,10 +29,7 @@ export async function GET(
   const metadata = getEventMetadata(calendarEvent);
 
   // 3. Fetch upcoming & past events
-  const { upcoming, past } = await fetchCalendarEvents(ndk, calendarEvent, {
-    from: fromIso,
-    to: toIso,
-  });
+  const { upcoming, past } = await fetchCalendarEvents(ndk, calendarEvent);
 
   // 4. Serialize events to plain JSON-safe objects
   const serialize = (evt: any) => {
