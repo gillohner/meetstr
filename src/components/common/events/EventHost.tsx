@@ -1,6 +1,5 @@
 // src/components/common/events/EventHost.tsx
 import { Box, Avatar, Typography } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
 import { useProfile } from "nostr-hooks";
 import { nip19 } from "nostr-tools";
 import { useMemo } from "react";
