@@ -16,8 +16,10 @@ async function fetchWithCache(url: string) {
   }
   console.log("Cache miss for URL:", url);
   const response = await fetch(url, { headers: { "User-Agent": "meetstr" } });
+  console.log("Response status:", response.status);
   if (!response.ok) return null;
   const data = await response.json();
+  console.log("Fetched data:", data);
   nominatimCache[url] = data;
   return data;
 }
@@ -98,9 +100,6 @@ export async function getLocationInfo(
       mapLinks,
       formattedName,
       formattedAddress,
-      // Add raw OSM/Nominatim result for API integration
-      nominatim: osmResult,
-      osmTags,
     };
   } catch (error) {
     console.error("Location service error:", error);
