@@ -12,7 +12,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Build and Lint
+        run: |
+          npm install
+          npm run lint
+          npm run build
+
       - name: Deploy to VPS
+        if: success() # Only run if previous steps succeeded
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
