@@ -7,19 +7,35 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
       - name: Build and Lint
         run: |
-          npm install
+          npm ci
           npm run lint
           npm run build
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            .next
+            public
+            package.json
+
       - name: Deploy to VPS
-        if: success() # Only run if previous steps succeeded
+        if: success()
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
