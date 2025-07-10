@@ -138,8 +138,8 @@ export async function getLocationInfo(
 
     const mapLinks = {
       osm: `https://openstreetmap.org/${osmResult.osm_type}/${osmResult.osm_id}`,
-      google: `https://www.google.com/maps/search/?api=1&query=${coords.latitude},${coords.longitude},${osmResult.display_name}`,
-      apple: `https://maps.apple.com/?q=${osmResult.name}&ll=${coords.latitude},${coords.longitude}`,
+      google: `https://www.google.com/maps/search/?api=1&query=${coords.latitude},${coords.longitude},${encodeURIComponent(osmResult.display_name || "")}`,
+      apple: `https://maps.apple.com/?q=${encodeURIComponent(osmResult.name || "")}&ll=${coords.latitude},${coords.longitude}`,
       ...(paymentMethods.acceptsBitcoin && {
         btcmap: `https://btcmap.org/merchant/${osmResult.osm_type}:${osmResult.osm_id}`,
       }),
