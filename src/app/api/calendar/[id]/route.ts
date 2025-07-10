@@ -32,8 +32,6 @@ export async function GET(
   // 2. Extract calendar metadata
   const metadata = getEventMetadata(calendarEvent);
 
-  metadata.meetstrUrl = `https://meetstr.com/calendar/${calendarNaddr}`;
-
   // 3. Fetch upcoming & past events
   const { upcoming, past } = await fetchCalendarEvents(ndk, calendarEvent);
 
@@ -128,8 +126,11 @@ export async function GET(
   const upcomingWithLocation = enrichedEvents.filter((evt) => evt.isUpcoming);
   const pastWithLocation = enrichedEvents.filter((evt) => !evt.isUpcoming);
 
+  const meetstrUrl = `https://meetstr.com/calendar/${calendarNaddr}`;
+
   // 11. Return JSON
   return NextResponse.json({
+    meetstrUrl,
     metadata,
     upcoming: upcomingWithLocation.map(({ isUpcoming, ...evt }) => evt),
     past: pastWithLocation.map(({ isUpcoming, ...evt }) => evt),
