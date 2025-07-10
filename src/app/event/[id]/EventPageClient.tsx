@@ -19,8 +19,6 @@ export default function EventPageClient({ params }: EventPageClientProps) {
     });
   }, [params]);
 
-  if (!eventId) return <div>Loading...</div>;
-
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 4 }}>
