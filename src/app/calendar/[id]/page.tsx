@@ -1,28 +1,89 @@
-// src/app/calendar/[id]/page.tsx
-"use client";
-import * as React from "react";
-import Container from "@mui/material/Container";
-import Box from "@mui/material/Box";
-import CalendarOverview from "@/features/calendar/components/CalendarOverview";
-import { useParams } from "next/navigation";
+import { Metadata, ResolvingMetadata } from "next";
+import { fetchEventById } from "@/utils/nostr/nostrUtils";
+import { getEventMetadata } from "@/utils/nostr/eventUtils";
+import { getNdk } from "@/lib/ndkClient";
+import CalendarPageClient from "./CalendarPageClient";
 
-export default function Calendar() {
-  const params = useParams();
-  const id = params?.id?.toString() || ""; // Access the dynamic route parameter
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-  return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          my: 4,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <CalendarOverview calendarId={id} />
-      </Box>
-    </Container>
-  );
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id: calendarId } = await params;
+
+  try {
+    const ndk = getNdk();
+    const calendarEvent = await fetchEventById(ndk, calendarId);
+
+    if (!calendarEvent || calendarEvent.kind !== 31924) {
+      return {
+        title: "Calendar Not Found",
+        description: "The requested calendar could not be found.",
+      };
+    }
+
+    const metadata = getEventMetadata(calendarEvent);
+    const title = metadata.title || "Unnamed Calendar";
+    const description =
+      metadata.summary ||
+      calendarEvent.content ||
+      "A Nostr calendar with upcoming events.";
+    const calendarUrl = `https://meetstr.com/calendar/${calendarId}`;
+
+    // Extract hashtags from tags
+    const hashtags = calendarEvent.tags
+      .filter((tag) => tag[0] === "t")
+      .map((tag) => tag[1])
+      .filter(Boolean);
+
+    return {
+      title,
+      description,
+      keywords: [...hashtags, "nostr", "calendar", "events", "meetup"],
+      openGraph: {
+        title,
+        description,
+        url: calendarUrl,
+        type: "website",
+        images: [
+          {
+            url: `/api/og/calendar/${calendarId}`,
+            width: 1200,
+            height: 630,
+            alt: `${title} - Calendar`,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: [`/api/og/calendar/${calendarId}`],
+      },
+      alternates: {
+        canonical: calendarUrl,
+      },
+      other: {
+        "event:start_date": metadata.start || "",
+        "event:end_date": metadata.end || "",
+        "event:location": metadata.location || "",
+        "nostr:naddr": calendarId,
+        "nostr:kind": "31924",
+      },
+    };
+  } catch (error) {
+    console.error("Error generating calendar metadata:", error);
+    return {
+      title: "Calendar Error",
+      description: "An error occurred while loading this calendar.",
+    };
+  }
+}
+
+export default function CalendarPage({ params }: Props) {
+  return <CalendarPageClient params={params} />;
 }
