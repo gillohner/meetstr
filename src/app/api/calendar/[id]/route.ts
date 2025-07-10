@@ -6,6 +6,7 @@ import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { nip19 } from "nostr-tools";
 import { locationLoader } from "@/utils/location/loader";
 import type { LocationData } from "@/types/location";
+import { getEventNip19Encoding } from "@/utils/nostr/nostrUtils";
 
 export async function GET(
   req: Request,
@@ -30,6 +31,8 @@ export async function GET(
 
   // 2. Extract calendar metadata
   const metadata = getEventMetadata(calendarEvent);
+
+  metadata.meetstrUrl = `https://meetstr.com/calendar/${calendarNaddr}`;
 
   // 3. Fetch upcoming & past events
   const { upcoming, past } = await fetchCalendarEvents(ndk, calendarEvent);
@@ -57,6 +60,11 @@ export async function GET(
 
   const serializedEvents = allEvents.map((evt) => {
     const meta = getEventMetadata(evt);
+
+    // Generate meetstrUrl for individual events
+    const eventNip19 = getEventNip19Encoding(evt);
+    const meetstrUrl = `https://meetstr.com/event/${eventNip19}`;
+
     return {
       id: nip19.neventEncode({
         id: evt.id,
@@ -64,7 +72,10 @@ export async function GET(
         kind: evt.kind,
       }),
       created_at: evt.created_at,
-      metadata: meta,
+      metadata: {
+        ...meta,
+        meetstrUrl,
+      },
       isUpcoming: filteredUpcoming.includes(evt),
     };
   });
