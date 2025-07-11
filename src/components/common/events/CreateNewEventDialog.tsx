@@ -9,6 +9,8 @@ import {
   Grid,
   Divider,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -68,6 +70,8 @@ export default function CreateNewEventDialog({
 }: CreateNewEventDialogProps) {
   const { t } = useTranslation();
   const { ndk } = useNdk();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [internalOpen, setInternalOpen] = useState(false);
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
   const { activeUser } = useActiveUser();
@@ -279,7 +283,13 @@ export default function CreateNewEventDialog({
           {t("event.createEvent.title")}
         </Button>
       )}
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <Dialog 
+        open={open} 
+        onClose={onClose} 
+        maxWidth="md" 
+        fullWidth
+        fullScreen={isMobile}
+      >
         <DialogTitle
           sx={{ bgcolor: "background.default", color: "text.primary" }}
         >
