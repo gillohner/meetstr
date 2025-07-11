@@ -31,6 +31,17 @@ export const MobileNavigation = ({
         onClose={handleCloseNavMenu}
         sx={{ display: { xs: "block", md: "none" } }}
       >
+        <MenuItem
+          key={"home"}
+          onClick={handleCloseNavMenu}
+          component={Link}
+          href={"/"}
+          passHref
+        >
+          <Typography textAlign="center">
+            {t("nav.startpage", "Popular Calendars")}
+          </Typography>
+        </MenuItem>
         {pages.map((page) => (
           <MenuItem
             key={page.path}
