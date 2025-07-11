@@ -113,7 +113,9 @@
     "upcomingEvents": "Bevorstehende Events",
     "noUpcomingEvents": "Keine bevorstehenden Events",
     "pastEvents": "Vergangene Events",
-    "noPastEvents": "Keine Vergangenen Events"
+    "noPastEvents": "Keine Vergangenen Events",
+    "onlyApproved": "Nur genehmigte Meetups",
+    "allMeetups": "Alle Meetups"
   },
   "createCalendar": {
     "error": "Kalender nicht erstellen. \nBitte versuchen Sie es erneut.",

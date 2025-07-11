@@ -14,7 +14,7 @@ export const useNostrUrlUpdate = () => {
 
       try {
         const nip19Identifier = getEventNip19Encoding(event);
-        if (!nip19Identifier) return;
+        if (!nip19Identifier || !pathname) return;
 
         // Extract the base path without the ID
         const basePath = pathname.substring(0, pathname.lastIndexOf("/") + 1);
