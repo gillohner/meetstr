@@ -164,7 +164,7 @@
     "rsvpEventLink": "View Event",
     "unknownEvent": "Unknown Event",
     "location": "Location",
-    "accepted": "Accept",
+    "accept": "Accept",
     "dismiss": "Dismiss"
   }
 }
