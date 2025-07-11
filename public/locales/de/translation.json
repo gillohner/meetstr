@@ -155,14 +155,14 @@
     }
   },
   "nav": {
-    "dezentralschweiz": "Detzentralschweiz -Kalender",
-    "new-calendar": "Neukalender"
+    "dezentralschweiz": "Dezentralschweiz Kalender",
+    "new-calendar": "Kalendar erstellen"
   },
   "navbar": {
     "login": {
       "loading": "Laden...",
       "login": "Login",
-      "not-found": "Benutzer nicht in Relais gefunden"
+      "not-found": "Benutzer in Relay nicht gefunden"
     }
   },
   "notification": {
