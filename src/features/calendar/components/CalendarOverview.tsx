@@ -14,6 +14,7 @@ import {
   Box,
   ToggleButton,
   ToggleButtonGroup,
+  CircularProgress,
 } from "@mui/material";
 import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
@@ -96,7 +97,12 @@ export default function CalendarOverview({
   }, [calendarEvent, ndk]);
 
   if (!calendarEvent) {
-    if (loading) return <Typography>{t("common.loading")}</Typography>;
+    if (loading)
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <CircularProgress />
+        </Box>
+      );
     if (errorCode) return <Typography color="error">{errorCode}</Typography>;
 
     return <Typography variant="h4">{t("error.event.invalidId")}</Typography>;

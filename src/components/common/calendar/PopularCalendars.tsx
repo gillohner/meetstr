@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 const PopularCalendars: React.FC = () => {
   const { ndk } = useNdk();
@@ -21,6 +22,7 @@ const PopularCalendars: React.FC = () => {
   const [calendars, setCalendars] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!ndk) return;
@@ -46,7 +48,7 @@ const PopularCalendars: React.FC = () => {
   if (loading)
     return (
       <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-        <CircularProgress />
+        <CircularProgress aria-label={t("common.loading")} />
       </Box>
     );
   if (!calendars.length)

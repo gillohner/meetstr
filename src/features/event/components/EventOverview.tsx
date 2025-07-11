@@ -14,6 +14,7 @@ import {
   Link,
   Stack,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -80,7 +81,12 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
     fetchEvent(updatedEvent.id, expectedKinds);
   };
 
-  if (loading) return <Typography>{t("common.loading")}</Typography>;
+  if (loading)
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   if (errorCode) return <Typography>{errorCode}</Typography>;
 
   if (!event || !eventId) {
