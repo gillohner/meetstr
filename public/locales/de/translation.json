@@ -5,7 +5,7 @@
       "title": "RSVP",
       "accept": "Akzeptieren",
       "maybe": "Vielleicht",
-      "decline": "Abfall",
+      "decline": "Alehnen",
       "attending": "Angemeldet",
       "notAttending": "Abgelehnt",
       "withdraw": "Teilnahme zurücknehmen",
@@ -23,7 +23,7 @@
       "imageUpload": {
         "upload": "Hochladen",
         "success": "Bild erfolgreich hochgeladen",
-        "error": "Bild -Upload fehlgeschlagen"
+        "error": "Bild-Upload fehlgeschlagen"
       },
       "title": "Event hinzufügen",
       "newEvent": "Event hinzufügen",
@@ -37,10 +37,10 @@
         "title": "Titel",
         "description": "Beschreibung",
         "location": "Standort",
-        "addHashtag": "Hashtag hinzufügen ...",
-        "addReference": "Referenz -URL hinzufügen ...",
+        "addHashtag": "Hashtags hinzufügen ...",
+        "addReference": "Links hinzufügen ...",
         "hashtags": "Hashtags",
-        "references": "Referenzen"
+        "references": "Links"
       },
       "submit": "Event erstellen",
       "error": "Ereignis nicht erstellen",
@@ -48,29 +48,29 @@
     },
     "attendees": "Teilnehmer",
     "comments": {
-      "copyProfile": "Profil -Link kopieren",
+      "copyProfile": "Profil-Link kopieren",
       "empty": "Noch keine Kommentare. \nSei der erste, der kommentiert!",
-      "placeholder": "Fügen Sie einen Kommentar hinzu ...",
+      "placeholder": "Füge einen Kommentar hinzu ...",
       "post": "Post",
       "replies": "Antworten",
       "reply": "Antwort",
-      "replyPlaceholder": "Antwort auf diesen Kommentar ...",
-      "signerRequired": "Sie müssen angemeldet werden, um Kommentare zu veröffentlichen",
+      "replyPlaceholder": "Antworte auf diesen Kommentar ...",
+      "signerRequired": "Du musst angemeldet sein, um Kommentare zu posten",
       "title": "Kommentare",
       "viewProfile": "Profil anzeigen"
     },
     "delete": {
       "button": "Löschen",
-      "confirm": "Sind Sie sicher, dass Sie diese Veranstaltung löschen möchten?",
+      "confirm": "Bist du sicher, dass Sie diese Veranstaltung löschen möchten?",
       "error": "Ereignis nicht löschen",
-      "reason": "Vom Autor gelöschte Ereignis",
+      "reason": "Vom Autor gelöschtes Ereignis",
       "success": "Ereignis erfolgreich gelöscht"
     },
     "edit": {
       "button": "Bearbeiten",
-      "submit": "Update -Ereignis",
-      "success": "Ereignis erfolgreich aktualisiert",
-      "title": "Ereignis bearbeiten"
+      "submit": "Event bearbeiten",
+      "success": "Event erfolgreich bearbeitet",
+      "title": "Event bearbeiten"
     }
   },
   "payment": {
@@ -87,16 +87,14 @@
   },
   "error": {
     "remoteSignerFailure": "Remote signer fehler",
-    "invalidPrivateKey": "Ungültiger privater Schlüssel",
     "event": {
       "noName": "Ohne Titel",
       "invalidDate": "Datum ungültig",
       "notFound": "404: Kalender nicht gefunden",
       "invalidKind": "Ungültiger Nostr Kind",
-      "invalidId": "Die bereitgestellte Ereignis -ID ist nicht gültig"
+      "invalidId": "Die Event-ID ist nicht gültig"
     },
-    "calendar": {},
-    "generic": "Etwas scheiterte"
+    "generic": "Etwas ist fehlgeschlagen. \nBitte versuchen Sie es später erneut."
   },
   "common": {
     "change": "Ändern",
@@ -120,8 +118,8 @@
   "createCalendar": {
     "error": "Kalender nicht erstellen. \nBitte versuchen Sie es erneut.",
     "form": {
-      "addReference": "Kalenderereignisreferenz hinzufügen ...",
-      "calendarReferences": "Kalenderereignisreferenzen",
+      "addReference": "Kalenderereignis hinzufügen ...",
+      "calendarReferences": "Kalenderereignise",
       "description": "Kalenderbeschreibung",
       "title": "Kalendertitel"
     },
@@ -135,23 +133,23 @@
   "modal": {
     "login": {
       "extension": {
-        "button": "Melden Sie sich mit Erweiterung an",
-        "description": "Verwenden Sie eine Browser -Erweiterung wie Alby oder NOS2X, um Ihre Schlüssel sicher zu verwalten.",
-        "error": "Die Anmeldung der Erweiterung ist fehlgeschlagen. \nBitte überprüfen Sie Ihre Browser -Erweiterung."
+        "button": "Browser Extension login",
+        "description": "Verwende eine Browser-Extension wie Alby oder NOS2X, um deine Schlüssel sicher zu verwalten.",
+        "error": "Die Anmeldung per Extension ist fehlgeschlagen."
       },
       "remoteSigner": {
-        "button": "Remote -Unterzeichner anschließen",
-        "description": "Schließen Sie eine Bunker-URL oder eine NIP-05-Adresse von einem Remote-Signierdienst an.",
-        "error": "Die Remote -Unterzeichnerverbindung ist fehlgeschlagen. \nBitte überprüfen Sie Ihre URL und versuchen Sie es erneut.",
-        "inputHelper": "Beispiel: Bunker: // Pubkey? Relay = WSS: //relay.com oder alice@nsec.app",
+        "button": "Remote-Signer anschliessen",
+        "description": "Füge eine Bunker-URL oder eine NIP-05-Adresse von einem Remote-Signier an.",
+        "error": "Die Remote-Verbingung ist fehlgeschlagen. \nBitte überprüfe deine URL und versuche es erneut.",
+        "inputHelper": "Beispiel: Bunker: // Pubkey? Relay = WSS: //relay.nsec.app oder alice@nsec.app",
         "inputLabel": "Bunker-URL oder NIP-05-Adresse",
-        "inputRequired": "Bitte geben Sie eine gültige Bunker-URL oder NIP-05-Adresse ein."
+        "inputRequired": "Bitte gebe eine gültige Bunker-URL oder NIP-05-Adresse ein."
       },
       "tabs": {
-        "extension": "Browsererweiterung",
-        "remoteSigner": "Fernunterzeichner"
+        "extension": "Browser-Extension",
+        "remoteSigner": "Remote-Signer"
       },
-      "title": "Melden Sie sich bei NoStr an"
+      "title": "Nostr Login"
     }
   },
   "nav": {
@@ -162,7 +160,7 @@
     "login": {
       "loading": "Laden...",
       "login": "Login",
-      "not-found": "Benutzer in Relay nicht gefunden"
+      "not-found": "Benutzer in Relays nicht gefunden"
     }
   },
   "notification": {

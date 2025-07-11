@@ -13,6 +13,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { useNdk, useLogin } from "nostr-hooks";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useLanguageSync } from "@/hooks/useLanguageSync";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,16 +23,12 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function ClientProviders({
-  children,
-  serverLang,
-}: {
-  children: ReactNode;
-  serverLang: string;
-}) {
-  const i18n = initI18n(serverLang);
+function ProviderContent({ children }: { children: ReactNode }) {
   const { initNdk, ndk } = useNdk();
   const { loginFromLocalStorage } = useLogin();
+
+  // Sync language preferences after hydration
+  useLanguageSync();
 
   useEffect(() => {
     initNdk({
@@ -58,16 +55,30 @@ export default function ClientProviders({
   }, [loginFromLocalStorage]);
 
   return (
+    <SnackbarProvider>
+      <CustomAppBar />
+      {children}
+    </SnackbarProvider>
+  );
+}
+
+export default function ClientProviders({
+  children,
+  serverLang,
+}: {
+  children: ReactNode;
+  serverLang: string;
+}) {
+  const [i18nInstance] = useState(() => initI18n(serverLang));
+
+  return (
     <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>
+      <I18nextProvider i18n={i18nInstance}>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
             <InitColorSchemeScript attribute="class" />
             <CssBaseline />
-            <SnackbarProvider>
-              <CustomAppBar />
-              {children}
-            </SnackbarProvider>
+            <ProviderContent>{children}</ProviderContent>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </I18nextProvider>

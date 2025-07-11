@@ -36,14 +36,17 @@ export default function NotificationCenter() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<NDKEvent[]>([]);
-  const [dismissed, setDismissed] = useState<string[]>(() => {
+  const [dismissed, setDismissed] = useState<string[]>([]);
+
+  // Initialize dismissed notifications from sessionStorage after hydration
+  useEffect(() => {
     if (typeof window !== "undefined") {
-      return JSON.parse(
-        sessionStorage.getItem("dismissedNotifications") || "[]"
-      );
+      const stored = sessionStorage.getItem("dismissedNotifications");
+      if (stored) {
+        setDismissed(JSON.parse(stored));
+      }
     }
-    return [];
-  });
+  }, []);
 
   // Fetch user's calendar events (kind 31924)
   useEffect(() => {

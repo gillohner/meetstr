@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import ClientProviders from "@/providers/ClientProviders";
-import { use } from "react";
 import type { Metadata } from "next";
 
 // Base metadata for the application
@@ -68,18 +67,18 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = use(headers());
+  const headersList = await headers();
   const langHeader = headersList.get("x-lang") || "en";
 
   return (
-    <html lang={langHeader}>
+    <html lang={langHeader} suppressHydrationWarning>
       <head />
-      <body>
+      <body suppressHydrationWarning>
         <ClientProviders serverLang={langHeader}>{children}</ClientProviders>
       </body>
     </html>
