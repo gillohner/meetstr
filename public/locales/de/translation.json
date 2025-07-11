@@ -1,8 +1,5 @@
 {
   "appName": "Meetstr",
-  "auth": {
-    "login_required": "Login benötigt."
-  },
   "event": {
     "rsvp": {
       "title": "RSVP",
