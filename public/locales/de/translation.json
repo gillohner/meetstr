@@ -1,11 +1,7 @@
 {
   "appName": "Meetstr",
-  "navbar": {
-    "login": "Anmelden",
-    "calendar": "Kalender"
-  },
   "auth": {
-    "login_required": "NIP-07 login erforderlich (https://nostrcheck.me/register/browser-extension.php)"
+    "login_required": "Login benötigt."
   },
   "event": {
     "rsvp": {
@@ -29,7 +25,8 @@
     "createEvent": {
       "imageUpload": {
         "upload": "Hochladen",
-        "success": "Bild erfolgreich hochgeladen"
+        "success": "Bild erfolgreich hochgeladen",
+        "error": "Bild -Upload fehlgeschlagen"
       },
       "title": "Event hinzufügen",
       "newEvent": "Event hinzufügen",
@@ -42,11 +39,42 @@
         "timezone": "Zeitzone",
         "title": "Titel",
         "description": "Beschreibung",
-        "location": "Standort"
+        "location": "Standort",
+        "addHashtag": "Hashtag hinzufügen ...",
+        "addReference": "Referenz -URL hinzufügen ...",
+        "hashtags": "Hashtags",
+        "references": "Referenzen"
       },
-      "submit": "Event erstellen"
+      "submit": "Event erstellen",
+      "error": "Ereignis nicht erstellen",
+      "success": "Ereignis erfolgreich erstellt"
     },
-    "attendees": "Teilnehmer"
+    "attendees": "Teilnehmer",
+    "comments": {
+      "copyProfile": "Profil -Link kopieren",
+      "empty": "Noch keine Kommentare. \nSei der erste, der kommentiert!",
+      "placeholder": "Fügen Sie einen Kommentar hinzu ...",
+      "post": "Post",
+      "replies": "Antworten",
+      "reply": "Antwort",
+      "replyPlaceholder": "Antwort auf diesen Kommentar ...",
+      "signerRequired": "Sie müssen angemeldet werden, um Kommentare zu veröffentlichen",
+      "title": "Kommentare",
+      "viewProfile": "Profil anzeigen"
+    },
+    "delete": {
+      "button": "Löschen",
+      "confirm": "Sind Sie sicher, dass Sie diese Veranstaltung löschen möchten?",
+      "error": "Ereignis nicht löschen",
+      "reason": "Vom Autor gelöschte Ereignis",
+      "success": "Ereignis erfolgreich gelöscht"
+    },
+    "edit": {
+      "button": "Bearbeiten",
+      "submit": "Update -Ereignis",
+      "success": "Ereignis erfolgreich aktualisiert",
+      "title": "Ereignis bearbeiten"
+    }
   },
   "payment": {
     "bitcoinAccepted": "Bitcoin Zahlungen möglich",
@@ -67,7 +95,8 @@
       "noName": "Ohne Titel",
       "invalidDate": "Datum ungültig",
       "notFound": "404: Kalender nicht gefunden",
-      "invalidKind": "Ungültiger Nostr Kind"
+      "invalidKind": "Ungültiger Nostr Kind",
+      "invalidId": "Die bereitgestellte Ereignis -ID ist nicht gültig"
     },
     "calendar": {},
     "generic": "Etwas scheiterte"
@@ -76,22 +105,75 @@
     "change": "Ändern",
     "remove": "Entfernen",
     "cancel": "Abbrechen",
-    "loading": "Laden..."
+    "loading": "Laden...",
+    "posting": "Posting ..."
   },
   "logout": "Ausloggen",
   "tooltip": {
     "openProfile": "Profil Öffnen"
-  },
-  "createCalendar": {
-    "error": {
-      "requiredFields": "Füllen Sie alle erforderlichen Felder aus",
-      "publishFailed": "Kalendererstellung fehlgeschlagen"
-    }
   },
   "calendar": {
     "upcomingEvents": "Bevorstehende Events",
     "noUpcomingEvents": "Keine bevorstehenden Events",
     "pastEvents": "Vergangene Events",
     "noPastEvents": "Keine Vergangenen Events"
+  },
+  "createCalendar": {
+    "error": "Kalender nicht erstellen. \nBitte versuchen Sie es erneut.",
+    "form": {
+      "addReference": "Kalenderereignisreferenz hinzufügen ...",
+      "calendarReferences": "Kalenderereignisreferenzen",
+      "description": "Kalenderbeschreibung",
+      "title": "Kalendertitel"
+    },
+    "submit": "Kalender erstellen",
+    "success": "Kalender erfolgreich erstellt!",
+    "title": "Neuen Kalender erstellen"
+  },
+  "login": {
+    "requireLogin": "Bitte melden Sie sich an, um auf diese Seite zuzugreifen"
+  },
+  "modal": {
+    "login": {
+      "extension": {
+        "button": "Melden Sie sich mit Erweiterung an",
+        "description": "Verwenden Sie eine Browser -Erweiterung wie Alby oder NOS2X, um Ihre Schlüssel sicher zu verwalten.",
+        "error": "Die Anmeldung der Erweiterung ist fehlgeschlagen. \nBitte überprüfen Sie Ihre Browser -Erweiterung."
+      },
+      "remoteSigner": {
+        "button": "Remote -Unterzeichner anschließen",
+        "description": "Schließen Sie eine Bunker-URL oder eine NIP-05-Adresse von einem Remote-Signierdienst an.",
+        "error": "Die Remote -Unterzeichnerverbindung ist fehlgeschlagen. \nBitte überprüfen Sie Ihre URL und versuchen Sie es erneut.",
+        "inputHelper": "Beispiel: Bunker: // Pubkey? Relay = WSS: //relay.com oder alice@nsec.app",
+        "inputLabel": "Bunker-URL oder NIP-05-Adresse",
+        "inputRequired": "Bitte geben Sie eine gültige Bunker-URL oder NIP-05-Adresse ein."
+      },
+      "tabs": {
+        "extension": "Browsererweiterung",
+        "remoteSigner": "Fernunterzeichner"
+      },
+      "title": "Melden Sie sich bei NoStr an"
+    }
+  },
+  "nav": {
+    "dezentralschweiz": "Detzentralschweiz -Kalender",
+    "new-calendar": "Neukalender"
+  },
+  "navbar": {
+    "login": {
+      "loading": "Laden...",
+      "login": "Login",
+      "not-found": "Benutzer nicht in Relais gefunden"
+    }
+  },
+  "notification": {
+    "accepted": "Akzeptieren",
+    "dismiss": "Zurückweisen",
+    "eventDetails": "Ereignisdetails",
+    "location": "Standort",
+    "noNotifications": "Keine Benachrichtigungen",
+    "rsvpEventLink": "Ereignis anzeigen",
+    "rsvpStatus": "RSVP -Status",
+    "unknownEvent": "Unbekanntes Ereignis"
   }
 }

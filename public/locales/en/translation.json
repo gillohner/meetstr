@@ -7,11 +7,11 @@
   "navbar": {
     "login": {
       "login": "Login",
-      "logout": "Logout",
       "not-found": "User not found in Relays",
       "loading": "Loading..."
     }
   },
+  "logout": "Logout",
   "login": {
     "requireLogin": "Please login to access this page"
   },
@@ -24,21 +24,6 @@
   },
   "createCalendar": {
     "title": "Create New Calendar",
-    "publish": "Publish Calendar",
-    "titleInput": {
-      "label": "Title"
-    },
-    "descriptionInput": {
-      "label": "Description"
-    },
-    "imgUrlInput": {
-      "label": "Image URL"
-    },
-    "calendarReferencesInput": {
-      "label": "Add Calendar Reference",
-      "placeholder": "Format: naddr of event kind 31922, 31923",
-      "helperText": "Press Enter to add"
-    },
     "form": {
       "title": "Calendar Title",
       "description": "Calendar Description",
@@ -52,24 +37,14 @@
   "modal": {
     "login": {
       "title": "Login to Nostr",
-      "securityNotice": "🔒 For your security, we do not support private key login. Use browser extensions or remote signers to keep your keys safe.",
       "tabs": {
         "extension": "Browser Extension",
-        "qr": "QR Code",
         "remoteSigner": "Remote Signer"
       },
       "extension": {
         "description": "Use a browser extension like Alby or nos2x to securely manage your keys.",
         "button": "Login with Extension",
         "error": "Extension login failed. Please check your browser extension."
-      },
-      "qr": {
-        "description": "Scan with Amber or another NIP-46 compatible signer app on your mobile device.",
-        "generate": "Generate QR Code",
-        "regenerate": "Generate New Code",
-        "waitingScan": "Waiting for you to scan the QR code with your signer app...",
-        "pendingApproval": "Please check your signer app and approve the connection request.",
-        "error": "Failed to generate QR code. Please try again."
       },
       "remoteSigner": {
         "description": "Connect using a bunker URL or NIP-05 address from a remote signing service.",
@@ -82,21 +57,11 @@
     }
   },
   "error": {
-    "calendar": {
-      "wrongKind": "The provided event id is not of kind 31924"
-    },
     "event": {
-      "wrongKind": "The provided event id is not of kind 31922 or 31923",
       "noName": "Untitled",
       "invalidDate": "Invalid Date",
-      "notFound": "404: Calendar not Found",
-      "invalidKind": "Invalid Nostr Kind",
       "invalidId": "The provided event id is not valid"
-    },
-    "login_failed": "Login failed",
-    "remoteSignerFailure": "Remote signer failure",
-    "invalidPrivateKey": "Invalid private key",
-    "generic": "Something failed"
+    }
   },
   "event": {
     "comments": {
@@ -132,7 +97,8 @@
     "createEvent": {
       "imageUpload": {
         "upload": "Upload",
-        "success": "Image successfully uploaded"
+        "success": "Image successfully uploaded",
+        "error": "Image upload failed"
       },
       "title": "Add Event",
       "newEvent": "Add Event",
@@ -182,7 +148,6 @@
     "googlemaps": "Google Maps",
     "applemaps": "Apple Maps"
   },
-  "logout": "Logout",
   "tooltip": {
     "openProfile": "Open Profile"
   },
