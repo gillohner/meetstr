@@ -44,6 +44,7 @@ export default function CalendarOverview({
   const [pastEvents, setPastEvents] = useState<NDKEvent[]>([]);
   const [showUnapproved, setShowUnapproved] = useState(false);
   const [unapprovedEvents, setUnapprovedEvents] = useState<NDKEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
   const expectedKinds = useMemo(() => [31924], []);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function CalendarOverview({
   useEffect(() => {
     const loadCalendarEvents = async () => {
       if (calendarEvent && ndk) {
+        setEventsLoading(true);
         const { upcoming, past } = await fetchCalendarEvents(
           ndk,
           calendarEvent
@@ -91,6 +93,7 @@ export default function CalendarOverview({
           });
           setUnapprovedEvents(unapproved);
         }
+        setEventsLoading(false);
       }
     };
     loadCalendarEvents();
@@ -199,11 +202,13 @@ export default function CalendarOverview({
         title={t("calendar.upcomingEvents")}
         events={allUpcomingEvents}
         fallbackText={t("calendar.noUpcomingEvents")}
+        loading={eventsLoading}
       />
       <EventSection
         title={t("calendar.pastEvents")}
         events={allPastEvents}
         fallbackText={t("calendar.noPastEvents")}
+        loading={eventsLoading}
       />
     </Container>
   );
