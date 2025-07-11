@@ -11,6 +11,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -38,6 +39,7 @@ const FormGeoSearchField = dynamic(
 import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
+import CloseIcon from "@mui/icons-material/Close";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -291,7 +293,14 @@ export default function CreateNewEventDialog({
         fullScreen={isMobile}
       >
         <DialogTitle
-          sx={{ bgcolor: "background.default", color: "text.primary" }}
+          sx={{ 
+            bgcolor: "background.default", 
+            color: "text.primary",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            pr: 1
+          }}
         >
           <Typography variant="h5" component="div">
             <EventIcon
@@ -301,6 +310,18 @@ export default function CreateNewEventDialog({
               ? t("event.edit.title")
               : t("event.createEvent.newEvent")}
           </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={onClose}
+            sx={{
+              color: "text.secondary",
+              "&:hover": {
+                color: "text.primary",
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <DialogContent sx={{ bgcolor: "background.paper" }}>
           <form onSubmit={handleFormSubmit}>
