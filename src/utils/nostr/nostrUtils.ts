@@ -1,6 +1,6 @@
 // src/utils/nostr/nostrUtils.ts
 import type NDK from "@nostr-dev-kit/ndk";
-import { type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
+import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
 
 /**
@@ -81,6 +81,7 @@ export const fetchCalendarEvents = async (
   const now = Math.floor(Date.now() / 1000);
   const upcoming: NDKEvent[] = [];
   const past: NDKEvent[] = [];
+  const deletedEventRefs: string[] = [];
 
   if (!calendarEvent || calendarEvent.kind !== 31924) {
     return { upcoming, past };
@@ -115,6 +116,7 @@ export const fetchCalendarEvents = async (
       );
 
       if (isDeleted) {
+        deletedEventRefs.push(tag[1]);
         return null; // Skip deleted events
       }
 
@@ -141,6 +143,11 @@ export const fetchCalendarEvents = async (
     }
   });
 
+  // If we found deleted events, update the calendar to remove their references
+  if (deletedEventRefs.length > 0) {
+    removeDeletedEventsFromCalendar(ndk, calendarEvent, deletedEventRefs);
+  }
+
   // Sort functions
   const sortAsc = (a: NDKEvent, b: NDKEvent) =>
     (getStartTime(a) || 0) - (getStartTime(b) || 0);
@@ -153,6 +160,48 @@ export const fetchCalendarEvents = async (
     past: past.sort(sortDesc),
   };
 };
+
+/**
+ * Removes deleted event references from a calendar and publishes the updated calendar
+ *
+ * @param ndk - NDK instance
+ * @param calendarEvent - The calendar event to update
+ * @param deletedEventRefs - Array of deleted event coordinate strings to remove
+ */
+async function removeDeletedEventsFromCalendar(
+  ndk: NDK,
+  calendarEvent: NDKEvent,
+  deletedEventRefs: string[]
+): Promise<void> {
+  try {
+    console.log(
+      `Removing ${deletedEventRefs.length} deleted events from calendar`
+    );
+
+    // Create updated calendar event
+    const updatedCalendar = new NDKEvent(ndk);
+    updatedCalendar.kind = 31924;
+    updatedCalendar.content = calendarEvent.content || "";
+
+    // Filter out the deleted event references
+    updatedCalendar.tags = calendarEvent.tags.filter((tag) => {
+      if (tag[0] === "a") {
+        return !deletedEventRefs.includes(tag[1]);
+      }
+      return true; // Keep all non-'a' tags
+    });
+
+    // Sign and publish the updated calendar
+    await updatedCalendar.sign();
+    await updatedCalendar.publish();
+
+    console.log(
+      `Successfully updated calendar ${calendarEvent.id}, removed ${deletedEventRefs.length} deleted event references`
+    );
+  } catch (error) {
+    console.error("Error updating calendar to remove deleted events:", error);
+  }
+}
 
 /**
  * Checks if an event has been deleted according to NIP-09
