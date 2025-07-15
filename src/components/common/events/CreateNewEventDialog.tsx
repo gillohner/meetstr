@@ -73,7 +73,7 @@ export default function CreateNewEventDialog({
   const { t } = useTranslation();
   const { ndk } = useNdk();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [internalOpen, setInternalOpen] = useState(false);
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
   const { activeUser } = useActiveUser();
@@ -285,21 +285,21 @@ export default function CreateNewEventDialog({
           {t("event.createEvent.title")}
         </Button>
       )}
-      <Dialog 
-        open={open} 
-        onClose={onClose} 
-        maxWidth="md" 
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
         fullWidth
         fullScreen={isMobile}
       >
         <DialogTitle
-          sx={{ 
-            bgcolor: "background.default", 
+          sx={{
+            bgcolor: "background.default",
             color: "text.primary",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            pr: 1
+            pr: 1,
           }}
         >
           <Typography variant="h5" component="div">
