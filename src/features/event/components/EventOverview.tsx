@@ -12,8 +12,6 @@ import {
   Divider,
   Grid,
   Link,
-  Stack,
-  Button,
   CircularProgress,
 } from "@mui/material";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";

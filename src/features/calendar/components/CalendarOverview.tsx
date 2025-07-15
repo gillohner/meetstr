@@ -26,6 +26,7 @@ import EventHost from "@/components/common/events/EventHost";
 import EventActionsMenu from "@/components/common/events/EventActionsMenu";
 import { useActiveUser } from "nostr-hooks";
 import { useSnackbar } from "@/context/SnackbarContext";
+import AddToCalendarButton from "@/components/common/events/AddToCalendarButton";
 
 interface CalendarOverviewProps {
   calendarId?: string;
@@ -198,7 +199,7 @@ export default function CalendarOverview({
         )}
         <CardContent>
           <Grid container spacing={2} direction="row">
-            <Grid size={10}>
+            <Grid size={{ xs: 12, sm: 9 }}>
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName")}
               </Typography>
@@ -207,10 +208,12 @@ export default function CalendarOverview({
                 {metadata.summary || ""}
               </Typography>
             </Grid>
-            <Grid size={2}>
-              {calendarEvent && (
-                <CreateNewEventDialog calendarEvent={calendarEvent} />
-              )}
+            <Grid
+              size={{ xs: 12, sm: 3 }}
+              sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+            >
+              <CreateNewEventDialog calendarEvent={calendarEvent} />
+              <AddToCalendarButton calendarEvent={calendarEvent} />
             </Grid>
           </Grid>
         </CardContent>
