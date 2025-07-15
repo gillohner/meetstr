@@ -15,15 +15,7 @@ import {
   Stack,
   Button,
   CircularProgress,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import EventLocationText from "@/components/common/events/EventLocationText";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
@@ -37,6 +29,7 @@ import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 import { useActiveUser } from "nostr-hooks";
 import { useSnackbar } from "@/context/SnackbarContext";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
+import EventActionsMenu from "@/components/common/events/EventActionsMenu";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
@@ -46,7 +39,6 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
   const { activeUser } = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const expectedKinds = useMemo(() => [31922, 31923], []);
 
   useEffect(() => {
@@ -63,23 +55,12 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
 
   const isOwner = activeUser && event && activeUser.pubkey === event.pubkey;
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMenuAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setMenuAnchorEl(null);
-  };
-
   const handleEdit = () => {
     setEditDialogOpen(true);
-    handleMenuClose();
   };
 
   const handleDelete = async () => {
     if (!event || !isOwner) return;
-
-    handleMenuClose();
 
     if (window.confirm(t("event.delete.confirm"))) {
       try {
@@ -116,72 +97,18 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Card sx={{ width: "100%", mb: 4, position: "relative" }}>
-        {/* 3-Dot Menu positioned in top-right corner */}
+        {/* EventActionsMenu positioned in top-right corner */}
         {isOwner && (
-          <Box
+          <EventActionsMenu
+            onEdit={handleEdit}
+            onDelete={handleDelete}
             sx={{
               position: "absolute",
               top: 16,
               right: 16,
               zIndex: 1,
-              borderRadius: "50%",
-              backdropFilter: "blur(1000px)",
-              backgroundColor: "rgba(0, 0, 0, 0.4)",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
             }}
-          >
-            <IconButton
-              onClick={handleMenuOpen}
-              size="small"
-              sx={{
-                color: "text.secondary",
-                "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <MoreVertIcon />
-            </IconButton>
-            <Menu
-              anchorEl={menuAnchorEl}
-              open={Boolean(menuAnchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              PaperProps={{
-                elevation: 3,
-                sx: {
-                  mt: 1,
-                  minWidth: 140,
-                  "& .MuiMenuItem-root": {
-                    px: 2,
-                    py: 1,
-                  },
-                },
-              }}
-            >
-              <MenuItem onClick={handleEdit}>
-                <ListItemIcon>
-                  <EditIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>{t("event.edit.button")}</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={handleDelete}>
-                <ListItemIcon>
-                  <DeleteIcon fontSize="small" color="error" />
-                </ListItemIcon>
-                <ListItemText sx={{ color: "error.main" }}>
-                  {t("event.delete.button")}
-                </ListItemText>
-              </MenuItem>
-            </Menu>
-          </Box>
+          />
         )}
 
         {metadata.image ? (

@@ -23,6 +23,9 @@ import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 import EventHost from "@/components/common/events/EventHost";
+import EventActionsMenu from "@/components/common/events/EventActionsMenu";
+import { useActiveUser } from "nostr-hooks";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 interface CalendarOverviewProps {
   calendarId?: string;
@@ -46,6 +49,8 @@ export default function CalendarOverview({
   const [unapprovedEvents, setUnapprovedEvents] = useState<NDKEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const expectedKinds = useMemo(() => [31924], []);
+  const { activeUser } = useActiveUser();
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     if (calendarId) {
@@ -99,6 +104,21 @@ export default function CalendarOverview({
     loadCalendarEvents();
   }, [calendarEvent, ndk]);
 
+  const handleDelete = async (event: any) => {
+    const isOwner = activeUser && event && activeUser.pubkey === event.pubkey;
+    if (!isOwner) return;
+
+    if (window.confirm(t("event.delete.confirm"))) {
+      try {
+        // Add your delete logic here for calendar deletion
+        showSnackbar(t("event.delete.success"), "success");
+      } catch (error) {
+        console.error("Error deleting calendar:", error);
+        showSnackbar(t("event.delete.error"), "error");
+      }
+    }
+  };
+
   if (!calendarEvent) {
     if (loading)
       return (
@@ -113,6 +133,8 @@ export default function CalendarOverview({
 
   // Extract metadata using the utility function
   const metadata = getEventMetadata(calendarEvent);
+  const isCalendarOwner =
+    activeUser && calendarEvent && activeUser.pubkey === calendarEvent.pubkey;
 
   console.log("Calendar metadata:", metadata);
   // Merge unapproved events into the correct sections if toggle is on
@@ -140,14 +162,40 @@ export default function CalendarOverview({
 
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
-      <Card sx={{ width: "100%", mb: 4 }}>
-        <CardMedia
-          component="img"
-          alt={metadata.summary || ""}
-          height="300"
-          image={metadata.image || ""}
-          sx={{ objectFit: "cover" }}
-        />
+      <Card sx={{ width: "100%", mb: 4, position: "relative" }}>
+        {/* EventActionsMenu positioned in top-right corner for calendar owner */}
+        {isCalendarOwner && (
+          <EventActionsMenu
+            onDelete={() => handleDelete(calendarEvent)}
+            showEdit={false}
+            sx={{
+              position: "absolute",
+              top: 16,
+              right: 16,
+              zIndex: 1,
+            }}
+          />
+        )}
+
+        {metadata.image ? (
+          <CardMedia
+            component="img"
+            alt={metadata.summary || ""}
+            height="300"
+            image={metadata.image}
+            sx={{ objectFit: "cover" }}
+          />
+        ) : (
+          <Box
+            sx={{
+              height: 75,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: (theme) => theme.palette.secondary.main,
+            }}
+          />
+        )}
         <CardContent>
           <Grid container spacing={2} direction="row">
             <Grid size={10}>
