@@ -113,7 +113,25 @@
     "pastEvents": "Vergangene Events",
     "noPastEvents": "Keine Vergangenen Events",
     "onlyApproved": "Nur genehmigte Meetups",
-    "allMeetups": "Alle Meetups"
+    "allMeetups": "Alle Meetups",
+    "subscription": {
+      "added": "Kalenderabonnement hinzugefügt"
+    },
+    "copyLink": "Webcal-Link kopieren",
+    "addToCalendar": "Zum Kalender hinzufügen",
+    "link": {
+      "copied": "Webcal-Link kopiert",
+      "error": "Der Link nicht kopieren"
+    },
+    "download": {
+      "success": "Kalender heruntergeladen",
+      "desc": "Einmaliger ICS-Download",
+      "title": "Kalender herunterladen"
+    },
+    "subscribe": {
+      "desc": "Auto-Updates mit neuen Events",
+      "text": "Kalender Abonnieren"
+    }
   },
   "createCalendar": {
     "error": "Kalender nicht erstellen. \nBitte versuchen Sie es erneut.",
@@ -172,6 +190,7 @@
     "noNotifications": "Keine Benachrichtigungen",
     "rsvpEventLink": "Ereignis anzeigen",
     "rsvpStatus": "RSVP -Status",
-    "unknownEvent": "Unbekanntes Ereignis"
+    "unknownEvent": "Unbekanntes Ereignis",
+    "accept": "Annehmen"
   }
 }

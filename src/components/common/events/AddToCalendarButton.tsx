@@ -39,43 +39,52 @@ export default function AddToCalendarButton({
 
   const handleSubscribe = () => {
     if (!calendarEvent) return;
-    
+
     const calendarId = getEventNip19Encoding(calendarEvent);
     const subscriptionUrl = `webcal://${window.location.host}/api/calendar/${calendarId}/ics`;
-    
+
     // Try to open the subscription URL
     window.location.href = subscriptionUrl;
-    showSnackbar(t("calendar.subscription.added", "Calendar subscription added"), "success");
+    showSnackbar(
+      t("calendar.subscription.added", "Calendar subscription added"),
+      "success"
+    );
     handleClose();
   };
 
   const handleDownload = () => {
     if (!calendarEvent) return;
-    
+
     const calendarId = getEventNip19Encoding(calendarEvent);
     const downloadUrl = `${window.location.origin}/api/calendar/${calendarId}/ics`;
-    
+
     // Create a temporary link to download the file
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
-    link.download = `${calendarEvent.tags.find(t => t[0] === 'title')?.[1] || 'meetstr-calendar'}.ics`;
+    link.download = `${calendarEvent.tags.find((t) => t[0] === "title")?.[1] || "meetstr-calendar"}.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
-    showSnackbar(t("calendar.download.success", "Calendar downloaded"), "success");
+
+    showSnackbar(
+      t("calendar.download.success", "Calendar downloaded"),
+      "success"
+    );
     handleClose();
   };
 
   const handleCopyLink = async () => {
     if (!calendarEvent) return;
-    
+
     const calendarId = getEventNip19Encoding(calendarEvent);
     const subscriptionUrl = `webcal://${window.location.host}/api/calendar/${calendarId}/ics`;
-    
+
     try {
       await navigator.clipboard.writeText(subscriptionUrl);
-      showSnackbar(t("calendar.link.copied", "Subscription link copied"), "success");
+      showSnackbar(
+        t("calendar.link.copied", "Subscription link copied"),
+        "success"
+      );
     } catch (error) {
       showSnackbar(t("calendar.link.error", "Failed to copy link"), "error");
     }
@@ -111,17 +120,20 @@ export default function AddToCalendarButton({
           <ListItemIcon>
             <CalendarTodayIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText 
-            primary={t("calendar.subscribe", "Subscribe to Calendar")}
-            secondary={t("calendar.subscribe.desc", "Auto-updates with new events")}
+          <ListItemText
+            primary={t("calendar.subscribe.text", "Subscribe to Calendar")}
+            secondary={t(
+              "calendar.subscribe.desc",
+              "Auto-updates with new events"
+            )}
           />
         </MenuItem>
         <MenuItem onClick={handleDownload}>
           <ListItemIcon>
             <DownloadIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText 
-            primary={t("calendar.download", "Download Calendar")}
+          <ListItemText
+            primary={t("calendar.download.title", "Download Calendar")}
             secondary={t("calendar.download.desc", "One-time file download")}
           />
         </MenuItem>
@@ -130,7 +142,7 @@ export default function AddToCalendarButton({
           <ListItemIcon>
             <LinkIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary={t("calendar.copyLink", "Copy Subscription Link")} />
+          <ListItemText primary={t("calendar.copyLink", "Copy v Link")} />
         </MenuItem>
       </Menu>
     </>

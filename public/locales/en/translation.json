@@ -61,8 +61,12 @@
     "event": {
       "noName": "Untitled",
       "invalidDate": "Invalid Date",
-      "invalidId": "The provided event id is not valid"
-    }
+      "invalidId": "The provided event id is not valid",
+      "invalidKind": "Invalid Event Kind",
+      "notFound": "404: Event not found"
+    },
+    "generic": "Something went wrong",
+    "remoteSignerFailure": "Remote signer failed"
   },
   "event": {
     "comments": {
@@ -156,7 +160,27 @@
     "upcomingEvents": "Upcoming Events",
     "noUpcomingEvents": "No upcoming Events",
     "pastEvents": "Past Events",
-    "noPastEvents": "No Past Events"
+    "noPastEvents": "No Past Events",
+    "subscription": {
+      "added": "Calendar subscription added"
+    },
+    "link": {
+      "copied": "Subscription link copied",
+      "error": "Failed to copy link"
+    },
+    "addToCalendar": "Add to Calendar",
+    "copyLink": "Copy Webcal Link",
+    "download": {
+      "success": "Calendar downloaded",
+      "title": "Download Calendar",
+      "desc": "One-time ics download"
+    },
+    "subscribe": {
+      "text": "Subscribe to Calendar",
+      "desc": "Auto-updates with new events"
+    },
+    "allMeetups": "All Meetups",
+    "onlyApproved": "Only approved"
   },
   "notification": {
     "noNotifications": "No notifications",
@@ -166,6 +190,7 @@
     "unknownEvent": "Unknown Event",
     "location": "Location",
     "accept": "Accept",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "accepted": "Accept"
   }
 }
