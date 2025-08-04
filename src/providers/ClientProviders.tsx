@@ -40,7 +40,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
           darkMode: false,
           perms: "sign_event:1,nip04_encrypt,nip04_decrypt",
           noBanner: false, // ENABLE the floating manager banner
-          methods: "connect,extension",
+          methods: ["connect", "extension"],
           onAuth: async (npub, options) => {
             console.log("User authenticated:", npub, options);
             // Re-initialize NDK with the new signer
