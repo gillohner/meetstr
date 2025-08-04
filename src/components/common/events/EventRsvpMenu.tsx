@@ -12,10 +12,11 @@ import {
 import CheckIcon from "@mui/icons-material/Check";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import CloseIcon from "@mui/icons-material/Close";
+import RsvpIcon from "@mui/icons-material/Rsvp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
-import { useActiveUser } from '@/hooks/useActiveUser';
+import { useActiveUser } from "@/hooks/useActiveUser";
 import { useRsvpHandler, type RsvpStatus } from "@/hooks/useRsvpHandler";
 import { type NDKEvent } from "@nostr-dev-kit/ndk";
 
@@ -86,7 +87,6 @@ export default function EventRsvpMenu({ event }: { event: NDKEvent }) {
   const getButtonProps = () => {
     if (loading) {
       return {
-        text: t("common.loading"),
         color: "primary" as const,
         startIcon: <CircularProgress size={18} />,
       };
@@ -95,27 +95,23 @@ export default function EventRsvpMenu({ event }: { event: NDKEvent }) {
     switch (rsvpStatus) {
       case "accepted":
         return {
-          text: t("event.rsvp.attending"),
           color: "success" as const,
           startIcon: <CheckIcon />,
         };
       case "tentative":
         return {
-          text: t("event.rsvp.tentative"),
           color: "warning" as const,
           startIcon: <HelpOutlineIcon />,
         };
       case "declined":
         return {
-          text: t("event.rsvp.notAttending"),
           color: "error" as const,
           startIcon: <CloseIcon />,
         };
       default:
         return {
-          text: t("event.rsvp.title"),
           color: "primary" as const,
-          startIcon: null,
+          startIcon: <RsvpIcon />,
         };
     }
   };

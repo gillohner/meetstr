@@ -24,7 +24,7 @@ import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
 import EventCommentsCard from "@/components/common/events/EventCommentsCard";
 import EventHost from "@/components/common/events/EventHost";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
-import { useActiveUser } from '@/hooks/useActiveUser';
+import { useActiveUser } from "@/hooks/useActiveUser";
 import { useSnackbar } from "@/context/SnackbarContext";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import EventActionsMenu from "@/components/common/events/EventActionsMenu";
@@ -131,7 +131,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         <CardContent>
           <Grid container>
             <Grid
-              size={10}
+              size={11}
               sx={{ pr: isOwner ? 6 : 0 }} // Add padding to prevent content overlap with menu
             >
               <Typography gutterBottom variant="h4" component="div">
@@ -147,7 +147,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 {metadata.summary}
               </Typography>
             </Grid>
-            <Grid size={2}>{event && <EventRsvpMenu event={event} />}</Grid>
+            <Grid size={1}>{event && <EventRsvpMenu event={event} />}</Grid>
           </Grid>
           <Divider sx={{ my: 2 }} />
           <Box sx={{ mt: 3 }}>
