@@ -371,14 +371,9 @@ const EventFilters: React.FC<EventFiltersProps> = ({
             value={filters.batchSize}
             onChange={(e) =>
               handleBatchSizeChange(
-                Math.max(1, Math.min(50, parseInt(e.target.value) || 10))
+                Math.max(1, Math.min(100, parseInt(e.target.value) || 10))
               )
             }
-            inputProps={{ min: 1, max: 50 }}
-            helperText={t(
-              "events.filters.batchSizeHelper",
-              "Load 1-50 events at a time"
-            )}
           />
         </Grid>
       </Grid>

@@ -33,14 +33,13 @@ const getDefaultFilters = (): EventFiltersType => ({
   location: null,
   tags: [],
   searchQuery: "",
-  batchSize: 10,
+  batchSize: 50,
 });
 
 const defaultFilters: EventFiltersType = getDefaultFilters();
 
 interface UpcomingEventsSectionProps {
   title?: string;
-  maxEvents?: number;
   showFilters?: boolean;
 }
 
@@ -50,7 +49,6 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   title = "Upcoming Events",
-  maxEvents = 50,
   showFilters = true,
 }) => {
   const { t } = useTranslation();
@@ -110,7 +108,11 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
 
   // Fetch events from Nostr network with caching and background loading
   const fetchEventsBatch = useCallback(
-    async (batchNumber: number = 0, appendToExisting: boolean = false, isBackground: boolean = false) => {
+    async (
+      batchNumber: number = 0,
+      appendToExisting: boolean = false,
+      isBackground: boolean = false
+    ) => {
       if (!ndk) return;
 
       // Prevent duplicate concurrent requests
@@ -122,7 +124,11 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       const cached = eventCache.get(cacheKey);
 
       // Check cache first (skip cache for background loading to get fresh data)
-      if (!isBackground && cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      if (
+        !isBackground &&
+        cached &&
+        Date.now() - cached.timestamp < CACHE_DURATION
+      ) {
         if (appendToExisting) {
           setEvents((prev) => [...prev, ...cached.events]);
         } else {
@@ -164,14 +170,20 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
             until: now + batchNumber * 24 * 3600, // Look in different time windows
           },
           // Strategy 4: Search by common tags if we have available tags
-          ...(availableTags.length > 0 ? [{
-            kinds: [31922 as any, 31923 as any],
-            "#t": availableTags.slice(0, 5), // Search by known tags
-            limit: batchSize,
-          }] : []),
+          ...(availableTags.length > 0
+            ? [
+                {
+                  kinds: [31922 as any, 31923 as any],
+                  "#t": availableTags.slice(0, 5), // Search by known tags
+                  limit: batchSize,
+                },
+              ]
+            : []),
         ];
 
-        console.log(`Fetching batch ${batchNumber} (background: ${isBackground}) with ${filters.length} strategies`);
+        console.log(
+          `Fetching batch ${batchNumber} (background: ${isBackground}) with ${filters.length} strategies`
+        );
 
         const allEvents: NDKEvent[] = [];
 
@@ -187,9 +199,12 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         });
 
         const results = await Promise.all(fetchPromises);
-        results.forEach(events => allEvents.push(...events));
+        results.forEach((events) => allEvents.push(...events));
 
-        console.log(`Total fetched events for batch ${batchNumber}:`, allEvents.length);
+        console.log(
+          `Total fetched events for batch ${batchNumber}:`,
+          allEvents.length
+        );
 
         // Remove duplicates and filter for upcoming events
         const uniqueEvents = allEvents.filter(
@@ -314,7 +329,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   // Background loading to continuously discover events
   useEffect(() => {
     if (!isClient) return;
-    
+
     const backgroundLoadingInterval = setInterval(() => {
       if (!loadingMore && !loading && hasMore) {
         // Fetch in background every 30 seconds
@@ -339,8 +354,9 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   // Filter events based on criteria - now works with totalEventPool for better results
   const filteredEvents = useMemo(() => {
     // Use the larger pool of events for filtering if available
-    const eventPool = totalEventPool.length > events.length ? totalEventPool : events;
-    
+    const eventPool =
+      totalEventPool.length > events.length ? totalEventPool : events;
+
     let filtered = eventPool.filter((event) => {
       const metadata = getEventMetadata(event);
 
@@ -410,8 +426,8 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       return parseInt(aStart) - parseInt(bStart);
     });
 
-    return filtered.slice(0, maxEvents);
-  }, [events, totalEventPool, filters, maxEvents]);
+    return filtered.slice(0);
+  }, [events, totalEventPool, filters]);
 
   const handleFiltersChange = (newFilters: EventFiltersType) => {
     setFilters(newFilters);

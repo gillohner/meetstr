@@ -17,7 +17,6 @@ export default function Home() {
       <Box sx={{ my: 4 }}>
         <UpcomingEventsSection
           title={t("events.upcomingEvents", "Discover Upcoming Events")}
-          maxEvents={20}
           showFilters={true}
         />
 
