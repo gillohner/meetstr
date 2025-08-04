@@ -11,24 +11,34 @@ import {
 
 export const useBlossomUpload = () => {
   const { ndk } = useNdk();
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser();
 
   const uploadFile = async (file: File) => {
-    if (!ndk || !activeUser?.pubkey || !ndk.signer) return null;
+    if (!ndk || !activeUser?.pubkey || !window.nostr) return null;
 
     try {
-      // 1. Create signer function first
+      // 1. Create signer function that uses window.nostr
       const signer = async (draft: EventTemplate) => {
+        if (!window.nostr) {
+          throw new Error("window.nostr not available");
+        }
+
         const event: UnsignedEvent = {
           ...draft,
           pubkey: activeUser.pubkey,
           created_at: Math.floor(Date.now() / 1000),
         };
-        const sig = await ndk.signer!.sign(event);
-        return { ...event, sig, id: getEventHash(event) } as Event;
-      };
 
-      // 2. Create client instance with signer
+        // Sign with window.nostr
+        const signedEvent = await window.nostr.signEvent(event);
+
+        // Return the signed event with proper id calculated from the unsigned event
+        return {
+          ...event,
+          sig: signedEvent.sig,
+          id: getEventHash(event),
+        } as Event;
+      }; // 2. Create client instance with signer
       const server = "https://blossom.nostr.build";
       const client = new BlossomClient(server, signer);
 

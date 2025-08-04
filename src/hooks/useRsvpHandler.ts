@@ -2,14 +2,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNdk } from "nostr-hooks";
 import { useActiveUser } from "@/hooks/useActiveUser";
-import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
+import { type NDKFilter } from "@nostr-dev-kit/ndk";
 import { v4 as uuidv4 } from "uuid";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useTranslation } from "react-i18next";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export type RsvpStatus = "accepted" | "tentative" | "declined" | null;
 
-interface EventWithTags extends NDKEvent {
+interface EventWithTags {
+  id: string;
+  kind: number;
+  pubkey: string;
   tags: string[][];
 }
 
@@ -18,7 +22,7 @@ export function useRsvpHandler(event: EventWithTags) {
   const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const { t } = useTranslation();
-  const [currentRsvp, setCurrentRsvp] = useState<NDKEvent | null>(null);
+  const [currentRsvp, setCurrentRsvp] = useState<any | null>(null);
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -79,7 +83,7 @@ export function useRsvpHandler(event: EventWithTags) {
   // Create new RSVP
   const createRsvp = useCallback(
     async (status: RsvpStatus) => {
-      if (!ndk || !event?.id || !activeUser) return;
+      if (!ndk || !event?.id || !activeUser || !window.nostr) return;
 
       try {
         setLoading(true);
@@ -89,23 +93,32 @@ export function useRsvpHandler(event: EventWithTags) {
           await deleteRsvp();
         }
 
-        const rsvpEvent = new NDKEvent(ndk);
-        rsvpEvent.content = status || "";
-        rsvpEvent.kind = 31925;
-
         const eTag = event.id;
         const aTag = getEventCoordinates() || "";
 
-        rsvpEvent.tags = [
-          ["e", eTag],
-          ["a", aTag],
-          ["d", uuidv4()],
-          ["status", status || ""],
-          ["p", event.pubkey],
-        ];
+        // Create event using nostr-tools
+        const unsignedEvent = {
+          kind: 31925,
+          content: status || "",
+          tags: [
+            ["e", eTag],
+            ["a", aTag],
+            ["d", uuidv4()],
+            ["status", status || ""],
+            ["p", event.pubkey],
+          ],
+          created_at: Math.floor(Date.now() / 1000),
+          pubkey: activeUser.pubkey,
+        };
 
-        await rsvpEvent.publish();
-        setCurrentRsvp(rsvpEvent);
+        // Sign with window.nostr
+        const signedEvent = await window.nostr.signEvent(unsignedEvent);
+
+        // Convert to NDKEvent for publishing
+        const ndkEvent = new NDKEvent(ndk, signedEvent);
+        await ndkEvent.publish();
+
+        setCurrentRsvp(signedEvent);
         setRsvpStatus(status);
         showSnackbar(t("event.rsvp.success"), "success");
       } catch (error) {
@@ -120,21 +133,30 @@ export function useRsvpHandler(event: EventWithTags) {
 
   // Delete RSVP using NIP-09
   const deleteRsvp = useCallback(async () => {
-    if (!ndk || !currentRsvp || !activeUser) return;
+    if (!ndk || !currentRsvp || !activeUser || !window.nostr) return;
 
     try {
       setLoading(true);
 
-      // Create NIP-09 deletion event
-      const deletionEvent = new NDKEvent(ndk);
-      deletionEvent.kind = 5; // Event deletion request
-      deletionEvent.content = "RSVP withdrawn";
-      deletionEvent.tags = [["e", currentRsvp.id]];
+      // Create NIP-09 deletion event using nostr-tools
+      const unsignedEvent = {
+        kind: 5, // Event deletion request
+        content: "RSVP withdrawn",
+        tags: [
+          ["e", currentRsvp.id],
+          ["k", "31925"], // Add "k" tag for kind as recommended in NIP-09
+        ],
+        created_at: Math.floor(Date.now() / 1000),
+        pubkey: activeUser.pubkey,
+      };
 
-      // Add "k" tag for kind as recommended in NIP-09
-      deletionEvent.tags.push(["k", "31925"]);
+      // Sign with window.nostr
+      const signedEvent = await window.nostr.signEvent(unsignedEvent);
 
-      await deletionEvent.publish();
+      // Convert to NDKEvent for publishing
+      const ndkEvent = new NDKEvent(ndk, signedEvent);
+      await ndkEvent.publish();
+
       setCurrentRsvp(null);
       setRsvpStatus(null);
       showSnackbar(t("event.rsvp.deleted"), "info");

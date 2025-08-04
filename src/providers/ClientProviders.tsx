@@ -32,25 +32,58 @@ function ProviderContent({ children }: { children: ReactNode }) {
 
   // Initialize nostr-login with floating manager (like nostr.band)
   useEffect(() => {
-    import('nostr-login')
+    import("nostr-login")
       .then(async ({ init }) => {
         init({
-          bunkers: 'nsec.app,highlighter.com,amber.app',
-          theme: 'default',
-          darkMode: false, 
-          perms: 'sign_event:1,nip04_encrypt,nip04_decrypt',
+          bunkers: "nsec.app,highlighter.com,amber.app",
+          theme: "default",
+          darkMode: false,
+          perms: "sign_event:1,nip04_encrypt,nip04_decrypt",
           noBanner: false, // ENABLE the floating manager banner
-          methods: 'connect,extension',
-          // REMOVE onAuth/onLogout callbacks - let nostr-login handle everything
+          methods: "connect,extension",
+          onAuth: async (npub, options) => {
+            console.log("User authenticated:", npub, options);
+            // Re-initialize NDK with the new signer
+            setTimeout(async () => {
+              await initializeNdkWithSigner();
+            }, 200);
+          },
+          onLogout: () => {
+            console.log("User logged out");
+            // Re-initialize NDK without signer
+            setTimeout(async () => {
+              await initializeNdkWithoutSigner();
+            }, 100);
+          },
         });
         setNostrLoginReady(true);
       })
-      .catch((error) => console.log('Failed to load nostr-login', error));
+      .catch((error) => console.log("Failed to load nostr-login", error));
   }, []);
 
-  useEffect(() => {
-    if (!nostrLoginReady) return;
-    
+  // Initialize NDK with signer when window.nostr is available
+  const initializeNdkWithSigner = async () => {
+    if (typeof window !== "undefined" && window.nostr) {
+      const { NDKNip07Signer } = await import("@nostr-dev-kit/ndk");
+      const signer = new NDKNip07Signer();
+
+      initNdk({
+        explicitRelayUrls: [
+          "wss://multiplexer.huszonegy.world/",
+          "wss://relay.damus.io",
+          "wss://nos.lol",
+          "wss://relay.primal.net",
+          "wss://relay.nostr.band",
+          "wss://relay.nostr.watch",
+          "wss://relay.snort.social",
+        ],
+        signer, // This is the key - pass the signer to NDK
+      });
+    }
+  };
+
+  // Initialize NDK without signer when logged out
+  const initializeNdkWithoutSigner = async () => {
     initNdk({
       explicitRelayUrls: [
         "wss://multiplexer.huszonegy.world/",
@@ -61,7 +94,19 @@ function ProviderContent({ children }: { children: ReactNode }) {
         "wss://relay.nostr.watch",
         "wss://relay.snort.social",
       ],
+      // No signer when logged out
     });
+  };
+
+  useEffect(() => {
+    if (!nostrLoginReady) return;
+
+    // Check if user is already logged in and initialize accordingly
+    if (typeof window !== "undefined" && window.nostr) {
+      initializeNdkWithSigner();
+    } else {
+      initializeNdkWithoutSigner();
+    }
   }, [initNdk, nostrLoginReady]);
 
   useEffect(() => {

@@ -144,7 +144,14 @@ export default function NotificationCenter() {
   // Accept event: add to calendar
   const handleAcceptEvent = async (notificationId: string) => {
     const notification = notifications.find((n) => n.id === notificationId);
-    if (!notification || !ndk || !activeUser || !calendarEvents.length) return;
+    if (
+      !notification ||
+      !ndk ||
+      !activeUser ||
+      !calendarEvents.length ||
+      !window.nostr
+    )
+      return;
 
     const event = notification.event;
     const dTag = event.tags.find((t) => t[0] === "d")?.[1];
@@ -180,13 +187,20 @@ export default function NotificationCenter() {
 
     try {
       // Update the specific target calendar with new event
-      const updatedCalendar = new NDKEvent(ndk);
-      updatedCalendar.kind = 31924 as any;
-      updatedCalendar.tags = [...targetCalendar.tags, ["a", eventCoordinate]];
-      updatedCalendar.content = targetCalendar.content || "";
+      const unsignedCalendar = {
+        kind: 31924,
+        tags: [...targetCalendar.tags, ["a", eventCoordinate]],
+        content: targetCalendar.content || "",
+        created_at: Math.floor(Date.now() / 1000),
+        pubkey: activeUser.pubkey,
+      };
 
-      await updatedCalendar.sign();
-      await updatedCalendar.publish();
+      // Sign with window.nostr
+      const signedCalendar = await window.nostr.signEvent(unsignedCalendar);
+
+      // Convert to NDKEvent for publishing
+      const ndkCalendar = new NDKEvent(ndk, signedCalendar);
+      await ndkCalendar.publish();
 
       // Remove notification
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));

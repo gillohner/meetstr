@@ -2,6 +2,7 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import type NDK from "@nostr-dev-kit/ndk";
 import { NDKEvent as NDKEventClass } from "@nostr-dev-kit/ndk";
+import { verifyEvent } from "nostr-tools";
 
 export const getEventMetadata = (event: NDKEvent) => {
   const getTagValue = (tagName: string) =>
@@ -42,37 +43,69 @@ export async function republishEvent(
   original: NDKEvent,
   mutate: (e: NDKEvent) => void
 ) {
-  const updated = new NDKEventClass(ndk);
+  if (!window.nostr) {
+    throw new Error("No signer available");
+  }
 
-  // Copy all fields from original
-  updated.kind = original.kind;
-  updated.content = original.content;
-  updated.tags = [...original.tags]; // Deep copy tags
-  updated.created_at = Math.floor(Date.now() / 1000);
+  // Create event template from original
+  const unsignedEvent = {
+    kind: original.kind,
+    content: original.content,
+    tags: [...original.tags], // Deep copy tags
+    created_at: Math.floor(Date.now() / 1000),
+    pubkey: await window.nostr.getPublicKey(),
+  };
 
-  // Let caller modify the event
-  mutate(updated);
+  // Let caller modify the event template
+  const tempEvent = new NDKEventClass(ndk);
+  tempEvent.kind = unsignedEvent.kind;
+  tempEvent.content = unsignedEvent.content;
+  tempEvent.tags = unsignedEvent.tags;
+  mutate(tempEvent);
 
-  await updated.sign();
-  await updated.publish();
-  return updated;
+  // Update with mutations
+  unsignedEvent.kind = tempEvent.kind;
+  unsignedEvent.content = tempEvent.content;
+  unsignedEvent.tags = tempEvent.tags;
+
+  // Sign with window.nostr
+  const signedEvent = await window.nostr.signEvent(unsignedEvent);
+
+  // Convert to NDKEvent for publishing
+  const ndkEvent = new NDKEventClass(ndk, signedEvent);
+  await ndkEvent.publish();
+  return ndkEvent;
 }
 
 /** Publish a NIP-09 deletion request for one event */
 export async function deleteEvent(ndk: NDK, toDelete: NDKEvent, reason = "") {
-  const del = new NDKEventClass(ndk);
-  del.kind = 5; // NIP-09 deletion
-  del.content = reason;
+  if (!window.nostr) {
+    throw new Error("No signer available");
+  }
+
+  const pubkey = await window.nostr.getPublicKey();
+
+  const unsignedEvent = {
+    kind: 5, // NIP-09 deletion
+    content: reason,
+    tags: [] as string[][],
+    created_at: Math.floor(Date.now() / 1000),
+    pubkey,
+  };
 
   // Reference by 'a' tag for parameterized replaceable events
   if (["31922", "31923", "31924"].includes(String(toDelete.kind))) {
     const d = toDelete.tags.find((t) => t[0] === "d")?.[1] || "";
-    del.tags = [["a", `${toDelete.kind}:${toDelete.pubkey}:${d}`]];
+    unsignedEvent.tags = [["a", `${toDelete.kind}:${toDelete.pubkey}:${d}`]];
   } else {
-    del.tags = [["e", toDelete.id]];
+    unsignedEvent.tags = [["e", toDelete.id]];
   }
 
-  await del.sign();
-  await del.publish();
-  return del;
+  // Sign with window.nostr
+  const signedEvent = await window.nostr.signEvent(unsignedEvent);
+
+  // Convert to NDKEvent for publishing
+  const ndkEvent = new NDKEventClass(ndk, signedEvent);
+  await ndkEvent.publish();
+  return ndkEvent;
 }

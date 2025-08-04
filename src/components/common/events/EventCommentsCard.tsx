@@ -144,13 +144,13 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
 
   // Post a new comment
   const handlePostComment = useCallback(async () => {
-    if (!ndk || !signer || !event || !newComment.trim()) return;
+    if (!ndk || !event || !newComment.trim() || !window.nostr) return;
 
     setPosting(true);
     try {
-      const NDKEvent = (await import("@nostr-dev-kit/ndk")).NDKEvent;
+      const pubkey = await window.nostr.getPublicKey();
 
-      const commentEvent = new NDKEvent(ndk, {
+      const unsignedEvent = {
         kind: 1111, // NIP-22 comment kind
         content: newComment.trim(),
         tags: [
@@ -169,10 +169,16 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
           ["p", event.pubkey],
         ],
         created_at: Math.floor(Date.now() / 1000),
-      });
+        pubkey,
+      };
 
-      await commentEvent.sign(signer);
-      await commentEvent.publish();
+      // Sign with window.nostr
+      const signedEvent = await window.nostr.signEvent(unsignedEvent);
+
+      // Convert to NDKEvent for publishing
+      const NDKEvent = (await import("@nostr-dev-kit/ndk")).NDKEvent;
+      const ndkEvent = new NDKEvent(ndk, signedEvent);
+      await ndkEvent.publish();
 
       setNewComment("");
       fetchComments(); // fetch comments after posting
@@ -181,18 +187,18 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
     } finally {
       setPosting(false);
     }
-  }, [ndk, signer, event, newComment, eventCoordinates, fetchComments]);
+  }, [ndk, event, newComment, eventCoordinates, fetchComments]);
 
   // Post a reply to a comment
   const handlePostReply = useCallback(
     async (parentCommentId: string) => {
-      if (!ndk || !signer || !event || !replyText.trim()) return;
+      if (!ndk || !event || !replyText.trim() || !window.nostr) return;
 
       setPosting(true);
       try {
-        const NDKEvent = (await import("@nostr-dev-kit/ndk")).NDKEvent;
+        const pubkey = await window.nostr.getPublicKey();
 
-        const replyEvent = new NDKEvent(ndk, {
+        const unsignedEvent = {
           kind: 1111,
           content: replyText.trim(),
           tags: [
@@ -213,10 +219,16 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
             ],
           ],
           created_at: Math.floor(Date.now() / 1000),
-        });
+          pubkey,
+        };
 
-        await replyEvent.sign(signer);
-        await replyEvent.publish();
+        // Sign with window.nostr
+        const signedEvent = await window.nostr.signEvent(unsignedEvent);
+
+        // Convert to NDKEvent for publishing
+        const NDKEvent = (await import("@nostr-dev-kit/ndk")).NDKEvent;
+        const ndkEvent = new NDKEvent(ndk, signedEvent);
+        await ndkEvent.publish();
 
         setReplyText("");
         setReplyTo(null);
@@ -227,7 +239,7 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
         setPosting(false);
       }
     },
-    [ndk, signer, event, replyText, eventCoordinates, comments, fetchComments]
+    [ndk, event, replyText, eventCoordinates, comments, fetchComments]
   );
 
   // Helper function to find comment by ID in tree

@@ -236,6 +236,10 @@ export default function CreateNewEventDialog({
     event: NDKEvent,
     uniqueId: string
   ) => {
+    if (!activeUser || !window.nostr) {
+      throw new Error("No signer available");
+    }
+
     const calendarDTag = calendarEvent?.tags.find((t) => t[0] === "d")?.[1];
     const isCalendarOwner =
       calendarEvent && calendarEvent.pubkey === activeUser?.pubkey;
@@ -243,8 +247,19 @@ export default function CreateNewEventDialog({
 
     if (isCalendarOwner && calendarEvent && calendarDTag) {
       event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
-      await event.sign();
-      await event.publish();
+
+      // Sign and publish the event using window.nostr
+      const unsignedEvent = {
+        kind: event.kind,
+        content: event.content,
+        tags: event.tags,
+        created_at: Math.floor(Date.now() / 1000),
+        pubkey: activeUser.pubkey,
+      };
+
+      const signedEvent = await window.nostr.signEvent(unsignedEvent);
+      const ndkEvent = new NDKEvent(ndk, signedEvent);
+      await ndkEvent.publish();
 
       if (!isEditMode) {
         const updatedCalendar = new NDKEvent(ndk);
@@ -254,15 +269,37 @@ export default function CreateNewEventDialog({
         );
         updatedCalendar.tags.push(["a", eventCoordinate]);
         updatedCalendar.content = calendarEvent.content || "";
-        await updatedCalendar.sign();
-        await updatedCalendar.publish();
+
+        // Sign and publish the calendar using window.nostr
+        const unsignedCalendar = {
+          kind: updatedCalendar.kind,
+          content: updatedCalendar.content,
+          tags: updatedCalendar.tags,
+          created_at: Math.floor(Date.now() / 1000),
+          pubkey: activeUser.pubkey,
+        };
+
+        const signedCalendar = await window.nostr.signEvent(unsignedCalendar);
+        const ndkCalendar = new NDKEvent(ndk, signedCalendar);
+        await ndkCalendar.publish();
       }
     } else {
       if (calendarEvent && calendarDTag) {
         event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
       }
-      await event.sign();
-      await event.publish();
+
+      // Sign and publish the event using window.nostr
+      const unsignedEvent = {
+        kind: event.kind,
+        content: event.content,
+        tags: event.tags,
+        created_at: Math.floor(Date.now() / 1000),
+        pubkey: activeUser.pubkey,
+      };
+
+      const signedEvent = await window.nostr.signEvent(unsignedEvent);
+      const ndkEvent = new NDKEvent(ndk, signedEvent);
+      await ndkEvent.publish();
     }
 
     showSnackbar(

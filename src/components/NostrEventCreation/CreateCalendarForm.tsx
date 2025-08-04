@@ -58,49 +58,52 @@ export default function CreateCalendarForm() {
   };
 
   const onSubmit = useCallback(async () => {
-    if (!activeUser || !ndk || !isFormValid) return;
+    if (!activeUser || !ndk || !isFormValid || !window.nostr) return;
 
     setIsSubmitting(true);
 
     try {
-      const event = new NDKEvent(ndk);
       const uniqueId = nanoid(8);
 
-      // Set content to description (as per NIP-52)
-      event.content = formValues.description;
-
-      // Set kind to NIP-52 calendar kind (31924)
-      event.kind = 31924;
-
-      // Populate tags according to NIP-52
-      event.tags = [
-        ["d", uniqueId],
-        ["title", formValues.title],
-      ];
+      // Create event structure
+      const eventData = {
+        kind: 31924,
+        content: formValues.description,
+        tags: [
+          ["d", uniqueId],
+          ["title", formValues.title],
+        ] as string[][],
+        created_at: Math.floor(Date.now() / 1000),
+        pubkey: activeUser.pubkey,
+      };
 
       // Add description as summary tag per NIP-52
       if (formValues.description) {
-        event.tags.push(["summary", formValues.description]);
+        eventData.tags.push(["summary", formValues.description]);
       }
 
       // Add image URL if provided
       if (calendarImage) {
-        event.tags.push(["image", calendarImage]);
+        eventData.tags.push(["image", calendarImage]);
       }
 
       // Add calendar references as "a" tags (only 31922/31923)
       calendarRefs.forEach((ref) => {
-        event.tags.push(["a", ref.aTag]);
+        eventData.tags.push(["a", ref.aTag]);
       });
 
-      await event.sign();
-      await event.publish();
+      // Sign with window.nostr
+      const signedEvent = await window.nostr.signEvent(eventData);
+
+      // Convert to NDKEvent for publishing
+      const ndkEvent = new NDKEvent(ndk, signedEvent);
+      await ndkEvent.publish();
 
       showSnackbar(t("createCalendar.success"), "success");
 
-      // Redirect to the new calendar page
-      if (event.id) {
-        router.push(`/calendar/${event.id}`);
+      // Redirect to the new calendar page using the NDK event's id
+      if (ndkEvent.id) {
+        router.push(`/calendar/${ndkEvent.id}`);
       }
 
       // Reset form fields
