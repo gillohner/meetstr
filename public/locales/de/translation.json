@@ -114,6 +114,21 @@
     "noPastEvents": "Keine Vergangenen Events",
     "onlyApproved": "Nur genehmigte Meetups",
     "allMeetups": "Alle Meetups",
+    "events": {
+      "noEventsWithFilters": "Keine Events gefunden, die Ihren Filtern entsprechen.",
+      "noUpcomingEvents": "Keine bevorstehenden Events gefunden.",
+      "filters": {
+        "title": "Events filtern",
+        "search": "Events suchen",
+        "searchPlaceholder": "Suche nach Titel, Beschreibung oder Ort",
+        "location": "Standort",
+        "locationPlaceholder": "Nach Standort filtern",
+        "startDate": "Startdatum",
+        "endDate": "Enddatum",
+        "addTags": "Tags hinzufügen",
+        "tagsPlaceholder": "Eingeben und Enter drücken um Tags hinzuzufügen"
+      }
+    },
     "edit": {
       "title": "Kalender bearbeiten",
       "submit": "Kalender aktualisieren",

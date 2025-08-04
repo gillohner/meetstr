@@ -189,6 +189,21 @@
       "error": "Failed to update calendar. Please try again."
     }
   },
+  "events": {
+    "noEventsWithFilters": "No events found matching your filters.",
+    "noUpcomingEvents": "No upcoming events found.",
+    "filters": {
+      "title": "Filter Events",
+      "search": "Search events",
+      "searchPlaceholder": "Search by title, description, or location",
+      "location": "Location",
+      "locationPlaceholder": "Filter by location",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "addTags": "Add tags",
+      "tagsPlaceholder": "Type and press Enter to add tags"
+    }
+  },
   "notification": {
     "noNotifications": "No notifications",
     "eventDetails": "Event Details",
