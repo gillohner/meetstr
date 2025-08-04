@@ -17,7 +17,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TagIcon from "@mui/icons-material/Tag";
-import dayjs from "dayjs";
+import type dayjs from "dayjs";
 
 // Get user's locale for date formatting
 const getUserLocale = (): string => {

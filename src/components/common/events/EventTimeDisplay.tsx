@@ -1,6 +1,7 @@
 // src/components/common/events/EventTimeDisplay.tsx
 import React, { useState, useEffect } from "react";
-import { Typography, TypographyProps } from "@mui/material";
+import { Typography } from "@mui/material";
+import type { TypographyProps } from "@mui/material";
 import { formatDateRange, formatDate } from "@/utils/formatting/date";
 
 interface EventTimeDisplayProps {
