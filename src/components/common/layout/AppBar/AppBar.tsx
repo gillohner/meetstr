@@ -9,7 +9,6 @@ import {
   MobileNavigation,
   DesktopNavigation,
 } from "@/components/common/layout/AppBar/NavigationMenu/NavigationMenu";
-import UserProfileMenu from "@/components/common/layout/AppBar/UserProfileMenu/UserProfileMenu";
 import LanguageSwitcher from "@/components/common/layout/AppBar/Settings/LanguageSwitcher";
 import ModeSwitch from "@/components/common/layout/AppBar/Settings/ModeSwitch";
 import NotificationCenter from "@/components/common/notification/NotificationCenter";
@@ -69,7 +68,6 @@ export default function CustomAppBar() {
             <ModeSwitch />
             <LanguageSwitcher />
             <NotificationCenter />
-            <UserProfileMenu settings={settings} />
           </Box>
         </Toolbar>
       </Container>

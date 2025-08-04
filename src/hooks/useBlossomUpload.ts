@@ -1,7 +1,7 @@
 // src/hooks/useBlossomUpload.ts
 import { BlossomClient } from "blossom-client-sdk";
 import { useNdk } from "nostr-hooks";
-import { useActiveUser } from "nostr-hooks";
+import { useActiveUser } from "@/hooks/useActiveUser";
 import { getEventHash } from "nostr-tools";
 import {
   type EventTemplate,

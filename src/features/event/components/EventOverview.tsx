@@ -24,7 +24,7 @@ import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
 import EventCommentsCard from "@/components/common/events/EventCommentsCard";
 import EventHost from "@/components/common/events/EventHost";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
-import { useActiveUser } from "nostr-hooks";
+import { useActiveUser } from '@/hooks/useActiveUser';
 import { useSnackbar } from "@/context/SnackbarContext";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import EventActionsMenu from "@/components/common/events/EventActionsMenu";
@@ -34,7 +34,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
   const { event, loading, errorCode, fetchEvent, removeEvent } =
     useNostrEvent();
   const { updateUrlWithNip19 } = useNostrUrlUpdate();
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const expectedKinds = useMemo(() => [31922, 31923], []);

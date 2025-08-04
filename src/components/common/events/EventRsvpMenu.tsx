@@ -15,7 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
-import { useActiveUser } from "nostr-hooks";
+import { useActiveUser } from '@/hooks/useActiveUser';
 import { useRsvpHandler, type RsvpStatus } from "@/hooks/useRsvpHandler";
 import { type NDKEvent } from "@nostr-dev-kit/ndk";
 
@@ -55,7 +55,7 @@ const StyledRsvpMenu = styled((props: MenuProps) => (
 
 export default function EventRsvpMenu({ event }: { event: NDKEvent }) {
   const { t } = useTranslation();
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 

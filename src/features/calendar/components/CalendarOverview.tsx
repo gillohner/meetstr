@@ -24,7 +24,7 @@ import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialo
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 import EventHost from "@/components/common/events/EventHost";
 import EventActionsMenu from "@/components/common/events/EventActionsMenu";
-import { useActiveUser } from "nostr-hooks";
+import { useActiveUser } from '@/hooks/useActiveUser';
 import { useSnackbar } from "@/context/SnackbarContext";
 import AddToCalendarButton from "@/components/common/events/AddToCalendarButton";
 
@@ -50,7 +50,7 @@ export default function CalendarOverview({
   const [unapprovedEvents, setUnapprovedEvents] = useState<NDKEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const expectedKinds = useMemo(() => [31924], []);
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser(); 
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {

@@ -17,7 +17,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { useTranslation } from "react-i18next";
-import { useNdk, useActiveUser } from "nostr-hooks";
+import { useNdk } from "nostr-hooks";
+import { useActiveUser } from "@/hooks/useActiveUser";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { nanoid } from "nanoid";
 import { useSnackbar } from "@/context/SnackbarContext";
@@ -76,7 +77,7 @@ export default function CreateNewEventDialog({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [internalOpen, setInternalOpen] = useState(false);
   const [timezone, setTimezone] = useState(dayjs.tz.guess());
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const router = useRouter();
   const [formValues, setFormValues] = useState({
@@ -270,6 +271,10 @@ export default function CreateNewEventDialog({
     );
     onClose();
   };
+
+  React.useEffect(() => {
+    console.log("activeUser in CreateNewEventDialog:", activeUser);
+  }, [activeUser]);
 
   if (activeUser === undefined || activeUser === null) return null;
 

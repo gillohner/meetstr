@@ -16,8 +16,8 @@ import {
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import EventIcon from "@mui/icons-material/Event";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { useNdk, useActiveUser, useProfile } from "nostr-hooks";
+import { useNdk, useProfile } from "nostr-hooks";
+import { useActiveUser } from "@/hooks/useActiveUser";
 import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import {
@@ -41,7 +41,7 @@ interface Notification {
 export default function NotificationCenter() {
   const { t } = useTranslation();
   const { ndk } = useNdk();
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<NDKEvent[]>([]);
@@ -266,7 +266,6 @@ const NotificationCard = ({
   const { t } = useTranslation();
   const router = useRouter();
   const { ndk } = useNdk();
-  const { activeUser } = useActiveUser();
   const metadata = getEventMetadata(notification.event);
   const { profile } = useProfile({ pubkey: notification.event.pubkey });
 

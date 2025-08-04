@@ -1,6 +1,7 @@
 // src/hooks/useRsvpHandler.ts
 import { useState, useEffect, useCallback } from "react";
-import { useNdk, useActiveUser } from "nostr-hooks";
+import { useNdk } from "nostr-hooks";
+import { useActiveUser } from "@/hooks/useActiveUser";
 import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { v4 as uuidv4 } from "uuid";
 import { useSnackbar } from "@/context/SnackbarContext";
@@ -14,7 +15,7 @@ interface EventWithTags extends NDKEvent {
 
 export function useRsvpHandler(event: EventWithTags) {
   const { ndk } = useNdk();
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const [currentRsvp, setCurrentRsvp] = useState<NDKEvent | null>(null);

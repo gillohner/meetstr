@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useNdk, useActiveUser } from "nostr-hooks";
+import { useNdk } from "nostr-hooks";
 import { type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import {
   Card,
@@ -18,7 +18,6 @@ import { useTranslation } from "react-i18next";
 
 const PopularCalendars: React.FC = () => {
   const { ndk } = useNdk();
-  const { activeUser } = useActiveUser();
   const [calendars, setCalendars] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();

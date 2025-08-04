@@ -10,7 +10,7 @@ import theme from "@/theme";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import CustomAppBar from "@/components/common/layout/AppBar/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
-import { useNdk } from "nostr-hooks"; // Keep using nostr-hooks
+import { useNdk } from "nostr-hooks";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useLanguageSync } from "@/hooks/useLanguageSync";
@@ -30,29 +30,18 @@ function ProviderContent({ children }: { children: ReactNode }) {
   // Sync language preferences after hydration
   useLanguageSync();
 
-  // Initialize nostr-login (replaces your manual session management)
+  // Initialize nostr-login with floating manager (like nostr.band)
   useEffect(() => {
     import('nostr-login')
       .then(async ({ init }) => {
         init({
-          bunkers: 'nsec.app,highlighter.com', // Default bunker providers
+          bunkers: 'nsec.app,highlighter.com,amber.app',
           theme: 'default',
-          darkMode: false, // You can sync this with your theme
+          darkMode: false, 
           perms: 'sign_event:1,nip04_encrypt,nip04_decrypt',
-          noBanner: true, // Hide the default banner since you have custom UI
-          methods: 'connect,extension', // FIXED: Should be string, not array
-          onAuth: (npub, options) => {
-            console.log('User authenticated via nostr-login:', npub, options);
-            // Trigger a custom event to notify your React components
-            document.dispatchEvent(new CustomEvent('nostrLoginAuth', { 
-              detail: { npub, options } 
-            }));
-          },
-          onLogout: () => {
-            console.log('User logged out via nostr-login');
-            // Trigger a custom event to notify your React components
-            document.dispatchEvent(new CustomEvent('nostrLoginLogout'));
-          }
+          noBanner: false, // ENABLE the floating manager banner
+          methods: 'connect,extension',
+          // REMOVE onAuth/onLogout callbacks - let nostr-login handle everything
         });
         setNostrLoginReady(true);
       })

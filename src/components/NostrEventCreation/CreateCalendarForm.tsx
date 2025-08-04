@@ -1,7 +1,8 @@
 // src/components/NostrEventCreation/CreateCalendarForm.tsx
 import { useState, useCallback } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { useNdk, useActiveUser } from "nostr-hooks";
+import { useNdk } from "nostr-hooks";
+import { useActiveUser } from "@/hooks/useActiveUser";
 import { Typography, Grid, Divider, Box, Paper } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
@@ -22,7 +23,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 export default function CreateCalendarForm() {
   const { t } = useTranslation();
   const { ndk } = useNdk();
-  const { activeUser } = useActiveUser();
+  const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const router = useRouter();
 
