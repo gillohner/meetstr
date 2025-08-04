@@ -1,8 +1,9 @@
 // src/components/common/events/EventTimeDisplay.tsx
 import React, { useState, useEffect } from "react";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import type { TypographyProps } from "@mui/material";
 import { formatDateRange, formatDate } from "@/utils/formatting/date";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 interface EventTimeDisplayProps {
   startTime?: string | null;
@@ -43,9 +44,12 @@ const EventTimeDisplay: React.FC<EventTimeDisplayProps> = ({
     : formatDate(startTime, "Invalid date");
 
   return (
-    <Typography variant="body2" color="text.secondary" {...typographyProps}>
-      {formattedDate}
-    </Typography>
+    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+      <AccessTimeIcon sx={{ mr: 1, color: "text.secondary" }} />
+      <Typography variant="body2" color="text.secondary" {...typographyProps}>
+        {formattedDate}
+      </Typography>
+    </Box>
   );
 };
 
