@@ -39,60 +39,59 @@ export interface EventFilters {
   } | null;
   tags: string[];
   searchQuery: string;
+  batchSize: number;
 }
 
 interface EventFiltersProps {
   filters: EventFilters;
   onChange: (filters: EventFilters) => void;
+  availableLocations?: string[];
+  availableTags?: string[];
 }
-
-// Common hashtags for events
-const POPULAR_TAGS = [
-  "bitcoin",
-  "nostr",
-  "meetup",
-  "conference",
-  "workshop",
-  "networking",
-  "tech",
-  "crypto",
-  "development",
-  "opensource",
-  "switzerland",
-  "zurich",
-  "bern",
-  "geneva",
-  "basel",
-];
 
 // Popular locations
 const POPULAR_LOCATIONS = [
-  { name: "Switzerland", coordinates: [46.8182, 8.2275] as [number, number] },
+  { name: "Schweiz", coordinates: [46.8182, 8.2275] as [number, number] },
   {
-    name: "Zurich, Switzerland",
+    name: "Zurich, Schweiz",
     coordinates: [47.3769, 8.5417] as [number, number],
   },
   {
-    name: "Bern, Switzerland",
+    name: "Bern, Schweiz",
     coordinates: [46.948, 7.4474] as [number, number],
   },
   {
-    name: "Geneva, Switzerland",
+    name: "Geneva, Schweiz",
     coordinates: [46.2044, 6.1432] as [number, number],
   },
   {
-    name: "Basel, Switzerland",
+    name: "Basel, Schweiz",
     coordinates: [47.5596, 7.5886] as [number, number],
   },
-  { name: "Germany", coordinates: [51.1657, 10.4515] as [number, number] },
-  { name: "Austria", coordinates: [47.5162, 14.5501] as [number, number] },
-  { name: "Europe", coordinates: [54.526, 15.2551] as [number, number] },
+  { name: "Deutschland", coordinates: [51.1657, 10.4515] as [number, number] },
+  { name: "Österreich", coordinates: [47.5162, 14.5501] as [number, number] },
+  { name: "Europa", coordinates: [54.526, 15.2551] as [number, number] },
 ];
 
-const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
+const EventFilters: React.FC<EventFiltersProps> = ({
+  filters,
+  onChange,
+  availableLocations = [],
+  availableTags = [],
+}) => {
   const { t } = useTranslation();
   const [tagInput, setTagInput] = useState("");
   const userLocale = getUserLocale();
+
+  // Combine popular locations with actual event locations
+  const allLocations = [...availableLocations].filter(
+    (location, index, self) => self.indexOf(location) === index
+  ); // Remove duplicates
+
+  // Combine popular tags with actual event tags
+  const allTags = [...availableTags].filter(
+    (tag, index, self) => self.indexOf(tag) === index
+  ); // Remove duplicates
 
   const handleDateRangeChange = (
     field: "start" | "end",
@@ -161,10 +160,17 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
     });
   };
 
+  const handleBatchSizeChange = (value: number) => {
+    onChange({
+      ...filters,
+      batchSize: value,
+    });
+  };
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
-        Filter Events
+        {t("events.filters.title", "Filter Events")}
       </Typography>
 
       <Grid container spacing={3}>
@@ -172,10 +178,13 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
-            label="Search events"
+            label={t("events.filters.search", "Search events")}
             value={filters.searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search by title, description, or location"
+            placeholder={t(
+              "events.filters.searchPlaceholder",
+              "Search by title, description, or location"
+            )}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -190,14 +199,17 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
         <Grid size={{ xs: 12, md: 6 }}>
           <Autocomplete
             freeSolo
-            options={POPULAR_LOCATIONS.map((loc) => loc.name)}
+            options={allLocations}
             value={filters.location?.name || ""}
             onChange={(_, value) => handleLocationChange(value)}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Location"
-                placeholder="Filter by location"
+                label={t("events.filters.location", "Location")}
+                placeholder={t(
+                  "events.filters.locationPlaceholder",
+                  "Filter by location"
+                )}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (
@@ -218,7 +230,7 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
             adapterLocale={userLocale}
           >
             <DatePicker
-              label="Start Date"
+              label={t("events.filters.startDate", "Start Date")}
               value={filters.dateRange.start}
               onChange={(value) => handleDateRangeChange("start", value)}
               slotProps={{
@@ -243,7 +255,7 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
             adapterLocale={userLocale}
           >
             <DatePicker
-              label="End Date"
+              label={t("events.filters.endDate", "End Date")}
               value={filters.dateRange.end}
               onChange={(value) => handleDateRangeChange("end", value)}
               slotProps={{
@@ -263,10 +275,10 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
         </Grid>
 
         {/* Tags Filter */}
-        <Grid size={12}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Autocomplete
             freeSolo
-            options={POPULAR_TAGS}
+            options={allTags}
             value={tagInput}
             onChange={(_, value) => {
               if (value) {
@@ -283,8 +295,11 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Add tags"
-                placeholder="Type and press Enter to add tags"
+                label={t("events.filters.addTags", "Add tags")}
+                placeholder={t(
+                  "events.filters.tagsPlaceholder",
+                  "Type and press Enter to add tags"
+                )}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (
@@ -312,6 +327,26 @@ const EventFilters: React.FC<EventFiltersProps> = ({ filters, onChange }) => {
               ))}
             </Box>
           )}
+        </Grid>
+
+        {/* Batch Size Setting */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <TextField
+            type="number"
+            fullWidth
+            label={t("events.filters.batchSize", "Events per batch")}
+            value={filters.batchSize}
+            onChange={(e) =>
+              handleBatchSizeChange(
+                Math.max(1, Math.min(50, parseInt(e.target.value) || 10))
+              )
+            }
+            inputProps={{ min: 1, max: 50 }}
+            helperText={t(
+              "events.filters.batchSizeHelper",
+              "Load 1-50 events at a time"
+            )}
+          />
         </Grid>
       </Grid>
     </Box>

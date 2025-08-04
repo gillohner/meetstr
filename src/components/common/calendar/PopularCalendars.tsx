@@ -53,12 +53,12 @@ const PopularCalendars: React.FC = () => {
   if (!calendars.length)
     return (
       <Typography sx={{ my: 4 }} align="center">
-        No calendars found.
+        {t("calendar.noCalendarsFound", "No calendars found.")}
       </Typography>
     );
 
   return (
-    <Box sx={{ my: 4 }}>
+    <Box sx={{ mb: 4 }}>
       <Grid container spacing={2} justifyContent="center">
         {calendars.slice(0, 12).map((calendar) => {
           const metadata = getEventMetadata(calendar);

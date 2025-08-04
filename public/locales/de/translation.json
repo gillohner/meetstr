@@ -115,6 +115,8 @@
     "onlyApproved": "Nur genehmigte Meetups",
     "allMeetups": "Alle Meetups",
     "events": {
+      "upcomingEvents": "Bevorstehende Events entdecken",
+      "loadMore": "Mehr laden",
       "noEventsWithFilters": "Keine Events gefunden, die Ihren Filtern entsprechen.",
       "noUpcomingEvents": "Keine bevorstehenden Events gefunden.",
       "filters": {
@@ -126,9 +128,12 @@
         "startDate": "Startdatum",
         "endDate": "Enddatum",
         "addTags": "Tags hinzufügen",
-        "tagsPlaceholder": "Eingeben und Enter drücken um Tags hinzuzufügen"
+        "tagsPlaceholder": "Eingeben und Enter drücken um Tags hinzuzufügen",
+        "batchSize": "Events pro Batch",
+        "batchSizeHelper": "1-50 Events auf einmal laden"
       }
     },
+    "noCalendarsFound": "Keine Kalender gefunden.",
     "edit": {
       "title": "Kalender bearbeiten",
       "submit": "Kalender aktualisieren",
@@ -195,7 +200,7 @@
   "nav": {
     "dezentralschweiz": "Dezentralschweiz Kalender",
     "new-calendar": "Kalendar erstellen",
-    "startpage": "Beliebte Kalender"
+    "startpage": "Home"
   },
   "navbar": {
     "login": {

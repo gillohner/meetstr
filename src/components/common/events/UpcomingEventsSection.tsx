@@ -34,6 +34,7 @@ const defaultFilters: EventFiltersType = {
   location: null,
   tags: [],
   searchQuery: "",
+  batchSize: 10,
 };
 
 interface UpcomingEventsSectionProps {
@@ -61,8 +62,10 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [currentBatch, setCurrentBatch] = useState(0);
+  const [availableLocations, setAvailableLocations] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
 
-  const BATCH_SIZE = 20;
+  const BATCH_SIZE = filters.batchSize || 10;
 
   // Calculate active filter count
   useEffect(() => {
@@ -164,6 +167,33 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           if (!bStart) return -1;
           return parseInt(aStart) - parseInt(bStart);
         });
+
+        // Extract unique locations and tags from events for filter options
+        const locations = new Set<string>();
+        const tags = new Set<string>();
+
+        upcomingEvents.forEach((event) => {
+          const metadata = getEventMetadata(event);
+          if (metadata.location) {
+            locations.add(metadata.location);
+          }
+          metadata.hashtags.forEach((tag) => {
+            if (tag) tags.add(tag);
+          });
+        });
+
+        // Update available locations and tags for filters
+        if (batchNumber === 0) {
+          setAvailableLocations(Array.from(locations));
+          setAvailableTags(Array.from(tags));
+        } else {
+          setAvailableLocations((prev) => [
+            ...new Set([...prev, ...Array.from(locations)]),
+          ]);
+          setAvailableTags((prev) => [
+            ...new Set([...prev, ...Array.from(tags)]),
+          ]);
+        }
 
         // Cache the results
         eventCache.set(cacheKey, {
@@ -332,7 +362,12 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       {showFilters && (
         <Collapse in={filtersOpen}>
           <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
-            <EventFilters filters={filters} onChange={handleFiltersChange} />
+            <EventFilters
+              filters={filters}
+              onChange={handleFiltersChange}
+              availableLocations={availableLocations}
+              availableTags={availableTags}
+            />
           </Paper>
         </Collapse>
       )}
@@ -354,21 +389,19 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
             ))}
           </Grid>
 
-          {/* Load More Button */}
-          {hasMore &&
-            filteredEvents.length < maxEvents &&
-            !activeFilterCount && (
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                <Button
-                  variant="outlined"
-                  onClick={loadMoreEvents}
-                  disabled={loadingMore}
-                  sx={{ minWidth: 120 }}
-                >
-                  {loadingMore ? <CircularProgress size={20} /> : "Load More"}
-                </Button>
-              </Box>
-            )}
+          {/* Load More Button - Always show when there are more events available */}
+          {hasMore && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+              <Button
+                variant="outlined"
+                onClick={loadMoreEvents}
+                disabled={loadingMore}
+                sx={{ minWidth: 120 }}
+              >
+                {loadingMore ? <CircularProgress size={20} /> : t("events.loadMore", "Load More")}
+              </Button>
+            </Box>
+          )}
         </>
       ) : (
         <Typography

@@ -192,6 +192,8 @@
   "events": {
     "noEventsWithFilters": "No events found matching your filters.",
     "noUpcomingEvents": "No upcoming events found.",
+    "upcomingEvents": "Discover Upcoming Events",
+    "loadMore": "Load More",
     "filters": {
       "title": "Filter Events",
       "search": "Search events",
@@ -201,7 +203,9 @@
       "startDate": "Start Date",
       "endDate": "End Date",
       "addTags": "Add tags",
-      "tagsPlaceholder": "Type and press Enter to add tags"
+      "tagsPlaceholder": "Type and press Enter to add tags",
+      "batchSize": "Events per batch",
+      "batchSizeHelper": "Load 1-50 events at a time"
     }
   },
   "notification": {
