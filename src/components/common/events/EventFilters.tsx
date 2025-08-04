@@ -1,5 +1,5 @@
 // src/components/common/events/EventFilters.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Box,
@@ -81,7 +81,14 @@ const EventFilters: React.FC<EventFiltersProps> = ({
 }) => {
   const { t } = useTranslation();
   const [tagInput, setTagInput] = useState("");
-  const userLocale = getUserLocale();
+  const [isClient, setIsClient] = useState(false);
+
+  // Prevent hydration mismatch by only getting locale on client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const userLocale = isClient ? getUserLocale() : "en-US";
 
   // Combine popular locations with actual event locations
   const allLocations = [...availableLocations].filter(
@@ -225,53 +232,79 @@ const EventFilters: React.FC<EventFiltersProps> = ({
 
         {/* Date Range */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale={userLocale}
-          >
-            <DatePicker
-              label={t("events.filters.startDate", "Start Date")}
-              value={filters.dateRange.start}
-              onChange={(value) => handleDateRangeChange("start", value)}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  InputProps: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <CalendarTodayIcon color="primary" />
-                      </InputAdornment>
-                    ),
+          {isClient ? (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label={t("events.filters.startDate", "Start Date")}
+                value={filters.dateRange.start}
+                onChange={(value) => handleDateRangeChange("start", value)}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    InputProps: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarTodayIcon color="primary" />
+                        </InputAdornment>
+                      ),
+                    },
                   },
-                },
+                }}
+              />
+            </LocalizationProvider>
+          ) : (
+            <TextField
+              fullWidth
+              label={t("events.filters.startDate", "Start Date")}
+              placeholder="Select start date"
+              disabled
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CalendarTodayIcon color="primary" />
+                  </InputAdornment>
+                ),
               }}
             />
-          </LocalizationProvider>
+          )}
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale={userLocale}
-          >
-            <DatePicker
-              label={t("events.filters.endDate", "End Date")}
-              value={filters.dateRange.end}
-              onChange={(value) => handleDateRangeChange("end", value)}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  InputProps: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <CalendarTodayIcon color="primary" />
-                      </InputAdornment>
-                    ),
+          {isClient ? (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label={t("events.filters.endDate", "End Date")}
+                value={filters.dateRange.end}
+                onChange={(value) => handleDateRangeChange("end", value)}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    InputProps: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarTodayIcon color="primary" />
+                        </InputAdornment>
+                      ),
+                    },
                   },
-                },
+                }}
+              />
+            </LocalizationProvider>
+          ) : (
+            <TextField
+              fullWidth
+              label={t("events.filters.endDate", "End Date")}
+              placeholder="Select end date"
+              disabled
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CalendarTodayIcon color="primary" />
+                  </InputAdornment>
+                ),
               }}
             />
-          </LocalizationProvider>
+          )}
         </Grid>
 
         {/* Tags Filter */}

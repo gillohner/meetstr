@@ -1,4 +1,3 @@
-// src/components/common/events/UpcomingEventsSection.tsx
 "use client";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,16 +25,18 @@ import EventFilters, {
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import dayjs from "dayjs";
 
-const defaultFilters: EventFiltersType = {
+const getDefaultFilters = (): EventFiltersType => ({
   dateRange: {
-    start: dayjs(),
-    end: dayjs().add(3, "months"),
+    start: null, // Set to null initially to avoid hydration mismatch
+    end: null, // Will be set on client side
   },
   location: null,
   tags: [],
   searchQuery: "",
   batchSize: 10,
-};
+});
+
+const defaultFilters: EventFiltersType = getDefaultFilters();
 
 interface UpcomingEventsSectionProps {
   title?: string;
@@ -64,11 +65,29 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const [currentBatch, setCurrentBatch] = useState(0);
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+    // Set proper date range on client side to avoid hydration mismatch
+    if (filters.dateRange.start === null && filters.dateRange.end === null) {
+      setFilters((prev) => ({
+        ...prev,
+        dateRange: {
+          start: dayjs(),
+          end: dayjs().add(3, "months"),
+        },
+      }));
+    }
+  }, []);
 
   const BATCH_SIZE = filters.batchSize || 10;
 
   // Calculate active filter count
   useEffect(() => {
+    if (!isClient) return; // Don't calculate on server side
+
     let count = 0;
     if (filters.location) count++;
     if (filters.tags.length > 0) count++;
@@ -84,7 +103,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     )
       count++;
     setActiveFilterCount(count);
-  }, [filters]);
+  }, [filters, isClient]);
 
   // Fetch events from Nostr network with caching
   const fetchEventsBatch = useCallback(
@@ -398,7 +417,11 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
                 disabled={loadingMore}
                 sx={{ minWidth: 120 }}
               >
-                {loadingMore ? <CircularProgress size={20} /> : t("events.loadMore", "Load More")}
+                {loadingMore ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  t("events.loadMore", "Load More")
+                )}
               </Button>
             </Box>
           )}
