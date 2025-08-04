@@ -58,14 +58,17 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const [events, setEvents] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [backgroundLoading, setBackgroundLoading] = useState(false);
   const [filters, setFilters] = useState<EventFiltersType>(defaultFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [currentBatch, setCurrentBatch] = useState(0);
+  const [totalEventPool, setTotalEventPool] = useState<NDKEvent[]>([]);
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -105,16 +108,21 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     setActiveFilterCount(count);
   }, [filters, isClient]);
 
-  // Fetch events from Nostr network with caching
+  // Fetch events from Nostr network with caching and background loading
   const fetchEventsBatch = useCallback(
-    async (batchNumber: number = 0, appendToExisting: boolean = false) => {
+    async (batchNumber: number = 0, appendToExisting: boolean = false, isBackground: boolean = false) => {
       if (!ndk) return;
+
+      // Prevent duplicate concurrent requests
+      const now = Date.now();
+      if (now - lastFetchTime < 1000) return; // Wait at least 1 second between requests
+      setLastFetchTime(now);
 
       const cacheKey = `upcoming-events-${batchNumber}`;
       const cached = eventCache.get(cacheKey);
 
-      // Check cache first
-      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      // Check cache first (skip cache for background loading to get fresh data)
+      if (!isBackground && cached && Date.now() - cached.timestamp < CACHE_DURATION) {
         if (appendToExisting) {
           setEvents((prev) => [...prev, ...cached.events]);
         } else {
@@ -125,44 +133,63 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         return cached.events;
       }
 
-      if (batchNumber === 0) setLoading(true);
-      else setLoadingMore(true);
+      if (batchNumber === 0 && !isBackground) setLoading(true);
+      else if (!isBackground) setLoadingMore(true);
+      else setBackgroundLoading(true);
 
       try {
         const now = Math.floor(Date.now() / 1000);
-        const threeMonthsFromNow = Math.floor(dayjs().add(3, "months").unix());
+        const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
+        const batchSize = isBackground ? Math.min(BATCH_SIZE, 5) : BATCH_SIZE; // Smaller batches for background
 
-        // Use multiple strategies to find events
+        // Enhanced strategies to find more events
         const filters: NDKFilter[] = [
-          // Strategy 1: Recent events (most likely to find active events)
+          // Strategy 1: Recent events by creation time
           {
             kinds: [31922 as any, 31923 as any],
-            limit: BATCH_SIZE,
-            until: now + batchNumber * 24 * 3600, // Look back in time
+            limit: batchSize,
+            until: now - batchNumber * 12 * 3600, // Go back 12 hours per batch
           },
-          // Strategy 2: Events with start time in the future
+          // Strategy 2: Search by time range (future events)
           {
             kinds: [31922 as any, 31923 as any],
-            limit: BATCH_SIZE / 2,
+            limit: batchSize,
+            since: now,
+            until: sixMonthsFromNow,
           },
+          // Strategy 3: Popular relays with different time windows
+          {
+            kinds: [31922 as any, 31923 as any],
+            limit: batchSize,
+            until: now + batchNumber * 24 * 3600, // Look in different time windows
+          },
+          // Strategy 4: Search by common tags if we have available tags
+          ...(availableTags.length > 0 ? [{
+            kinds: [31922 as any, 31923 as any],
+            "#t": availableTags.slice(0, 5), // Search by known tags
+            limit: batchSize,
+          }] : []),
         ];
 
-        console.log("Fetching events with filters:", filters);
+        console.log(`Fetching batch ${batchNumber} (background: ${isBackground}) with ${filters.length} strategies`);
 
         const allEvents: NDKEvent[] = [];
 
-        // Fetch from multiple strategies
-        for (const filter of filters) {
+        // Fetch from multiple strategies in parallel
+        const fetchPromises = filters.map(async (filter) => {
           try {
             const eventSet = await ndk.fetchEvents(filter);
-            const events = Array.from(eventSet.values());
-            allEvents.push(...events);
+            return Array.from(eventSet.values());
           } catch (error) {
             console.error("Error with filter:", filter, error);
+            return [];
           }
-        }
+        });
 
-        console.log("Total fetched events:", allEvents.length);
+        const results = await Promise.all(fetchPromises);
+        results.forEach(events => allEvents.push(...events));
+
+        console.log(`Total fetched events for batch ${batchNumber}:`, allEvents.length);
 
         // Remove duplicates and filter for upcoming events
         const uniqueEvents = allEvents.filter(
@@ -175,10 +202,10 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           if (!metadata.start) return false;
 
           const eventStart = parseInt(metadata.start);
-          return eventStart >= now && eventStart <= threeMonthsFromNow;
+          return eventStart >= now && eventStart <= sixMonthsFromNow;
         });
 
-        // Sort by start time
+        // Always sort by start time chronologically
         upcomingEvents.sort((a, b) => {
           const aStart = getEventMetadata(a).start;
           const bStart = getEventMetadata(b).start;
@@ -187,7 +214,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           return parseInt(aStart) - parseInt(bStart);
         });
 
-        // Extract unique locations and tags from events for filter options
+        // Extract unique locations and tags from all events
         const locations = new Set<string>();
         const tags = new Set<string>();
 
@@ -202,17 +229,14 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         });
 
         // Update available locations and tags for filters
-        if (batchNumber === 0) {
-          setAvailableLocations(Array.from(locations));
-          setAvailableTags(Array.from(tags));
-        } else {
-          setAvailableLocations((prev) => [
-            ...new Set([...prev, ...Array.from(locations)]),
-          ]);
-          setAvailableTags((prev) => [
-            ...new Set([...prev, ...Array.from(tags)]),
-          ]);
-        }
+        setAvailableLocations((prev) => {
+          const combined = [...new Set([...prev, ...Array.from(locations)])];
+          return combined.sort();
+        });
+        setAvailableTags((prev) => {
+          const combined = [...new Set([...prev, ...Array.from(tags)])];
+          return combined.sort();
+        });
 
         // Cache the results
         eventCache.set(cacheKey, {
@@ -220,37 +244,65 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           timestamp: Date.now(),
         });
 
-        if (appendToExisting) {
-          setEvents((prev) => {
-            const combined = [...prev, ...upcomingEvents];
-            // Remove duplicates based on event id
-            const unique = combined.filter(
-              (event, index, self) =>
-                index === self.findIndex((e) => e.id === event.id)
-            );
-            return unique;
+        // Update total event pool for better filtering
+        setTotalEventPool((prev) => {
+          const combined = [...prev, ...upcomingEvents];
+          const unique = combined.filter(
+            (event, index, self) =>
+              index === self.findIndex((e) => e.id === event.id)
+          );
+          // Keep sorted chronologically
+          return unique.sort((a, b) => {
+            const aStart = getEventMetadata(a).start;
+            const bStart = getEventMetadata(b).start;
+            if (!aStart) return 1;
+            if (!bStart) return -1;
+            return parseInt(aStart) - parseInt(bStart);
           });
-        } else {
-          setEvents(upcomingEvents);
-        }
+        });
 
-        // Check if we have more events to load
-        setHasMore(upcomingEvents.length === BATCH_SIZE);
+        if (!isBackground) {
+          if (appendToExisting) {
+            setEvents((prev) => {
+              const combined = [...prev, ...upcomingEvents];
+              // Remove duplicates and sort chronologically
+              const unique = combined.filter(
+                (event, index, self) =>
+                  index === self.findIndex((e) => e.id === event.id)
+              );
+              return unique.sort((a, b) => {
+                const aStart = getEventMetadata(a).start;
+                const bStart = getEventMetadata(b).start;
+                if (!aStart) return 1;
+                if (!bStart) return -1;
+                return parseInt(aStart) - parseInt(bStart);
+              });
+            });
+          } else {
+            setEvents(upcomingEvents);
+          }
+
+          // Always keep load more button available - there might be more events
+          setHasMore(true);
+        }
 
         return upcomingEvents;
       } catch (error) {
         console.error("Error fetching upcoming events:", error);
-        if (!appendToExisting) {
+        if (!appendToExisting && !isBackground) {
           setEvents([]);
         }
-        setHasMore(false);
+        // Don't disable hasMore on errors - keep trying
         return [];
       } finally {
-        setLoading(false);
-        setLoadingMore(false);
+        if (!isBackground) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
+        setBackgroundLoading(false);
       }
     },
-    [ndk]
+    [ndk, BATCH_SIZE, lastFetchTime, availableTags]
   );
 
   // Initial load
@@ -258,6 +310,22 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     setCurrentBatch(0);
     fetchEventsBatch(0, false);
   }, [fetchEventsBatch]);
+
+  // Background loading to continuously discover events
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const backgroundLoadingInterval = setInterval(() => {
+      if (!loadingMore && !loading && hasMore) {
+        // Fetch in background every 30 seconds
+        const nextBatch = currentBatch + 1;
+        fetchEventsBatch(nextBatch, true, true); // Background loading
+        setCurrentBatch(nextBatch);
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(backgroundLoadingInterval);
+  }, [currentBatch, loadingMore, loading, hasMore, isClient, fetchEventsBatch]);
 
   // Load more events
   const loadMoreEvents = useCallback(() => {
@@ -268,9 +336,12 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     }
   }, [currentBatch, loadingMore, hasMore, fetchEventsBatch]);
 
-  // Filter events based on criteria
+  // Filter events based on criteria - now works with totalEventPool for better results
   const filteredEvents = useMemo(() => {
-    let filtered = events.filter((event) => {
+    // Use the larger pool of events for filtering if available
+    const eventPool = totalEventPool.length > events.length ? totalEventPool : events;
+    
+    let filtered = eventPool.filter((event) => {
       const metadata = getEventMetadata(event);
 
       // Date range filter
@@ -330,8 +401,17 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       return true;
     });
 
+    // Always sort chronologically by start time
+    filtered.sort((a, b) => {
+      const aStart = getEventMetadata(a).start;
+      const bStart = getEventMetadata(b).start;
+      if (!aStart) return 1;
+      if (!bStart) return -1;
+      return parseInt(aStart) - parseInt(bStart);
+    });
+
     return filtered.slice(0, maxEvents);
-  }, [events, filters, maxEvents]);
+  }, [events, totalEventPool, filters, maxEvents]);
 
   const handleFiltersChange = (newFilters: EventFiltersType) => {
     setFilters(newFilters);
@@ -408,23 +488,29 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
             ))}
           </Grid>
 
-          {/* Load More Button - Always show when there are more events available */}
-          {hasMore && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-              <Button
-                variant="outlined"
-                onClick={loadMoreEvents}
-                disabled={loadingMore}
-                sx={{ minWidth: 120 }}
-              >
-                {loadingMore ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  t("events.loadMore", "Load More")
-                )}
-              </Button>
-            </Box>
-          )}
+          {/* Load More Button - Always visible, never hide */}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Button
+              variant="outlined"
+              onClick={loadMoreEvents}
+              disabled={loadingMore}
+              sx={{ minWidth: 120 }}
+            >
+              {loadingMore ? (
+                <CircularProgress size={20} />
+              ) : (
+                t("events.loadMore", "Load More")
+              )}
+            </Button>
+            {backgroundLoading && (
+              <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
+                <CircularProgress size={16} />
+                <Typography variant="caption" sx={{ ml: 1 }}>
+                  Finding more events...
+                </Typography>
+              </Box>
+            )}
+          </Box>
         </>
       ) : (
         <Typography

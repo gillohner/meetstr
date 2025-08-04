@@ -37,6 +37,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
   const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const expectedKinds = useMemo(() => [31922, 31923], []);
 
   useEffect(() => {
@@ -50,6 +51,10 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
       updateUrlWithNip19(event);
     }
   }, [event, updateUrlWithNip19]);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const isOwner = activeUser && event && activeUser.pubkey === event.pubkey;
 
@@ -77,6 +82,17 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
     setEditDialogOpen(false);
     fetchEvent(updatedEvent.id, expectedKinds);
   };
+
+  // During SSR or before client hydration, show loading
+  if (!isClient) {
+    return (
+      <Container maxWidth="lg" sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
 
   if (loading)
     return (

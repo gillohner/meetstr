@@ -26,12 +26,20 @@ const queryClient = new QueryClient({
 function ProviderContent({ children }: { children: ReactNode }) {
   const { initNdk, ndk } = useNdk();
   const [nostrLoginReady, setNostrLoginReady] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Prevent hydration mismatch by only rendering on client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Sync language preferences after hydration
   useLanguageSync();
 
   // Initialize nostr-login with floating manager (like nostr.band)
   useEffect(() => {
+    if (!isClient) return; // Only run on client side
+    
     import("nostr-login")
       .then(async ({ init }) => {
         init({
@@ -52,7 +60,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
         setNostrLoginReady(true);
       })
       .catch((error) => console.log("Failed to load nostr-login", error));
-  }, []);
+  }, [isClient]);
 
   // Initialize NDK with signer when window.nostr is available
   const initializeNdkWithSigner = async () => {
@@ -92,7 +100,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (!nostrLoginReady) return;
+    if (!nostrLoginReady || !isClient) return;
 
     // Check if user is already logged in and initialize accordingly
     if (typeof window !== "undefined" && window.nostr) {
@@ -100,7 +108,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
     } else {
       initializeNdkWithoutSigner();
     }
-  }, [initNdk, nostrLoginReady]);
+  }, [initNdk, nostrLoginReady, isClient]);
 
   useEffect(() => {
     if (!ndk) return;
@@ -109,7 +117,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
 
   return (
     <SnackbarProvider>
-      <CustomAppBar />
+      {isClient && <CustomAppBar />}
       {children}
     </SnackbarProvider>
   );

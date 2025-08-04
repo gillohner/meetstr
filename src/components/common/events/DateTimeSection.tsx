@@ -39,10 +39,7 @@ export const DateTimeSection = ({
       <SectionHeader title={t("event.createEvent.dateTime.title")} />
       <Grid container spacing={2} direction="row">
         <Grid size={{ xs: 12, md: 4 }}>
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale={timezone}
-          >
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
               label={t("event.createEvent.dateTime.start")}
               value={startDate}
@@ -65,10 +62,7 @@ export const DateTimeSection = ({
           </LocalizationProvider>
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale={timezone}
-          >
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
               label={t("event.createEvent.dateTime.end")}
               value={endDate}

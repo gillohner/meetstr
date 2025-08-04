@@ -24,7 +24,7 @@
     "posting": "Posting..."
   },
   "createCalendar": {
-    "title": "Create New Calendar",
+    "title": "New Calendar",
     "form": {
       "title": "Calendar Title",
       "description": "Calendar Description",

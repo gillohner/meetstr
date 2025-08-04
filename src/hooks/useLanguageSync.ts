@@ -1,50 +1,35 @@
 // src/hooks/useLanguageSync.ts
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 /**
  * Hook to sync language with browser preferences after hydration
  * This prevents hydration mismatches while still respecting user preferences
  */
-export function useLanguageSync() {
+
+export const useLanguageSync = () => {
   const { i18n } = useTranslation();
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Only run on client after hydration
-    if (typeof window === "undefined") return;
+    setIsClient(true);
+  }, []);
 
-    // Get user's preferred language from cookies or browser
-    const getPreferredLanguage = () => {
-      // Check cookie first
-      const cookieLang = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("lang="))
-        ?.split("=")[1];
+  useEffect(() => {
+    if (!isClient) return; // Only run on client side
 
-      if (cookieLang && ["en", "de"].includes(cookieLang)) {
-        return cookieLang;
+    const syncLanguage = () => {
+      const savedLanguage = localStorage.getItem("language");
+      const browserLanguage = navigator.language?.split("-")[0] || "en";
+      const targetLanguage = savedLanguage || browserLanguage;
+
+      if (i18n.language !== targetLanguage) {
+        i18n.changeLanguage(targetLanguage);
       }
-
-      // Check browser language
-      const browserLang = navigator.language.split("-")[0];
-      if (["en", "de"].includes(browserLang)) {
-        return browserLang;
-      }
-
-      return "en"; // fallback
     };
 
-    const preferredLang = getPreferredLanguage();
-
-    // Only change if different from current language
-    if (i18n.language !== preferredLang) {
-      i18n.changeLanguage(preferredLang);
-
-      // Update cookie
-      document.cookie = `lang=${preferredLang}; path=/; max-age=31536000`; // 1 year
-      document.cookie = `i18next=${preferredLang}; path=/; max-age=31536000`; // 1 year
-    }
-  }, [i18n]);
-}
+    syncLanguage();
+  }, [i18n, isClient]);
+};
