@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -31,6 +32,7 @@ import EventActionsMenu from "@/components/common/events/EventActionsMenu";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const { event, loading, errorCode, fetchEvent, removeEvent } =
     useNostrEvent();
   const { updateUrlWithNip19 } = useNostrUrlUpdate();
@@ -69,7 +71,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
       try {
         await removeEvent(event, t("event.delete.reason"));
         showSnackbar(t("event.delete.success"), "success");
-        window.history.back();
+        router.back();
       } catch (error) {
         console.error("Error deleting event:", error);
         showSnackbar(t("event.delete.error"), "error");
@@ -80,7 +82,9 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
   const handleEventUpdated = (updatedEvent: any) => {
     showSnackbar(t("event.edit.success"), "success");
     setEditDialogOpen(false);
-    window.location.reload();
+
+    // Use Next.js router for proper navigation instead of window.location.reload()
+    router.refresh();
   };
 
   // During SSR or before client hydration, show loading
