@@ -114,6 +114,12 @@
     "noPastEvents": "Keine Vergangenen Events",
     "onlyApproved": "Nur genehmigte Meetups",
     "allMeetups": "Alle Meetups",
+    "edit": {
+      "title": "Kalender bearbeiten",
+      "submit": "Kalender aktualisieren",
+      "success": "Kalender erfolgreich aktualisiert",
+      "error": "Kalender konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut."
+    },
     "subscription": {
       "added": "Kalenderabonnement hinzugefügt"
     },
@@ -137,6 +143,7 @@
     "error": "Kalender nicht erstellen. \nBitte versuchen Sie es erneut.",
     "form": {
       "addReference": "Kalenderereignis hinzufügen ...",
+      "addReferenceNaddr": "Event-Naddr oder Meetstr-URL einfügen",
       "calendarReferences": "Kalenderereignise",
       "description": "Kalenderbeschreibung",
       "title": "Kalendertitel"

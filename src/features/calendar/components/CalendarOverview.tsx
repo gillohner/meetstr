@@ -21,6 +21,7 @@ import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
+import CreateCalendarForm from "@/components/NostrEventCreation/CreateCalendarForm";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 import EventHost from "@/components/common/events/EventHost";
 import EventActionsMenu from "@/components/common/events/EventActionsMenu";
@@ -52,6 +53,7 @@ export default function CalendarOverview({
   const expectedKinds = useMemo(() => [31924], []);
   const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     if (calendarId) {
@@ -105,6 +107,10 @@ export default function CalendarOverview({
     loadCalendarEvents();
   }, [calendarEvent, ndk]);
 
+  const handleEdit = () => {
+    setEditDialogOpen(true);
+  };
+
   const handleDelete = async (event: any) => {
     const isOwner = activeUser && event && activeUser.pubkey === event.pubkey;
     if (!isOwner) return;
@@ -118,6 +124,12 @@ export default function CalendarOverview({
         showSnackbar(t("event.delete.error"), "error");
       }
     }
+  };
+
+  const handleCalendarUpdated = (updatedCalendar: any) => {
+    showSnackbar(t("calendar.edit.success"), "success");
+    setEditDialogOpen(false);
+    fetchEvent(updatedCalendar.id, expectedKinds);
   };
 
   if (!calendarEvent) {
@@ -167,8 +179,8 @@ export default function CalendarOverview({
         {/* EventActionsMenu positioned in top-right corner for calendar owner */}
         {isCalendarOwner && (
           <EventActionsMenu
+            onEdit={handleEdit}
             onDelete={() => handleDelete(calendarEvent)}
-            showEdit={false}
             sx={{
               position: "absolute",
               top: 16,
@@ -260,6 +272,13 @@ export default function CalendarOverview({
         events={allPastEvents}
         fallbackText={t("calendar.noPastEvents")}
         loading={eventsLoading}
+      />
+
+      <CreateCalendarForm
+        initialCalendar={calendarEvent}
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        onCalendarUpdated={handleCalendarUpdated}
       />
     </Container>
   );

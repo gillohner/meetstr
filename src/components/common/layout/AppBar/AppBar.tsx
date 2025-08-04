@@ -12,6 +12,7 @@ import {
 import LanguageSwitcher from "@/components/common/layout/AppBar/Settings/LanguageSwitcher";
 import ModeSwitch from "@/components/common/layout/AppBar/Settings/ModeSwitch";
 import NotificationCenter from "@/components/common/notification/NotificationCenter";
+import CreateCalendarForm from "@/components/NostrEventCreation/CreateCalendarForm";
 import { useTranslation } from "react-i18next";
 
 export default function CustomAppBar() {
@@ -19,7 +20,6 @@ export default function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
 
   const pages = [
-    { title: t("nav.new-calendar"), path: "/new-calendar" },
     {
       title: t("nav.dezentralschweiz"),
       path: "/calendar/naddr1qqyrsdeevfskxvfjqydhwumn8ghj7mn0wd68ytnnwa5hxuedv4hxjemdvyhxx6qzyzym2fnu9uvw04mq5lyzjwvat5x6jgaksl2nagn2dlf45ac0nxhqzqcyqqq8edqr02a67",
@@ -65,6 +65,7 @@ export default function CustomAppBar() {
           <Box
             sx={{ display: "flex", alignItems: "center", gap: 1, ml: "auto" }}
           >
+            <CreateCalendarForm />
             <ModeSwitch />
             <LanguageSwitcher />
             <NotificationCenter />

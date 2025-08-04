@@ -29,7 +29,8 @@
       "title": "Calendar Title",
       "description": "Calendar Description",
       "calendarReferences": "Calendar Event References",
-      "addReference": "Add calendar event reference..."
+      "addReference": "Add calendar event reference...",
+      "addReferenceNaddr": "Paste event naddr or meetstr URL"
     },
     "submit": "Create Calendar",
     "success": "Calendar created successfully!",
@@ -180,7 +181,13 @@
       "desc": "Auto-updates with new events"
     },
     "allMeetups": "All Meetups",
-    "onlyApproved": "Only approved"
+    "onlyApproved": "Only approved",
+    "edit": {
+      "title": "Edit Calendar",
+      "submit": "Update Calendar",
+      "success": "Calendar updated successfully",
+      "error": "Failed to update calendar. Please try again."
+    }
   },
   "notification": {
     "noNotifications": "No notifications",
