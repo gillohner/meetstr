@@ -90,21 +90,23 @@ export default function CreateCalendarForm({
 
       setCalendarImage(metadata.image || null);
 
-      // Convert existing 'a' tags to EventReference format
-      const existingRefs = initialCalendar.tags
+      // Convert existing 'a' tags to EventReference format (without fetching)
+      const existingRefs: EventReference[] = initialCalendar.tags
         .filter((tag) => tag[0] === "a")
-        .map((tag) => ({
-          aTag: tag[1],
-          // We'll need to fetch these events to get proper titles
-          // For now, just use the coordinate as display
-          title: tag[1].split(":")[2] || "Event Reference",
-          naddr: "", // Could be generated if needed
-          event: null, // Add the required event property
-        }));
+        .map((tag) => {
+          const aTag = tag[1];
+          const [kind, pubkey, dTag] = aTag.split(":");
+
+          return {
+            aTag,
+            naddr: aTag, // Use the coordinate as display text
+            event: null, // Don't fetch existing events to avoid network overhead
+          };
+        });
 
       setCalendarRefs(existingRefs);
     }
-  }, [initialCalendar]);
+  }, [initialCalendar, ndk]);
 
   const handleImageUploaded = (imageUrl: string) => {
     setCalendarImage(imageUrl);

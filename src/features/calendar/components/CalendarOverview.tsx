@@ -44,6 +44,7 @@ export default function CalendarOverview({
     loading,
     errorCode,
     fetchEvent,
+    removeEvent,
   } = useNostrEvent();
   const [upcomingEvents, setUpcomingEvents] = useState<NDKEvent[]>([]);
   const [pastEvents, setPastEvents] = useState<NDKEvent[]>([]);
@@ -117,7 +118,7 @@ export default function CalendarOverview({
 
     if (window.confirm(t("event.delete.confirm"))) {
       try {
-        // Add your delete logic here for calendar deletion
+        await removeEvent(event, t("event.delete.reason"));
         showSnackbar(t("event.delete.success"), "success");
       } catch (error) {
         console.error("Error deleting calendar:", error);
