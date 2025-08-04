@@ -97,21 +97,25 @@ export default function EventRsvpMenu({ event }: { event: NDKEvent }) {
         return {
           color: "success" as const,
           startIcon: <CheckIcon />,
+          text: "",
         };
       case "tentative":
         return {
           color: "warning" as const,
           startIcon: <HelpOutlineIcon />,
+          text: "",
         };
       case "declined":
         return {
           color: "error" as const,
           startIcon: <CloseIcon />,
+          text: "",
         };
       default:
         return {
           color: "primary" as const,
           startIcon: <RsvpIcon />,
+          text: "",
         };
     }
   };
