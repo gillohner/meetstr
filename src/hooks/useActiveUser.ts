@@ -9,14 +9,14 @@ export function useActiveUser() {
 
   useEffect(() => {
     const checkUser = async () => {
-      if (typeof window !== 'undefined' && window.nostr) {
+      if (typeof window !== "undefined" && window.nostr) {
         try {
           // Only check for existing auth without triggering modal
           // We'll rely on nostr-login events to know when user is authenticated
           const pubkey = await window.nostr.getPublicKey();
           if (pubkey) {
             // Convert to npub format if needed
-            const { nip19 } = await import('nostr-tools');
+            const { nip19 } = await import("nostr-tools");
             const npub = nip19.npubEncode(pubkey);
             setUser({ pubkey, npub });
           }
@@ -41,12 +41,12 @@ export function useActiveUser() {
       setUser(null);
     };
 
-    document.addEventListener('nlAuth', handleAuth);
-    document.addEventListener('nlLogout', handleLogout);
+    document.addEventListener("nlAuth", handleAuth);
+    document.addEventListener("nlLogout", handleLogout);
 
     return () => {
-      document.removeEventListener('nlAuth', handleAuth);
-      document.removeEventListener('nlLogout', handleLogout);
+      document.removeEventListener("nlAuth", handleAuth);
+      document.removeEventListener("nlLogout", handleLogout);
     };
   }, []);
 
