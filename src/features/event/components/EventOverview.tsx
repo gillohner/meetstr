@@ -80,7 +80,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
   const handleEventUpdated = (updatedEvent: any) => {
     showSnackbar(t("event.edit.success"), "success");
     setEditDialogOpen(false);
-    fetchEvent(updatedEvent.id, expectedKinds);
+    window.location.reload();
   };
 
   // During SSR or before client hydration, show loading
