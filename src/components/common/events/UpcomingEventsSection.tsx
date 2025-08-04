@@ -74,103 +74,111 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   // URL synchronization functions
   const filtersToURLParams = useCallback((filters: EventFiltersType) => {
     const params = new URLSearchParams();
-    
+
     if (filters.searchQuery) {
-      params.set('search', filters.searchQuery);
+      params.set("search", filters.searchQuery);
     }
-    
+
     if (filters.location) {
-      params.set('location', filters.location.name);
+      params.set("location", filters.location.name);
     }
-    
+
     if (filters.tags.length > 0) {
-      params.set('tags', filters.tags.join(','));
+      params.set("tags", filters.tags.join(","));
     }
-    
+
     if (filters.dateRange.start) {
-      params.set('startDate', filters.dateRange.start.format('YYYY-MM-DD'));
+      params.set("startDate", filters.dateRange.start.format("YYYY-MM-DD"));
     }
-    
+
     if (filters.dateRange.end) {
-      params.set('endDate', filters.dateRange.end.format('YYYY-MM-DD'));
+      params.set("endDate", filters.dateRange.end.format("YYYY-MM-DD"));
     }
-    
+
     if (filters.batchSize !== 50) {
-      params.set('batchSize', filters.batchSize.toString());
+      params.set("batchSize", filters.batchSize.toString());
     }
-    
+
     return params;
   }, []);
 
-  const urlParamsToFilters = useCallback((params: URLSearchParams): EventFiltersType => {
-    const newFilters: EventFiltersType = { ...defaultFilters };
-    
-    const search = params.get('search');
-    if (search) {
-      newFilters.searchQuery = search;
-    }
-    
-    const location = params.get('location');
-    if (location) {
-      newFilters.location = {
-        name: location,
-        coordinates: null,
-        radius: 50,
-      };
-    }
-    
-    const tags = params.get('tags');
-    if (tags) {
-      newFilters.tags = tags.split(',').filter(tag => tag.trim());
-    }
-    
-    const startDate = params.get('startDate');
-    if (startDate) {
-      const parsed = dayjs(startDate);
-      if (parsed.isValid()) {
-        newFilters.dateRange.start = parsed;
-      }
-    }
-    
-    const endDate = params.get('endDate');
-    if (endDate) {
-      const parsed = dayjs(endDate);
-      if (parsed.isValid()) {
-        newFilters.dateRange.end = parsed;
-      }
-    }
-    
-    const batchSize = params.get('batchSize');
-    if (batchSize) {
-      const parsed = parseInt(batchSize);
-      if (parsed >= 1 && parsed <= 100) {
-        newFilters.batchSize = parsed;
-      }
-    }
-    
-    return newFilters;
-  }, []);
+  const urlParamsToFilters = useCallback(
+    (params: URLSearchParams): EventFiltersType => {
+      const newFilters: EventFiltersType = { ...defaultFilters };
 
-  const updateURL = useCallback((filters: EventFiltersType) => {
-    if (!isClient) return;
-    
-    const params = filtersToURLParams(filters);
-    const currentPath = window.location.pathname;
-    const newURL = params.toString() ? `${currentPath}?${params.toString()}` : currentPath;
-    
-    // Use replace to avoid cluttering browser history
-    router.replace(newURL, { scroll: false });
-  }, [router, filtersToURLParams, isClient]);
+      const search = params.get("search");
+      if (search) {
+        newFilters.searchQuery = search;
+      }
+
+      const location = params.get("location");
+      if (location) {
+        newFilters.location = {
+          name: location,
+          coordinates: null,
+          radius: 50,
+        };
+      }
+
+      const tags = params.get("tags");
+      if (tags) {
+        newFilters.tags = tags.split(",").filter((tag) => tag.trim());
+      }
+
+      const startDate = params.get("startDate");
+      if (startDate) {
+        const parsed = dayjs(startDate);
+        if (parsed.isValid()) {
+          newFilters.dateRange.start = parsed;
+        }
+      }
+
+      const endDate = params.get("endDate");
+      if (endDate) {
+        const parsed = dayjs(endDate);
+        if (parsed.isValid()) {
+          newFilters.dateRange.end = parsed;
+        }
+      }
+
+      const batchSize = params.get("batchSize");
+      if (batchSize) {
+        const parsed = parseInt(batchSize);
+        if (parsed >= 1 && parsed <= 100) {
+          newFilters.batchSize = parsed;
+        }
+      }
+
+      return newFilters;
+    },
+    []
+  );
+
+  const updateURL = useCallback(
+    (filters: EventFiltersType) => {
+      if (!isClient) return;
+
+      const params = filtersToURLParams(filters);
+      const currentPath = window.location.pathname;
+      const newURL = params.toString()
+        ? `${currentPath}?${params.toString()}`
+        : currentPath;
+
+      // Use replace to avoid cluttering browser history
+      router.replace(newURL, { scroll: false });
+    },
+    [router, filtersToURLParams, isClient]
+  );
 
   const BATCH_SIZE = filters.batchSize || 10;
 
   // Prevent hydration mismatch and initialize from URL
   useEffect(() => {
     setIsClient(true);
-    
+
     // Initialize filters from URL
     const urlFilters = urlParamsToFilters(searchParams);
-    
+
     // Set proper date range if not specified in URL
     if (!urlFilters.dateRange.start && !urlFilters.dateRange.end) {
       urlFilters.dateRange = {
@@ -178,7 +186,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         end: dayjs().add(3, "months"),
       };
     }
-    
+
     setFilters(urlFilters);
   }, [searchParams, urlParamsToFilters]);
 
