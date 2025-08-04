@@ -1,5 +1,5 @@
 // src/hooks/useCurrentUser.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export function useActiveUser() {
   const [user, setUser] = useState<{
@@ -11,6 +11,8 @@ export function useActiveUser() {
     const checkUser = async () => {
       if (typeof window !== 'undefined' && window.nostr) {
         try {
+          // Only check for existing auth without triggering modal
+          // We'll rely on nostr-login events to know when user is authenticated
           const pubkey = await window.nostr.getPublicKey();
           if (pubkey) {
             // Convert to npub format if needed
@@ -19,7 +21,7 @@ export function useActiveUser() {
             setUser({ pubkey, npub });
           }
         } catch (error) {
-          console.log('No user logged in');
+          // Don't log error as this is expected when user isn't logged in
           setUser(null);
         }
       } else {
@@ -27,8 +29,8 @@ export function useActiveUser() {
       }
     };
 
-    // Check immediately
-    checkUser();
+    // Only listen for auth events, don't check on initial load
+    // This prevents triggering the auth modal automatically
 
     // Listen for nostr-login auth events
     const handleAuth = () => {

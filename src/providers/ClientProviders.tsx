@@ -39,21 +39,14 @@ function ProviderContent({ children }: { children: ReactNode }) {
           theme: "default",
           darkMode: false,
           perms: "sign_event:1,nip04_encrypt,nip04_decrypt",
-          noBanner: false, // ENABLE the floating manager banner
-          methods: ["connect", "extension"],
+          noBanner: false,
+          methods: ["connect", "extension", "readOnly", "local"],
           onAuth: async (npub, options) => {
             console.log("User authenticated:", npub, options);
             // Re-initialize NDK with the new signer
             setTimeout(async () => {
               await initializeNdkWithSigner();
             }, 200);
-          },
-          onLogout: () => {
-            console.log("User logged out");
-            // Re-initialize NDK without signer
-            setTimeout(async () => {
-              await initializeNdkWithoutSigner();
-            }, 100);
           },
         });
         setNostrLoginReady(true);
