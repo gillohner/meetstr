@@ -163,7 +163,15 @@ export default function CalendarOverview({
 
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
-      <Card sx={{ width: "100%", mb: 4, position: "relative" }}>
+      <Card 
+        sx={{ 
+          width: "100%", 
+          mb: 4, 
+          position: "relative",
+          mx: { xs: -2, sm: 0 }, // Negative margin on mobile to stretch to edges
+          borderRadius: { xs: 0, sm: 1 }, // Remove border radius on mobile
+        }}
+      >
         {/* EventActionsMenu positioned in top-right corner for calendar owner */}
         {isCalendarOwner && (
           <EventActionsMenu
