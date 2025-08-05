@@ -20,6 +20,7 @@ import EventIcon from "@mui/icons-material/Event";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { nip19 } from "nostr-tools";
+import dayjs from "dayjs";
 
 // Parse naddr or meetstr URL
 const parseNostrReference = (input: string) => {
@@ -84,10 +85,80 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
+  const [loadingEntities, setLoadingEntities] = useState<Set<string>>(
+    new Set()
+  );
 
   // Determine entity type for display
   const isCalendar = allowedKinds.includes(31924);
   const isEvent = allowedKinds.includes(31922) || allowedKinds.includes(31923);
+
+  // Lazy load missing entity data for existing references
+  const loadEntityData = useCallback(
+    async (ref: NostrReference) => {
+      if (ref.entity || !ndk || loadingEntities.has(ref.aTag)) return;
+
+      setLoadingEntities((prev) => new Set(prev).add(ref.aTag));
+
+      try {
+        const [kind, pubkey, identifier] = ref.aTag.split(":");
+        const filter: NDKFilter = {
+          kinds: [parseInt(kind) as any],
+          authors: [pubkey],
+          "#d": identifier ? [identifier] : undefined,
+          limit: 1,
+        };
+
+        const events = await ndk.fetchEvents(filter);
+        const entity = events.values().next().value;
+
+        if (entity) {
+          // Update the reference with loaded entity
+          const updatedValue = value.map((v) =>
+            v.aTag === ref.aTag ? { ...v, entity } : v
+          );
+          onChange(updatedValue);
+        }
+      } catch (error) {
+        console.error("Error loading entity data:", error);
+      } finally {
+        setLoadingEntities((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(ref.aTag);
+          return newSet;
+        });
+      }
+    },
+    [ndk, value, onChange, loadingEntities]
+  );
+
+  // Load entity data for existing references on mount
+  React.useEffect(() => {
+    value.forEach((ref) => {
+      if (!ref.entity) {
+        // Stagger loading to avoid overwhelming the network
+        setTimeout(() => loadEntityData(ref), Math.random() * 2000);
+      }
+    });
+  }, [value, loadEntityData]);
+
+  // Generate URL for entity
+  const getEntityUrl = useCallback(
+    (ref: NostrReference) => {
+      const entityType = isCalendar ? "calendar" : "event";
+      return `/${entityType}/${ref.naddr || ref.aTag}`;
+    },
+    [isCalendar]
+  );
+
+  // Handle clicking on preview card
+  const handlePreviewClick = useCallback(
+    (ref: NostrReference) => {
+      const url = getEntityUrl(ref);
+      window.open(url, "_blank");
+    },
+    [getEntityUrl]
+  );
 
   // Search entities
   const searchEntities = useCallback(
@@ -101,33 +172,38 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
       try {
         // Enhanced search strategies similar to UpcomingEventsSection
         const now = Math.floor(Date.now() / 1000);
-        const sixMonthsFromNow =
-          Math.floor(Date.now() / 1000) + 6 * 30 * 24 * 3600;
+        const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
 
         const filters: NDKFilter[] = [
-          // Strategy 1: Search by content/metadata
+          // Strategy 1: Recent entities by creation time
           {
             kinds: allowedKinds as any[],
             limit: 20,
-            search: query,
+            until: now,
           },
-          // Strategy 2: Recent entities
+          // Strategy 2: Search by time range (for events)
+          ...(isEvent
+            ? [
+                {
+                  kinds: allowedKinds as any[],
+                  limit: 15,
+                  since: now,
+                  until: sixMonthsFromNow,
+                },
+              ]
+            : []),
+          // Strategy 3: Search by different time windows
           {
             kinds: allowedKinds as any[],
             limit: 15,
-            until: now,
+            until: now + 24 * 3600, // Look in different time windows
           },
         ];
 
-        // Strategy 3: For events, also search by time range
-        if (isEvent) {
-          filters.push({
-            kinds: allowedKinds as any[],
-            limit: 10,
-            since: now,
-            until: sixMonthsFromNow,
-          });
-        }
+        console.log(
+          `Searching entities with query: "${query}" for kinds:`,
+          allowedKinds
+        );
 
         const allResults: NDKEvent[] = [];
 
@@ -137,13 +213,19 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
             const eventSet = await ndk.fetchEvents(filter);
             return Array.from(eventSet.values());
           } catch (error) {
-            console.error("Error fetching entities:", error);
+            console.error(
+              "Error fetching entities with filter:",
+              filter,
+              error
+            );
             return [];
           }
         });
 
         const results = await Promise.all(fetchPromises);
         results.forEach((entities) => allResults.push(...entities));
+
+        console.log(`Total fetched entities:`, allResults.length);
 
         // Remove duplicates
         const unique = allResults.filter(
@@ -166,6 +248,7 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
           );
         });
 
+        console.log(`Filtered entities matching "${query}":`, filtered.length);
         setSearchResults(filtered.slice(0, 15));
       } catch (error) {
         console.error("Entity search error:", error);
@@ -427,8 +510,21 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
           </Typography>
           {value.map((ref, index) => {
             const metadata = ref.entity ? getEventMetadata(ref.entity) : null;
+            const isLoading = loadingEntities.has(ref.aTag);
             return (
-              <Card key={ref.aTag} variant="outlined" sx={{ mb: 1 }}>
+              <Card
+                key={ref.aTag}
+                variant="outlined"
+                sx={{
+                  mb: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    boxShadow: 2,
+                    borderColor: "primary.main",
+                  },
+                }}
+                onClick={() => handlePreviewClick(ref)}
+              >
                 <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     {metadata?.image ? (
@@ -438,12 +534,20 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
                       />
                     ) : (
                       <Avatar sx={{ width: 40, height: 40 }}>
-                        {isCalendar ? <CalendarMonthIcon /> : <EventIcon />}
+                        {isLoading ? (
+                          <CircularProgress size={20} />
+                        ) : isCalendar ? (
+                          <CalendarMonthIcon />
+                        ) : (
+                          <EventIcon />
+                        )}
                       </Avatar>
                     )}
                     <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                       <Typography variant="subtitle2" noWrap>
-                        {metadata?.title || ref.naddr || ref.aTag}
+                        {isLoading
+                          ? "Loading..."
+                          : metadata?.title || ref.naddr || ref.aTag}
                       </Typography>
                       {metadata?.summary && (
                         <Typography
@@ -476,7 +580,10 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
                     {showRemoveInPreview && (
                       <IconButton
                         size="small"
-                        onClick={() => removeReference(index)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent card click
+                          removeReference(index);
+                        }}
                         color="error"
                       >
                         <DeleteIcon fontSize="small" />
