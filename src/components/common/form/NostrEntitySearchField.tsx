@@ -107,9 +107,9 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
 
       // Filter out entities that are already loaded or currently loading
       const refsToLoad = refs.filter(
-        (ref) => 
-          !ref.entity && 
-          !loadingEntities.has(ref.aTag) && 
+        (ref) =>
+          !ref.entity &&
+          !loadingEntities.has(ref.aTag) &&
           !loadedEntities.has(ref.aTag)
       );
 
@@ -118,24 +118,31 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
       console.log(`Batch loading ${refsToLoad.length} entities`);
 
       // Mark all as loading
-      setLoadingEntities(prev => {
+      setLoadingEntities((prev) => {
         const newSet = new Set(prev);
-        refsToLoad.forEach(ref => newSet.add(ref.aTag));
+        refsToLoad.forEach((ref) => newSet.add(ref.aTag));
         return newSet;
       });
 
       try {
         // Create filters for batch loading
-        const filtersByKind = new Map<number, { pubkeys: string[], identifiers: string[], refs: NostrReference[] }>();
+        const filtersByKind = new Map<
+          number,
+          { pubkeys: string[]; identifiers: string[]; refs: NostrReference[] }
+        >();
 
-        refsToLoad.forEach(ref => {
+        refsToLoad.forEach((ref) => {
           const [kind, pubkey, identifier] = ref.aTag.split(":");
           const kindNum = parseInt(kind);
-          
+
           if (!filtersByKind.has(kindNum)) {
-            filtersByKind.set(kindNum, { pubkeys: [], identifiers: [], refs: [] });
+            filtersByKind.set(kindNum, {
+              pubkeys: [],
+              identifiers: [],
+              refs: [],
+            });
           }
-          
+
           const kindData = filtersByKind.get(kindNum)!;
           kindData.pubkeys.push(pubkey);
           if (identifier) {
@@ -145,36 +152,42 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
         });
 
         // Fetch entities by kind in batches
-        const fetchPromises = Array.from(filtersByKind.entries()).map(async ([kind, data]) => {
-          try {
-            const filter: NDKFilter = {
-              kinds: [kind as any],
-              authors: data.pubkeys,
-              ...(data.identifiers.length > 0 && { "#d": data.identifiers }),
-              limit: data.refs.length,
-            };
+        const fetchPromises = Array.from(filtersByKind.entries()).map(
+          async ([kind, data]) => {
+            try {
+              const filter: NDKFilter = {
+                kinds: [kind as any],
+                authors: data.pubkeys,
+                ...(data.identifiers.length > 0 && { "#d": data.identifiers }),
+                limit: data.refs.length,
+              };
 
-            const events = await ndk.fetchEvents(filter);
-            return { kind, events: Array.from(events.values()), refs: data.refs };
-          } catch (error) {
-            console.error(`Error fetching entities for kind ${kind}:`, error);
-            return { kind, events: [], refs: data.refs };
+              const events = await ndk.fetchEvents(filter);
+              return {
+                kind,
+                events: Array.from(events.values()),
+                refs: data.refs,
+              };
+            } catch (error) {
+              console.error(`Error fetching entities for kind ${kind}:`, error);
+              return { kind, events: [], refs: data.refs };
+            }
           }
-        });
+        );
 
         const results = await Promise.all(fetchPromises);
-        
+
         // Map fetched events to references
         const updatedRefs = new Map<string, NDKEvent>();
-        
+
         results.forEach(({ events, refs }) => {
-          refs.forEach(ref => {
+          refs.forEach((ref) => {
             const [, pubkey, identifier] = ref.aTag.split(":");
-            const matchingEvent = events.find(event => {
-              const eventDTag = event.tags.find(t => t[0] === "d")?.[1] || "";
+            const matchingEvent = events.find((event) => {
+              const eventDTag = event.tags.find((t) => t[0] === "d")?.[1] || "";
               return event.pubkey === pubkey && eventDTag === identifier;
             });
-            
+
             if (matchingEvent) {
               updatedRefs.set(ref.aTag, matchingEvent);
             }
@@ -184,13 +197,14 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
         // Update the value array with loaded entities
         if (updatedRefs.size > 0) {
           // Use ref to get current value at time of update to avoid stale closure
-          const newValue = currentValueRef.current.map(ref => {
+          const newValue = currentValueRef.current.map((ref) => {
             const loadedEntity = updatedRefs.get(ref.aTag);
             if (loadedEntity) {
               // Generate proper naddr for the loaded entity
-              const dTag = loadedEntity.tags.find(t => t[0] === "d")?.[1] || "";
+              const dTag =
+                loadedEntity.tags.find((t) => t[0] === "d")?.[1] || "";
               let naddr = ref.naddr;
-              
+
               // Generate naddr if not available or invalid
               if (!naddr || !naddr.startsWith("naddr")) {
                 try {
@@ -200,11 +214,14 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
                     identifier: dTag,
                   });
                 } catch (error) {
-                  console.error("Error generating naddr for loaded entity:", error);
+                  console.error(
+                    "Error generating naddr for loaded entity:",
+                    error
+                  );
                   naddr = ref.aTag;
                 }
               }
-              
+
               return { ...ref, entity: loadedEntity, naddr };
             }
             return ref;
@@ -213,21 +230,22 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
         }
 
         // Mark entities as loaded (whether successful or not)
-        setLoadedEntities(prev => {
+        setLoadedEntities((prev) => {
           const newSet = new Set(prev);
-          refsToLoad.forEach(ref => newSet.add(ref.aTag));
+          refsToLoad.forEach((ref) => newSet.add(ref.aTag));
           return newSet;
         });
 
-        console.log(`Batch loaded ${updatedRefs.size}/${refsToLoad.length} entities`);
-        
+        console.log(
+          `Batch loaded ${updatedRefs.size}/${refsToLoad.length} entities`
+        );
       } catch (error) {
         console.error("Batch loading error:", error);
       } finally {
         // Remove from loading state
-        setLoadingEntities(prev => {
+        setLoadingEntities((prev) => {
           const newSet = new Set(prev);
-          refsToLoad.forEach(ref => newSet.delete(ref.aTag));
+          refsToLoad.forEach((ref) => newSet.delete(ref.aTag));
           return newSet;
         });
       }
@@ -237,8 +255,10 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
 
   // Load entity data for existing references on mount and when new refs are added
   React.useEffect(() => {
-    const refsNeedingLoad = value.filter(ref => !ref.entity && !loadedEntities.has(ref.aTag));
-    
+    const refsNeedingLoad = value.filter(
+      (ref) => !ref.entity && !loadedEntities.has(ref.aTag)
+    );
+
     if (refsNeedingLoad.length > 0) {
       // Debounce the batch loading to avoid excessive API calls
       const timeoutId = setTimeout(() => {
@@ -247,16 +267,16 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [value.map(ref => ref.aTag).join(','), loadedEntities]); // Remove batchLoadEntities from deps to prevent infinite loop
+  }, [value.map((ref) => ref.aTag).join(","), loadedEntities]); // Remove batchLoadEntities from deps to prevent infinite loop
 
   // Generate URL for entity
   const getEntityUrl = useCallback(
     (ref: NostrReference) => {
       const entityType = isCalendar ? "calendar" : "event";
-      
+
       // Try to use naddr first, fallback to generating one from aTag
       let identifier = ref.naddr;
-      
+
       if (!identifier || !identifier.startsWith("naddr")) {
         // Generate naddr from aTag if not available
         try {
@@ -272,7 +292,7 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
           identifier = ref.aTag;
         }
       }
-      
+
       return `/${entityType}/${identifier}`;
     },
     [isCalendar]
@@ -438,7 +458,7 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
         const parsed = parseNostrReference(inputText);
         if (parsed && allowedKinds.includes(parsed.kind)) {
           aTag = `${parsed.kind}:${parsed.pubkey}:${parsed.identifier || ""}`;
-          
+
           // Use the original naddr if it was provided
           if (inputText.startsWith("naddr")) {
             naddr = inputText;
