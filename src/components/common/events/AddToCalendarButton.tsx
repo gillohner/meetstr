@@ -16,11 +16,11 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import { type NDKEvent } from "@nostr-dev-kit/ndk";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
-interface AddToCalendarButtonProps {
+interface AddToCalendarIcsButtonProps {
   calendarEvent: NDKEvent;
 }
 
-const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
+const AddToCalendarIcsButton: React.FC<AddToCalendarIcsButtonProps> = ({
   calendarEvent,
 }) => {
   const { t } = useTranslation();
@@ -138,6 +138,10 @@ const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
             backgroundColor: "secondary.dark",
           },
         },
+        "& .MuiSpeedDial-actions": {
+          position: "fixed",
+          zIndex: 1400, // Higher than MUI modal backdrop
+        },
       }}
       icon={<SpeedDialIcon icon={<CalendarMonthIcon />} />}
       onClose={handleClose}
@@ -173,4 +177,4 @@ const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
   );
 };
 
-export default AddToCalendarButton;
+export default AddToCalendarIcsButton;

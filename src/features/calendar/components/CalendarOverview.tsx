@@ -32,7 +32,7 @@ import { useActiveUser } from "@/hooks/useActiveUser";
 import { useSnackbar } from "@/context/SnackbarContext";
 import FloatingActionButton from "@/components/common/layout/FloatingActionButton";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
-import AddToCalendarButton from "@/components/common/events/AddToCalendarButton";
+import AddToCalendarIcsButton from "@/components/common/events/AddToCalendarButton";
 
 interface CalendarOverviewProps {
   calendarId?: string;
@@ -199,7 +199,9 @@ export default function CalendarOverview({
 
   return (
     <Container maxWidth="lg" sx={{ mb: 4 }}>
-      <Card sx={{ width: "100%", mb: 4, position: "relative" }}>
+      <Card
+        sx={{ width: "100%", mb: 4, position: "relative", overflow: "visible" }}
+      >
         {/* EventActionsMenu positioned in top-right corner for calendar owner */}
         {isCalendarOwner && (
           <EventActionsMenu
@@ -272,7 +274,7 @@ export default function CalendarOverview({
                 </IconButton>
               )}
               {/* ICS subscription button */}
-              <AddToCalendarButton calendarEvent={calendarEvent} />
+              <AddToCalendarIcsButton calendarEvent={calendarEvent} />
             </Grid>
           </Grid>
         </CardContent>
