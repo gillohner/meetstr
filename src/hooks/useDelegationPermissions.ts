@@ -54,7 +54,7 @@ export const useDelegationPermissions = (
     );
 
     const isCoHost = !!coHostTag;
-    let coHostPermissions = [];
+    let coHostPermissions: string[] = [];
 
     if (coHostTag && coHostTag[4]) {
       coHostPermissions = coHostTag[4].split(",");

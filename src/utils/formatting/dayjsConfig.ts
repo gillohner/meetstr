@@ -1,5 +1,5 @@
 // src/utils/formatting/dayjsConfig.ts
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import localeData from "dayjs/plugin/localeData";
@@ -58,4 +58,7 @@ export const reconfigureClientDayjs = () => {
 // Set up dayjs on import with consistent behavior
 configureDayjs();
 
+// Export the dayjs instance as default and also export the type
 export default dayjs;
+export { dayjs };
+export type { Dayjs };

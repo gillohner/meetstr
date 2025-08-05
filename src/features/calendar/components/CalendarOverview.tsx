@@ -243,7 +243,7 @@ export default function CalendarOverview({
         )}
         <CardContent>
           <Grid container>
-            <Grid item size={10}>
+            <Grid size={10}>
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || "Calendar"}
               </Typography>
@@ -254,7 +254,6 @@ export default function CalendarOverview({
               </Typography>
             </Grid>
             <Grid
-              item
               size={2}
               sx={{
                 display: "flex",

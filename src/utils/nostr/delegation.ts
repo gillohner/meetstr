@@ -1,5 +1,5 @@
 // src/utils/nostr/delegation.ts
-import { schnorr } from "@noble/secp256k1";
+import * as secp256k1 from "@noble/secp256k1";
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex } from "@noble/hashes/utils";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
@@ -62,8 +62,8 @@ export async function signDelegation(
 ): Promise<string> {
   const delegationString = createDelegationString(delegateePubkey, conditions);
   const hash = sha256(new TextEncoder().encode(delegationString));
-  const signature = await schnorr.sign(hash, delegatorPrivkey);
-  return bytesToHex(signature);
+  const signature = await secp256k1.sign(hash, delegatorPrivkey);
+  return bytesToHex(signature.toCompactRawBytes());
 }
 
 /**
@@ -79,7 +79,7 @@ export async function verifyDelegation(
     );
     const hash = sha256(new TextEncoder().encode(delegationString));
 
-    return await schnorr.verify(delegation.token, hash, delegation.delegator);
+    return await secp256k1.verify(delegation.token, hash, delegation.delegator);
   } catch (error) {
     console.error("Delegation verification failed:", error);
     return false;

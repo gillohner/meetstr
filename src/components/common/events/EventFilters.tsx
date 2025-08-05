@@ -16,7 +16,6 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TagIcon from "@mui/icons-material/Tag";
 import type { dayjs } from "@/utils/formatting/dayjsConfig";
-import type { Dayjs } from "dayjs";
 
 export interface EventFilters {
   dateRange: {

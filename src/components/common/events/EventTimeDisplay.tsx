@@ -27,7 +27,7 @@ const EventTimeDisplay: React.FC<EventTimeDisplayProps> = ({
       const formatted = endTime
         ? formatDateRange(startTime, endTime, "Invalid date")
         : formatDate(startTime, "Invalid date");
-      setFormattedDate(formatted);
+      setFormattedDate(formatted || "Invalid date");
     }
   }, [startTime, endTime]);
 
