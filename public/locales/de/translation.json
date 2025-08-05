@@ -17,6 +17,7 @@
         "error": "Bild-Upload fehlgeschlagen"
       },
       "title": "Event hinzufügen",
+      "addToCalendar": "Event zu Kalender hinzufügen",
       "newEvent": "Event hinzufügen",
       "dateTime": {
         "title": "Datum und Uhrzeit",
@@ -31,7 +32,9 @@
         "addHashtag": "Hashtags hinzufügen ...",
         "addReference": "Links hinzufügen ...",
         "hashtags": "Hashtags",
-        "references": "Links"
+        "references": "Links",
+        "calendars": "Zu Kalendern hinzufügen",
+        "addCalendar": "Kalender suchen oder naddr einfügen..."
       },
       "submit": "Event erstellen",
       "error": "Ereignis nicht erstellen",
@@ -171,7 +174,8 @@
   },
   "nav": {
     "dezentralschweiz": "Dezentralschweiz Kalender",
-    "new-calendar": "Kalendar erstellen",
+    "new-calendar": "Kalender erstellen",
+    "new-event": "Event erstellen",
     "startpage": "Home"
   },
   "navbar": {

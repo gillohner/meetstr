@@ -12,7 +12,6 @@ import {
 import LanguageSwitcher from "@/components/common/layout/AppBar/Settings/LanguageSwitcher";
 import ModeSwitch from "@/components/common/layout/AppBar/Settings/ModeSwitch";
 import NotificationCenter from "@/components/common/notification/NotificationCenter";
-import CreateCalendarForm from "@/components/NostrEventCreation/CreateCalendarForm";
 import { useTranslation } from "react-i18next";
 
 export default function CustomAppBar() {
@@ -65,7 +64,6 @@ export default function CustomAppBar() {
           <Box
             sx={{ display: "flex", alignItems: "center", gap: 1, ml: "auto" }}
           >
-            <CreateCalendarForm />
             <ModeSwitch />
             <LanguageSwitcher />
             <NotificationCenter />

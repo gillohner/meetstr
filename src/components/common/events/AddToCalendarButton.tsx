@@ -1,150 +1,176 @@
-import * as React from "react";
-import { useState } from "react";
+"use client";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Button,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import LinkIcon from "@mui/icons-material/Link";
 import DownloadIcon from "@mui/icons-material/Download";
+import SubscriptionsIcon from "@mui/icons-material/Subscriptions";
+import LinkIcon from "@mui/icons-material/Link";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { getEventNip19Encoding } from "@/utils/nostr/nostrUtils";
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
+import { type NDKEvent } from "@nostr-dev-kit/ndk";
+import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
 interface AddToCalendarButtonProps {
-  calendarEvent?: NDKEvent;
-  sx?: any;
+  calendarEvent: NDKEvent;
 }
 
-export default function AddToCalendarButton({
+const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
   calendarEvent,
-  sx,
-}: AddToCalendarButtonProps) {
+}) => {
   const { t } = useTranslation();
   const { showSnackbar } = useSnackbar();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [open, setOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // Prevent hydration mismatch
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setOpen(false);
   };
 
-  const handleSubscribe = () => {
-    if (!calendarEvent) return;
-
-    const calendarId = getEventNip19Encoding(calendarEvent);
-    const subscriptionUrl = `webcal://${window.location.host}/api/calendar/${calendarId}/ics`;
-
-    // Try to open the subscription URL
-    window.location.href = subscriptionUrl;
-    showSnackbar(
-      t("calendar.subscription.added", "Calendar subscription added"),
-      "success"
-    );
-    handleClose();
+  const handleOpen = () => {
+    setOpen(true);
   };
 
-  const handleDownload = () => {
-    if (!calendarEvent) return;
-
-    const calendarId = getEventNip19Encoding(calendarEvent);
-    const downloadUrl = `${window.location.origin}/api/calendar/${calendarId}/ics`;
-
-    // Create a temporary link to download the file
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = `${calendarEvent.tags.find((t) => t[0] === "title")?.[1] || "meetstr-calendar"}.ics`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    showSnackbar(
-      t("calendar.download.success", "Calendar downloaded"),
-      "success"
-    );
-    handleClose();
+  const generateWebcalUrl = () => {
+    // Generate webcal URL for calendar subscription
+    const baseUrl = window.location.origin;
+    const calendarId = calendarEvent.id;
+    return `webcal://${baseUrl.replace(/^https?:\/\//, "")}/api/calendar/${calendarId}/ics`;
   };
 
-  const handleCopyLink = async () => {
-    if (!calendarEvent) return;
+  const generateIcsUrl = () => {
+    // Generate ICS download URL
+    const baseUrl = window.location.origin;
+    const calendarId = calendarEvent.id;
+    return `${baseUrl}/api/calendar/${calendarId}/ics`;
+  };
 
-    const calendarId = getEventNip19Encoding(calendarEvent);
-    const subscriptionUrl = `webcal://${window.location.host}/api/calendar/${calendarId}/ics`;
-
+  const handleCopyWebcalLink = async () => {
     try {
-      await navigator.clipboard.writeText(subscriptionUrl);
-      showSnackbar(
-        t("calendar.link.copied", "Subscription link copied"),
-        "success"
-      );
+      const webcalUrl = generateWebcalUrl();
+      await navigator.clipboard.writeText(webcalUrl);
+      showSnackbar(t("calendar.link.copied"), "success");
+      setOpen(false);
     } catch (error) {
-      showSnackbar(t("calendar.link.error", "Failed to copy link"), "error");
+      console.error("Error copying webcal link:", error);
+      showSnackbar(t("calendar.link.error"), "error");
     }
-    handleClose();
   };
 
-  if (!calendarEvent) return null;
+  const handleSubscribeToCalendar = () => {
+    try {
+      const webcalUrl = generateWebcalUrl();
+      window.open(webcalUrl, "_blank");
+      showSnackbar(t("calendar.subscription.added"), "success");
+      setOpen(false);
+    } catch (error) {
+      console.error("Error opening webcal link:", error);
+      showSnackbar(t("calendar.link.error"), "error");
+    }
+  };
+
+  const handleDownloadIcs = () => {
+    try {
+      const icsUrl = generateIcsUrl();
+      const link = document.createElement("a");
+      link.href = icsUrl;
+      link.download = `${getEventMetadata(calendarEvent).title || "calendar"}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showSnackbar(t("calendar.download.success"), "success");
+      setOpen(false);
+    } catch (error) {
+      console.error("Error downloading ICS:", error);
+      showSnackbar(t("calendar.link.error"), "error");
+    }
+  };
+
+  // Don't render on server to prevent hydration mismatch
+  if (!isClient) {
+    return null;
+  }
+
+  const actions = [
+    {
+      icon: <SubscriptionsIcon />,
+      name: t("calendar.subscribe.text", "Subscribe to Calendar"),
+      tooltip: t("calendar.subscribe.desc", "Auto-updates with new events"),
+      onClick: handleSubscribeToCalendar,
+    },
+    {
+      icon: <DownloadIcon />,
+      name: t("calendar.download.title", "Download Calendar"),
+      tooltip: t("calendar.download.desc", "One-time ics download"),
+      onClick: handleDownloadIcs,
+    },
+    {
+      icon: <LinkIcon />,
+      name: t("calendar.copyLink", "Copy Webcal Link"),
+      tooltip: t("calendar.copyLink", "Copy subscription link"),
+      onClick: handleCopyWebcalLink,
+    },
+  ];
 
   return (
-    <>
-      <Button
-        variant="outlined"
-        startIcon={<CalendarTodayIcon />}
-        onClick={handleClick}
-        sx={sx}
-      >
-        {t("calendar.addToCalendar", "Add to Calendar")}
-      </Button>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-      >
-        <MenuItem onClick={handleSubscribe}>
-          <ListItemIcon>
-            <CalendarTodayIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText
-            primary={t("calendar.subscribe.text", "Subscribe to Calendar")}
-            secondary={t(
-              "calendar.subscribe.desc",
-              "Auto-updates with new events"
-            )}
-          />
-        </MenuItem>
-        <MenuItem onClick={handleDownload}>
-          <ListItemIcon>
-            <DownloadIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText
-            primary={t("calendar.download.title", "Download Calendar")}
-            secondary={t("calendar.download.desc", "One-time file download")}
-          />
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleCopyLink}>
-          <ListItemIcon>
-            <LinkIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary={t("calendar.copyLink", "Copy v Link")} />
-        </MenuItem>
-      </Menu>
-    </>
+    <SpeedDial
+      ariaLabel="Calendar actions"
+      sx={{
+        position: "relative",
+        "& .MuiSpeedDial-fab": {
+          backgroundColor: "secondary.main",
+          color: "secondary.contrastText",
+          width: 40,
+          height: 40,
+          minHeight: 40,
+          borderRadius: "50%",
+          "&:hover": {
+            backgroundColor: "secondary.dark",
+          },
+        },
+      }}
+      icon={<SpeedDialIcon icon={<CalendarMonthIcon />} />}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      open={open}
+      direction="down"
+    >
+      {actions.map((action) => (
+        <SpeedDialAction
+          key={action.name}
+          icon={action.icon}
+          tooltipTitle={
+            <div>
+              <div style={{ fontWeight: 600 }}>{action.name}</div>
+              <div style={{ fontSize: "0.75rem", opacity: 0.8 }}>
+                {action.tooltip}
+              </div>
+            </div>
+          }
+          onClick={action.onClick}
+          sx={{
+            "& .MuiSpeedDialAction-fab": {
+              backgroundColor: "secondary.light",
+              color: "secondary.contrastText",
+              "&:hover": {
+                backgroundColor: "secondary.main",
+              },
+            },
+          }}
+        />
+      ))}
+    </SpeedDial>
   );
-}
+};
+
+export default AddToCalendarButton;

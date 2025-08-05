@@ -5,6 +5,7 @@
   },
   "nav": {
     "new-calendar": "New Calendar",
+    "new-event": "New Event",
     "dezentralschweiz": "Dezentralschweiz Calendar",
     "startpage": "Home"
   },
@@ -114,6 +115,7 @@
         "error": "Image upload failed"
       },
       "title": "Add Event",
+      "addToCalendar": "Add Event to Calendar",
       "newEvent": "Add Event",
       "dateTime": {
         "title": "Date and Time",
@@ -128,7 +130,9 @@
         "hashtags": "Hashtags",
         "addHashtag": "Add hashtag...",
         "references": "References",
-        "addReference": "Add reference URL..."
+        "addReference": "Add reference URL...",
+        "calendars": "Add to Calendars",
+        "addCalendar": "Search calendars or paste naddr..."
       },
       "submit": "Create Event",
       "error": "Failed to create event",

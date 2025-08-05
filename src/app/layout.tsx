@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import ClientProviders from "@/providers/ClientProviders";
 import type { Metadata } from "next";
 import Script from "next/script";
+import DefaultFloatingActionButton from "@/components/common/layout/DefaultFloatingActionButton";
 
 // Base metadata for the application
 export const metadata: Metadata = {
@@ -88,7 +89,10 @@ export default async function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
-        <ClientProviders serverLang={langHeader}>{children}</ClientProviders>
+        <ClientProviders serverLang={langHeader}>
+          {children}
+          <DefaultFloatingActionButton />
+        </ClientProviders>
       </body>
     </html>
   );

@@ -30,6 +30,7 @@ import { useActiveUser } from "@/hooks/useActiveUser";
 import { useSnackbar } from "@/context/SnackbarContext";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import EventActionsMenu from "@/components/common/events/EventActionsMenu";
+import FloatingActionButton from "@/components/common/layout/FloatingActionButton";
 
 export default function EventOverview({ eventId }: { eventId?: string }) {
   const { t } = useTranslation();
@@ -216,7 +217,9 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           <EventLocationMapCard metadata={metadata} />
           <Box sx={{ mt: 3 }}>
             <EventAttendeesCard
-              participants={metadata.participants.map((p) => ({ pubkey: p[0] }))}
+              participants={metadata.participants.map((p) => ({
+                pubkey: p[0],
+              }))}
               event={event}
             />
           </Box>
@@ -228,6 +231,12 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
         onEventUpdated={handleEventUpdated}
+      />
+
+      <FloatingActionButton
+        eventData={event}
+        isOwner={!!isOwner}
+        onEdit={handleEdit}
       />
     </Container>
   );

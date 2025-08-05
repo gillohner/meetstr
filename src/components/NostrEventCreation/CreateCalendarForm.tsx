@@ -23,9 +23,9 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import ImageUploadWithPreview from "@/components/common/blossoms/ImageUploadWithPreview";
 import FormTextField from "@/components/common/form/FormTextField";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
-import EventReferencesField, {
-  type EventReference,
-} from "@/components/common/form/EventReferencesField";
+import NostrEntitySearchField, {
+  type NostrReference,
+} from "@/components/common/form/NostrEntitySearchField";
 import { useRouter } from "next/navigation";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
@@ -62,7 +62,7 @@ export default function CreateCalendarForm({
     description: "",
   });
 
-  const [calendarRefs, setCalendarRefs] = useState<EventReference[]>([]);
+  const [calendarRefs, setCalendarRefs] = useState<NostrReference[]>([]);
   const [calendarImage, setCalendarImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -90,8 +90,8 @@ export default function CreateCalendarForm({
 
       setCalendarImage(metadata.image || null);
 
-      // Convert existing 'a' tags to EventReference format (without fetching)
-      const existingRefs: EventReference[] = initialCalendar.tags
+      // Convert existing 'a' tags to NostrReference format (without fetching)
+      const existingRefs: NostrReference[] = initialCalendar.tags
         .filter((tag) => tag[0] === "a")
         .map((tag) => {
           const aTag = tag[1];
@@ -100,7 +100,7 @@ export default function CreateCalendarForm({
           return {
             aTag,
             naddr: aTag, // Use the coordinate as display text
-            event: null, // Don't fetch existing events to avoid network overhead
+            entity: null, // Don't fetch existing events to avoid network overhead
           };
         });
 
@@ -223,16 +223,6 @@ export default function CreateCalendarForm({
 
   return (
     <>
-      {!controlledOpen && !isEditMode && (
-        <Button
-          size="large"
-          variant="contained"
-          onClick={() => setInternalOpen(true)}
-          sx={{ width: "100%" }}
-        >
-          {t("createCalendar.title")}
-        </Button>
-      )}
       <Dialog
         open={open}
         onClose={onClose}
@@ -324,13 +314,13 @@ export default function CreateCalendarForm({
               </Grid>
 
               <Grid size={12}>
-                <EventReferencesField
+                <NostrEntitySearchField
                   label={t("createCalendar.form.calendarReferences")}
                   value={calendarRefs}
                   onChange={setCalendarRefs}
                   placeholder={t(
                     "createCalendar.form.addReferenceNaddr",
-                    "Paste event naddr or meetstr URL"
+                    "Search events or paste naddr/meetstr-url..."
                   )}
                   allowedKinds={[31922, 31923]}
                   showRemoveInPreview={true}

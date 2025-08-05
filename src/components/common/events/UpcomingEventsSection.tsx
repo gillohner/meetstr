@@ -553,109 +553,118 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 2,
-        }}
-      >
-        <Typography variant="h5" component="h2">
-          {title}
-        </Typography>
-
-        {showFilters && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {activeFilterCount > 0 && (
-              <Chip
-                label={`${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""}`}
-                size="small"
-                onDelete={clearFilters}
-                color="primary"
-              />
-            )}
-            <IconButton
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              color={filtersOpen ? "primary" : "default"}
-            >
-              <FilterListIcon />
-              {filtersOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            </IconButton>
-          </Box>
-        )}
-      </Box>
-
-      <Divider sx={{ mb: 2 }} />
-
-      {showFilters && (
-        <Collapse in={filtersOpen}>
-          <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
-            <EventFilters
-              filters={filters}
-              onChange={handleFiltersChange}
-              availableLocations={availableLocations}
-              availableTags={availableTags}
-            />
-          </Paper>
-        </Collapse>
-      )}
-
-      {loading ? (
+      {!isClient ? (
+        // Render static content during SSR
         <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
           <CircularProgress />
         </Box>
-      ) : filteredEvents.length > 0 ? (
+      ) : (
         <>
-          <Grid container spacing={3}>
-            {filteredEvents.map((event, idx) => (
-              <Grid
-                size={{ xs: 12, md: 6 }}
-                key={`upcoming-event-${event.id}-${idx}`}
-              >
-                <EventPreviewCard event={event} />
-              </Grid>
-            ))}
-          </Grid>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h5" component="h2">
+              {title}
+            </Typography>
 
-          {/* Load More Button - Always visible, never hide */}
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-            <Button
-              variant="outlined"
-              onClick={loadMoreEvents}
-              disabled={loadingMore}
-              sx={{ minWidth: 120 }}
-            >
-              {loadingMore ? (
-                <CircularProgress size={20} />
-              ) : (
-                t("events.loadMore", "Load More")
-              )}
-            </Button>
-            {backgroundLoading && (
-              <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
-                <CircularProgress size={16} />
-                <Typography variant="caption" sx={{ ml: 1 }}>
-                  Finding more events...
-                </Typography>
+            {showFilters && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {activeFilterCount > 0 && (
+                  <Chip
+                    label={`${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""}`}
+                    size="small"
+                    onDelete={clearFilters}
+                    color="primary"
+                  />
+                )}
+                <IconButton
+                  onClick={() => setFiltersOpen(!filtersOpen)}
+                  color={filtersOpen ? "primary" : "default"}
+                >
+                  <FilterListIcon />
+                  {filtersOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </IconButton>
               </Box>
             )}
           </Box>
+
+          <Divider sx={{ mb: 2 }} />
+
+          {showFilters && (
+            <Collapse in={filtersOpen}>
+              <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+                <EventFilters
+                  filters={filters}
+                  onChange={handleFiltersChange}
+                  availableLocations={availableLocations}
+                  availableTags={availableTags}
+                />
+              </Paper>
+            </Collapse>
+          )}
+
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : filteredEvents.length > 0 ? (
+            <>
+              <Grid container spacing={3}>
+                {filteredEvents.map((event, idx) => (
+                  <Grid
+                    size={{ xs: 12, md: 6 }}
+                    key={`upcoming-event-${event.id}-${idx}`}
+                  >
+                    <EventPreviewCard event={event} />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* Load More Button - Always visible, never hide */}
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={loadMoreEvents}
+                  disabled={loadingMore}
+                  sx={{ minWidth: 120 }}
+                >
+                  {loadingMore ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    t("events.loadMore", "Load More")
+                  )}
+                </Button>
+                {backgroundLoading && (
+                  <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
+                    <CircularProgress size={16} />
+                    <Typography variant="caption" sx={{ ml: 1 }}>
+                      Finding more events...
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </>
+          ) : (
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              textAlign="center"
+              sx={{ py: 4 }}
+            >
+              {activeFilterCount > 0
+                ? t(
+                    "events.noEventsWithFilters",
+                    "No events found matching your filters."
+                  )
+                : t("events.noUpcomingEvents", "No upcoming events found.")}
+            </Typography>
+          )}
         </>
-      ) : (
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          textAlign="center"
-          sx={{ py: 4 }}
-        >
-          {activeFilterCount > 0
-            ? t(
-                "events.noEventsWithFilters",
-                "No events found matching your filters."
-              )
-            : t("events.noUpcomingEvents", "No upcoming events found.")}
-        </Typography>
       )}
     </Box>
   );

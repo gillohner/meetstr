@@ -29,6 +29,9 @@ import DateTimeSection from "@/components/common/events/DateTimeSection";
 import DialogActionsSection from "@/components/common/layout/DialogActionsSection";
 import { encodeGeohash } from "@/utils/location/geohash";
 import TagInputField from "@/components/common/form/TagInputField";
+import NostrEntitySearchField, {
+  type NostrReference,
+} from "@/components/common/form/NostrEntitySearchField";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { useRouter } from "next/navigation";
 
@@ -88,6 +91,7 @@ export default function CreateNewEventDialog({
   });
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [references, setReferences] = useState<string[]>([]);
+  const [calendarRefs, setCalendarRefs] = useState<NostrReference[]>([]);
   const [location, setLocation] = useState<GeoSearchResult | null>(null);
   const [eventImage, setEventImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
@@ -118,6 +122,16 @@ export default function CreateNewEventDialog({
       setReferences(metadata.references || []);
       setEventImage(metadata.image || null);
 
+      // Set up existing calendar references
+      const existingCalendarRefs: NostrReference[] = initialEvent.tags
+        .filter((tag) => tag[0] === "a" && tag[1].startsWith("31924:"))
+        .map((tag) => ({
+          aTag: tag[1],
+          naddr: tag[1], // Use coordinate as display
+          entity: null, // Don't fetch to avoid loading time
+        }));
+      setCalendarRefs(existingCalendarRefs);
+
       if (metadata.location) {
         setLocation({
           x: 0,
@@ -134,8 +148,19 @@ export default function CreateNewEventDialog({
       if (metadata.start_tzid) {
         setTimezone(metadata.start_tzid);
       }
+    } else if (calendarEvent) {
+      // Pre-populate with calendar reference when creating from calendar page
+      const dTag = calendarEvent.tags.find((t) => t[0] === "d")?.[1];
+      if (dTag) {
+        const calendarRef: NostrReference = {
+          aTag: `31924:${calendarEvent.pubkey}:${dTag}`,
+          naddr: `31924:${calendarEvent.pubkey}:${dTag}`,
+          entity: calendarEvent,
+        };
+        setCalendarRefs([calendarRef]);
+      }
     }
-  }, [initialEvent]);
+  }, [initialEvent, calendarEvent]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,66 +265,58 @@ export default function CreateNewEventDialog({
       throw new Error("No signer available");
     }
 
-    const calendarDTag = calendarEvent?.tags.find((t) => t[0] === "d")?.[1];
-    const isCalendarOwner =
-      calendarEvent && calendarEvent.pubkey === activeUser?.pubkey;
     const eventCoordinate = `31923:${activeUser?.pubkey}:${uniqueId}`;
 
-    if (isCalendarOwner && calendarEvent && calendarDTag) {
-      event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
+    // Add all calendar references to event
+    calendarRefs.forEach((ref) => {
+      event.tags.push(["a", ref.aTag]);
+    });
 
-      // Sign and publish the event using window.nostr
-      const unsignedEvent = {
-        kind: event.kind,
-        content: event.content,
-        tags: event.tags,
-        created_at: Math.floor(Date.now() / 1000),
-        pubkey: activeUser.pubkey,
-      };
+    // Sign and publish the event using window.nostr
+    const unsignedEvent = {
+      kind: event.kind,
+      content: event.content,
+      tags: event.tags,
+      created_at: Math.floor(Date.now() / 1000),
+      pubkey: activeUser.pubkey,
+    };
 
-      const signedEvent = await window.nostr.signEvent(unsignedEvent);
-      const ndkEvent = new NDKEvent(ndk, signedEvent);
-      await ndkEvent.publish();
+    const signedEvent = await window.nostr.signEvent(unsignedEvent);
+    const ndkEvent = new NDKEvent(ndk, signedEvent);
+    await ndkEvent.publish();
 
-      if (!isEditMode) {
-        const updatedCalendar = new NDKEvent(ndk);
-        updatedCalendar.kind = 31924;
-        updatedCalendar.tags = calendarEvent.tags.filter(
-          (tag) => !(tag[0] === "a" && tag[1] === eventCoordinate)
-        );
-        updatedCalendar.tags.push(["a", eventCoordinate]);
-        updatedCalendar.content = calendarEvent.content || "";
+    // Handle calendar updates for owned calendars
+    if (!isEditMode) {
+      for (const ref of calendarRefs) {
+        if (ref.entity && ref.entity.pubkey === activeUser?.pubkey) {
+          // User owns this calendar, update it to include the event
+          try {
+            const updatedCalendar = new NDKEvent(ndk);
+            updatedCalendar.kind = 31924;
+            updatedCalendar.tags = ref.entity.tags.filter(
+              (tag: string[]) => !(tag[0] === "a" && tag[1] === eventCoordinate)
+            );
+            updatedCalendar.tags.push(["a", eventCoordinate]);
+            updatedCalendar.content = ref.entity.content || "";
 
-        // Sign and publish the calendar using window.nostr
-        const unsignedCalendar = {
-          kind: updatedCalendar.kind,
-          content: updatedCalendar.content,
-          tags: updatedCalendar.tags,
-          created_at: Math.floor(Date.now() / 1000),
-          pubkey: activeUser.pubkey,
-        };
+            // Sign and publish the calendar using window.nostr
+            const unsignedCalendar = {
+              kind: updatedCalendar.kind,
+              content: updatedCalendar.content,
+              tags: updatedCalendar.tags,
+              created_at: Math.floor(Date.now() / 1000),
+              pubkey: activeUser.pubkey,
+            };
 
-        const signedCalendar = await window.nostr.signEvent(unsignedCalendar);
-        const ndkCalendar = new NDKEvent(ndk, signedCalendar);
-        await ndkCalendar.publish();
+            const signedCalendar =
+              await window.nostr.signEvent(unsignedCalendar);
+            const ndkCalendar = new NDKEvent(ndk, signedCalendar);
+            await ndkCalendar.publish();
+          } catch (error) {
+            console.error("Error updating owned calendar:", error);
+          }
+        }
       }
-    } else {
-      if (calendarEvent && calendarDTag) {
-        event.tags.push(["a", `31924:${calendarEvent.pubkey}:${calendarDTag}`]);
-      }
-
-      // Sign and publish the event using window.nostr
-      const unsignedEvent = {
-        kind: event.kind,
-        content: event.content,
-        tags: event.tags,
-        created_at: Math.floor(Date.now() / 1000),
-        pubkey: activeUser.pubkey,
-      };
-
-      const signedEvent = await window.nostr.signEvent(unsignedEvent);
-      const ndkEvent = new NDKEvent(ndk, signedEvent);
-      await ndkEvent.publish();
     }
 
     showSnackbar(
@@ -317,16 +334,6 @@ export default function CreateNewEventDialog({
 
   return (
     <>
-      {!controlledOpen && !isEditMode && (
-        <Button
-          size="large"
-          variant="contained"
-          onClick={() => setInternalOpen(true)}
-          sx={{ width: "100%" }}
-        >
-          {t("event.createEvent.title")}
-        </Button>
-      )}
       <Dialog
         open={open}
         onClose={onClose}
@@ -459,6 +466,24 @@ export default function CreateNewEventDialog({
                   values={references}
                   onChange={setReferences}
                   placeholder={t("event.createEvent.form.addReference")}
+                />
+              </Grid>
+
+              <Grid size={12}>
+                <NostrEntitySearchField
+                  label={t(
+                    "event.createEvent.form.calendars",
+                    "Add to Calendars"
+                  )}
+                  value={calendarRefs}
+                  onChange={setCalendarRefs}
+                  placeholder={t(
+                    "event.createEvent.form.addCalendar",
+                    "Search calendars or paste naddr..."
+                  )}
+                  allowedKinds={[31924]}
+                  showRemoveInPreview={true}
+                  maxHeight={200}
                 />
               </Grid>
             </Grid>

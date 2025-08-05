@@ -15,18 +15,23 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   CircularProgress,
+  Button,
+  IconButton,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
-import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import CreateCalendarForm from "@/components/NostrEventCreation/CreateCalendarForm";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
 import EventHost from "@/components/common/events/EventHost";
 import EventActionsMenu from "@/components/common/events/EventActionsMenu";
 import { useActiveUser } from "@/hooks/useActiveUser";
 import { useSnackbar } from "@/context/SnackbarContext";
+import FloatingActionButton from "@/components/common/layout/FloatingActionButton";
+import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import AddToCalendarButton from "@/components/common/events/AddToCalendarButton";
 
 interface CalendarOverviewProps {
@@ -55,6 +60,13 @@ export default function CalendarOverview({
   const activeUser = useActiveUser();
   const { showSnackbar } = useSnackbar();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [addEventDialogOpen, setAddEventDialogOpen] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (calendarId) {
@@ -142,7 +154,18 @@ export default function CalendarOverview({
       );
     if (errorCode) return <Typography color="error">{errorCode}</Typography>;
 
-    return <Typography variant="h4">{t("error.event.invalidId")}</Typography>;
+    return <Typography variant="h4">Invalid Calendar ID</Typography>;
+  }
+
+  // Don't render main content until client-side hydration to prevent mismatch
+  if (!isClient) {
+    return (
+      <Container maxWidth="lg" sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
   }
 
   // Extract metadata using the utility function
@@ -214,7 +237,7 @@ export default function CalendarOverview({
           <Grid container spacing={2} direction="row">
             <Grid size={{ xs: 12, sm: 9 }}>
               <Typography gutterBottom variant="h4" component="div">
-                {metadata.title || t("error.event.noName")}
+                {metadata.title || "Calendar"}
               </Typography>
               <EventHost hostPubkey={calendarEvent.pubkey} />
               <Typography variant="body1" color="text.secondary">
@@ -223,9 +246,33 @@ export default function CalendarOverview({
             </Grid>
             <Grid
               size={{ xs: 12, sm: 3 }}
-              sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: 1,
+                justifyContent: "flex-end",
+                alignItems: "flex-start",
+              }}
             >
-              <CreateNewEventDialog calendarEvent={calendarEvent} />
+              {/* Add Event Button */}
+              {isClient && activeUser && (
+                <IconButton
+                  color="warning"
+                  onClick={() => setAddEventDialogOpen(true)}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: "warning.main",
+                    color: "warning.contrastText",
+                    "&:hover": {
+                      backgroundColor: "warning.dark",
+                    },
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
+              )}
+              {/* ICS subscription button */}
               <AddToCalendarButton calendarEvent={calendarEvent} />
             </Grid>
           </Grid>
@@ -248,7 +295,9 @@ export default function CalendarOverview({
               fontWeight: 500,
             }}
           >
-            {t("calendar.onlyApproved", "Only Approved")}
+            {isClient
+              ? t("calendar.onlyApproved", "Only Approved")
+              : "Only Approved"}
           </ToggleButton>
           <ToggleButton
             value="all"
@@ -258,20 +307,22 @@ export default function CalendarOverview({
               fontWeight: 500,
             }}
           >
-            {t("calendar.allMeetups", "All Meetups")}
+            {isClient ? t("calendar.allMeetups", "All Meetups") : "All Meetups"}
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
       <EventSection
-        title={t("calendar.upcomingEvents")}
+        title={isClient ? t("calendar.upcomingEvents") : "Upcoming Events"}
         events={allUpcomingEvents}
-        fallbackText={t("calendar.noUpcomingEvents")}
+        fallbackText={
+          isClient ? t("calendar.noUpcomingEvents") : "No upcoming events"
+        }
         loading={eventsLoading}
       />
       <EventSection
-        title={t("calendar.pastEvents")}
+        title={isClient ? t("calendar.pastEvents") : "Past Events"}
         events={allPastEvents}
-        fallbackText={t("calendar.noPastEvents")}
+        fallbackText={isClient ? t("calendar.noPastEvents") : "No past events"}
         loading={eventsLoading}
       />
 
@@ -280,6 +331,18 @@ export default function CalendarOverview({
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
         onCalendarUpdated={handleCalendarUpdated}
+      />
+
+      <CreateNewEventDialog
+        open={addEventDialogOpen}
+        onClose={() => setAddEventDialogOpen(false)}
+        calendarEvent={calendarEvent}
+      />
+
+      <FloatingActionButton
+        calendarEvent={calendarEvent}
+        isOwner={!!isCalendarOwner}
+        onEdit={handleEdit}
       />
     </Container>
   );
