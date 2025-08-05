@@ -139,7 +139,7 @@ const AddToCalendarIcsButton: React.FC<AddToCalendarIcsButtonProps> = ({
           },
         },
         "& .MuiSpeedDial-actions": {
-          position: "fixed",
+          position: "absolute",
           zIndex: 1400, // Higher than MUI modal backdrop
         },
       }}
