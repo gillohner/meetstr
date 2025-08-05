@@ -1,8 +1,8 @@
 // src/components/common/events/EventPreviewCard.tsx
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { type NDKEvent } from "@nostr-dev-kit/ndk";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { nip19 } from "nostr-tools";
 import {
   Card,
@@ -26,12 +26,11 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({
   sx = {},
 }) => {
   const { t } = useTranslation();
-  const router = useRouter();
 
   const metadata = getEventMetadata(event);
   const name = metadata.title || t("error.event.noName");
 
-  const handleClick = () => {
+  const eventHref = useMemo(() => {
     try {
       const dTag = event.tags.find((t) => t[0] === "d")?.[1] || "";
       const naddr = nip19.naddrEncode({
@@ -39,11 +38,12 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({
         pubkey: event.pubkey,
         identifier: dTag,
       });
-      router.push(`/event/${naddr}`);
+      return `/event/${naddr}`;
     } catch (error) {
-      console.error("Error navigating to event:", error);
+      console.error("Error creating event href:", error);
+      return "#";
     }
-  };
+  }, [event]);
 
   return (
     <Card
@@ -57,7 +57,8 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({
       }}
     >
       <CardActionArea
-        onClick={handleClick}
+        component={Link}
+        href={eventHref}
         sx={{
           display: "flex",
           flexDirection: {
