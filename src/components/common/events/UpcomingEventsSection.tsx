@@ -610,7 +610,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           <Grid container spacing={3}>
             {filteredEvents.map((event, idx) => (
               <Grid
-                size={{ xs: 12, md: 6, lg: 4 }}
+                size={{ xs: 12, md: 6 }}
                 key={`upcoming-event-${event.id}-${idx}`}
               >
                 <EventPreviewCard event={event} />
