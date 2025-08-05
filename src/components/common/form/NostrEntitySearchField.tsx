@@ -88,65 +88,192 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
   const [loadingEntities, setLoadingEntities] = useState<Set<string>>(
     new Set()
   );
+  const [loadedEntities, setLoadedEntities] = useState<Set<string>>(new Set());
+  const currentValueRef = React.useRef<NostrReference[]>(value);
+
+  // Keep ref up to date
+  React.useEffect(() => {
+    currentValueRef.current = value;
+  }, [value]);
 
   // Determine entity type for display
   const isCalendar = allowedKinds.includes(31924);
   const isEvent = allowedKinds.includes(31922) || allowedKinds.includes(31923);
 
-  // Lazy load missing entity data for existing references
-  const loadEntityData = useCallback(
-    async (ref: NostrReference) => {
-      if (ref.entity || !ndk || loadingEntities.has(ref.aTag)) return;
+  // Batch load missing entity data for existing references
+  const batchLoadEntities = useCallback(
+    async (refs: NostrReference[]) => {
+      if (!ndk) return;
 
-      setLoadingEntities((prev) => new Set(prev).add(ref.aTag));
+      // Filter out entities that are already loaded or currently loading
+      const refsToLoad = refs.filter(
+        (ref) => 
+          !ref.entity && 
+          !loadingEntities.has(ref.aTag) && 
+          !loadedEntities.has(ref.aTag)
+      );
+
+      if (refsToLoad.length === 0) return;
+
+      console.log(`Batch loading ${refsToLoad.length} entities`);
+
+      // Mark all as loading
+      setLoadingEntities(prev => {
+        const newSet = new Set(prev);
+        refsToLoad.forEach(ref => newSet.add(ref.aTag));
+        return newSet;
+      });
 
       try {
-        const [kind, pubkey, identifier] = ref.aTag.split(":");
-        const filter: NDKFilter = {
-          kinds: [parseInt(kind) as any],
-          authors: [pubkey],
-          "#d": identifier ? [identifier] : undefined,
-          limit: 1,
-        };
+        // Create filters for batch loading
+        const filtersByKind = new Map<number, { pubkeys: string[], identifiers: string[], refs: NostrReference[] }>();
 
-        const events = await ndk.fetchEvents(filter);
-        const entity = events.values().next().value;
+        refsToLoad.forEach(ref => {
+          const [kind, pubkey, identifier] = ref.aTag.split(":");
+          const kindNum = parseInt(kind);
+          
+          if (!filtersByKind.has(kindNum)) {
+            filtersByKind.set(kindNum, { pubkeys: [], identifiers: [], refs: [] });
+          }
+          
+          const kindData = filtersByKind.get(kindNum)!;
+          kindData.pubkeys.push(pubkey);
+          if (identifier) {
+            kindData.identifiers.push(identifier);
+          }
+          kindData.refs.push(ref);
+        });
 
-        if (entity) {
-          // Update the reference with loaded entity
-          const updatedValue = value.map((v) =>
-            v.aTag === ref.aTag ? { ...v, entity } : v
-          );
-          onChange(updatedValue);
+        // Fetch entities by kind in batches
+        const fetchPromises = Array.from(filtersByKind.entries()).map(async ([kind, data]) => {
+          try {
+            const filter: NDKFilter = {
+              kinds: [kind as any],
+              authors: data.pubkeys,
+              ...(data.identifiers.length > 0 && { "#d": data.identifiers }),
+              limit: data.refs.length,
+            };
+
+            const events = await ndk.fetchEvents(filter);
+            return { kind, events: Array.from(events.values()), refs: data.refs };
+          } catch (error) {
+            console.error(`Error fetching entities for kind ${kind}:`, error);
+            return { kind, events: [], refs: data.refs };
+          }
+        });
+
+        const results = await Promise.all(fetchPromises);
+        
+        // Map fetched events to references
+        const updatedRefs = new Map<string, NDKEvent>();
+        
+        results.forEach(({ events, refs }) => {
+          refs.forEach(ref => {
+            const [, pubkey, identifier] = ref.aTag.split(":");
+            const matchingEvent = events.find(event => {
+              const eventDTag = event.tags.find(t => t[0] === "d")?.[1] || "";
+              return event.pubkey === pubkey && eventDTag === identifier;
+            });
+            
+            if (matchingEvent) {
+              updatedRefs.set(ref.aTag, matchingEvent);
+            }
+          });
+        });
+
+        // Update the value array with loaded entities
+        if (updatedRefs.size > 0) {
+          // Use ref to get current value at time of update to avoid stale closure
+          const newValue = currentValueRef.current.map(ref => {
+            const loadedEntity = updatedRefs.get(ref.aTag);
+            if (loadedEntity) {
+              // Generate proper naddr for the loaded entity
+              const dTag = loadedEntity.tags.find(t => t[0] === "d")?.[1] || "";
+              let naddr = ref.naddr;
+              
+              // Generate naddr if not available or invalid
+              if (!naddr || !naddr.startsWith("naddr")) {
+                try {
+                  naddr = nip19.naddrEncode({
+                    kind: loadedEntity.kind as any,
+                    pubkey: loadedEntity.pubkey,
+                    identifier: dTag,
+                  });
+                } catch (error) {
+                  console.error("Error generating naddr for loaded entity:", error);
+                  naddr = ref.aTag;
+                }
+              }
+              
+              return { ...ref, entity: loadedEntity, naddr };
+            }
+            return ref;
+          });
+          onChange(newValue);
         }
-      } catch (error) {
-        console.error("Error loading entity data:", error);
-      } finally {
-        setLoadingEntities((prev) => {
+
+        // Mark entities as loaded (whether successful or not)
+        setLoadedEntities(prev => {
           const newSet = new Set(prev);
-          newSet.delete(ref.aTag);
+          refsToLoad.forEach(ref => newSet.add(ref.aTag));
+          return newSet;
+        });
+
+        console.log(`Batch loaded ${updatedRefs.size}/${refsToLoad.length} entities`);
+        
+      } catch (error) {
+        console.error("Batch loading error:", error);
+      } finally {
+        // Remove from loading state
+        setLoadingEntities(prev => {
+          const newSet = new Set(prev);
+          refsToLoad.forEach(ref => newSet.delete(ref.aTag));
           return newSet;
         });
       }
     },
-    [ndk, value, onChange, loadingEntities]
+    [ndk, onChange] // Remove value, loadingEntities, loadedEntities to prevent infinite loop
   );
 
-  // Load entity data for existing references on mount
+  // Load entity data for existing references on mount and when new refs are added
   React.useEffect(() => {
-    value.forEach((ref) => {
-      if (!ref.entity) {
-        // Stagger loading to avoid overwhelming the network
-        setTimeout(() => loadEntityData(ref), Math.random() * 2000);
-      }
-    });
-  }, [value, loadEntityData]);
+    const refsNeedingLoad = value.filter(ref => !ref.entity && !loadedEntities.has(ref.aTag));
+    
+    if (refsNeedingLoad.length > 0) {
+      // Debounce the batch loading to avoid excessive API calls
+      const timeoutId = setTimeout(() => {
+        batchLoadEntities(refsNeedingLoad);
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [value.map(ref => ref.aTag).join(','), loadedEntities]); // Remove batchLoadEntities from deps to prevent infinite loop
 
   // Generate URL for entity
   const getEntityUrl = useCallback(
     (ref: NostrReference) => {
       const entityType = isCalendar ? "calendar" : "event";
-      return `/${entityType}/${ref.naddr || ref.aTag}`;
+      
+      // Try to use naddr first, fallback to generating one from aTag
+      let identifier = ref.naddr;
+      
+      if (!identifier || !identifier.startsWith("naddr")) {
+        // Generate naddr from aTag if not available
+        try {
+          const [kind, pubkey, dTag] = ref.aTag.split(":");
+          identifier = nip19.naddrEncode({
+            kind: parseInt(kind) as any,
+            pubkey: pubkey,
+            identifier: dTag || "",
+          });
+        } catch (error) {
+          console.error("Error generating naddr:", error);
+          // Fallback to aTag if naddr generation fails
+          identifier = ref.aTag;
+        }
+      }
+      
+      return `/${entityType}/${identifier}`;
     },
     [isCalendar]
   );
@@ -302,7 +429,8 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
             pubkey: entity.pubkey,
             identifier: dTag,
           });
-        } catch {
+        } catch (error) {
+          console.error("Error generating naddr:", error);
           naddr = aTag;
         }
       } else if (inputText) {
@@ -310,7 +438,23 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
         const parsed = parseNostrReference(inputText);
         if (parsed && allowedKinds.includes(parsed.kind)) {
           aTag = `${parsed.kind}:${parsed.pubkey}:${parsed.identifier || ""}`;
-          naddr = inputText.startsWith("naddr") ? inputText : aTag;
+          
+          // Use the original naddr if it was provided
+          if (inputText.startsWith("naddr")) {
+            naddr = inputText;
+          } else {
+            // Generate naddr from parsed data
+            try {
+              naddr = nip19.naddrEncode({
+                kind: parsed.kind as any,
+                pubkey: parsed.pubkey,
+                identifier: parsed.identifier || "",
+              });
+            } catch (error) {
+              console.error("Error generating naddr from parsed data:", error);
+              naddr = aTag;
+            }
+          }
 
           // Try to fetch the entity for better display
           try {
