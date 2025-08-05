@@ -119,8 +119,8 @@
       "newEvent": "Add Event",
       "dateTime": {
         "title": "Date and Time",
-        "start": "Starttime",
-        "end": "Endtime"
+        "start": "Start time (DD.MM.YYYY HH:mm)",
+        "end": "End time (DD.MM.YYYY HH:mm)"
       },
       "form": {
         "timezone": "Timezone",

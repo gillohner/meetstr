@@ -4,9 +4,12 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import DefaultFloatingActionButton from "@/components/common/layout/DefaultFloatingActionButton";
 
+// Import dayjs config early to ensure proper locale setup
+import "@/utils/app-init";
+
 // Base metadata for the application
 export const metadata: Metadata = {
-  metadataBase: new URL('https://meetstr.com'),
+  metadataBase: new URL("https://meetstr.com"),
   title: "Meetstr",
   description: "Decentralized event discovery and calendar platform on Nostr",
   keywords: [

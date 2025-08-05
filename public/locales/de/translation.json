@@ -21,8 +21,8 @@
       "newEvent": "Event hinzufügen",
       "dateTime": {
         "title": "Datum und Uhrzeit",
-        "start": "Startzeit",
-        "end": "Endzeit"
+        "start": "Startzeit (TT.MM.JJJJ HH:mm)",
+        "end": "Endzeit (TT.MM.JJJJ HH:mm)"
       },
       "form": {
         "timezone": "Zeitzone",

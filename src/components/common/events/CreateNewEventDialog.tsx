@@ -1,6 +1,5 @@
 // src/components/common/events/CreateNewEventDialog.tsx
-import * as React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Dialog,
@@ -13,9 +12,7 @@ import {
   useTheme,
   IconButton,
 } from "@mui/material";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
+import dayjs from "@/utils/formatting/dayjsConfig";
 import { useTranslation } from "react-i18next";
 import { useNdk } from "nostr-hooks";
 import { useActiveUser } from "@/hooks/useActiveUser";
@@ -44,9 +41,6 @@ import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
 import CloseIcon from "@mui/icons-material/Close";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 interface CreateNewEventDialogProps {
   calendarEvent?: NDKEvent;

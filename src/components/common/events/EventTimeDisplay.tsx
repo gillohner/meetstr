@@ -17,10 +17,19 @@ const EventTimeDisplay: React.FC<EventTimeDisplayProps> = ({
   typographyProps = {},
 }) => {
   const [isClient, setIsClient] = useState(false);
+  const [formattedDate, setFormattedDate] = useState<string>("");
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+
+    // Format date on client side only to prevent hydration mismatch
+    if (startTime) {
+      const formatted = endTime
+        ? formatDateRange(startTime, endTime, "Invalid date")
+        : formatDate(startTime, "Invalid date");
+      setFormattedDate(formatted);
+    }
+  }, [startTime, endTime]);
 
   if (!startTime) {
     return (
@@ -33,15 +42,14 @@ const EventTimeDisplay: React.FC<EventTimeDisplayProps> = ({
   // During SSR, show a simple placeholder to avoid hydration mismatch
   if (!isClient) {
     return (
-      <Typography variant="body2" color="text.secondary" {...typographyProps}>
-        Loading date...
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <AccessTimeIcon sx={{ mr: 1, color: "text.secondary" }} />
+        <Typography variant="body2" color="text.secondary" {...typographyProps}>
+          Loading date...
+        </Typography>
+      </Box>
     );
   }
-
-  const formattedDate = endTime
-    ? formatDateRange(startTime, endTime, "Invalid date")
-    : formatDate(startTime, "Invalid date");
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

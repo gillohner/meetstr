@@ -1,5 +1,5 @@
 // src/components/common/events/EventFilters.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Box,
@@ -10,21 +10,21 @@ import {
   InputAdornment,
   Autocomplete,
 } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizedDatePicker } from "@/components/common/form/LocalizedDatePicker";
 import SearchIcon from "@mui/icons-material/Search";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TagIcon from "@mui/icons-material/Tag";
-import type dayjs from "dayjs";
+import { getUserLocale as getAppUserLocale } from "@/utils/formatting/date";
+import dayjs from "@/utils/formatting/dayjsConfig";
+import type { Dayjs } from "dayjs";
 
-// Get user's locale for date formatting
+// Get user's locale for date formatting - use the imported function
 const getUserLocale = (): string => {
   if (typeof window !== "undefined") {
-    return navigator.language || navigator.languages?.[0] || "en-US";
+    return getAppUserLocale();
   }
-  return "en-US";
+  return "ch-DE"; // Default to German to match app
 };
 
 export interface EventFilters {
@@ -88,7 +88,7 @@ const EventFilters: React.FC<EventFiltersProps> = ({
     setIsClient(true);
   }, []);
 
-  const userLocale = isClient ? getUserLocale() : "en-US";
+  const userLocale = isClient ? getUserLocale() : "de-CH";
 
   // Combine popular locations with actual event locations
   const allLocations = [...availableLocations].filter(
@@ -233,25 +233,23 @@ const EventFilters: React.FC<EventFiltersProps> = ({
         {/* Date Range */}
         <Grid size={{ xs: 12, md: 6 }}>
           {isClient ? (
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label={t("events.filters.startDate", "Start Date")}
-                value={filters.dateRange.start}
-                onChange={(value) => handleDateRangeChange("start", value)}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    InputProps: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CalendarTodayIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                    },
+            <LocalizedDatePicker
+              label={t("events.filters.startDate", "Start Date")}
+              value={filters.dateRange.start}
+              onChange={(value) => handleDateRangeChange("start", value)}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  InputProps: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarTodayIcon color="primary" />
+                      </InputAdornment>
+                    ),
                   },
-                }}
-              />
-            </LocalizationProvider>
+                },
+              }}
+            />
           ) : (
             <TextField
               fullWidth
@@ -271,25 +269,23 @@ const EventFilters: React.FC<EventFiltersProps> = ({
 
         <Grid size={{ xs: 12, md: 6 }}>
           {isClient ? (
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label={t("events.filters.endDate", "End Date")}
-                value={filters.dateRange.end}
-                onChange={(value) => handleDateRangeChange("end", value)}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    InputProps: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CalendarTodayIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                    },
+            <LocalizedDatePicker
+              label={t("events.filters.endDate", "End Date")}
+              value={filters.dateRange.end}
+              onChange={(value) => handleDateRangeChange("end", value)}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  InputProps: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarTodayIcon color="primary" />
+                      </InputAdornment>
+                    ),
                   },
-                }}
-              />
-            </LocalizationProvider>
+                },
+              }}
+            />
           ) : (
             <TextField
               fullWidth

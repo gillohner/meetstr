@@ -1,6 +1,6 @@
 // src/app/page.tsx
 "use client";
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -11,24 +11,31 @@ import { useTranslation } from "react-i18next";
 
 export default function Home() {
   const { t } = useTranslation();
+  const [isClient, setIsClient] = useState(false);
+
+  // Prevent hydration mismatch by only rendering after client-side hydration
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // during SSR/hydration
+  if (!isClient) return;
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ my: 4 }}>
-        <UpcomingEventsSection
-          title={t("events.upcomingEvents", "Discover Upcoming Events")}
-          showFilters={true}
-        />
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <UpcomingEventsSection
+        title={t("events.upcomingEvents", "Discover Upcoming Events")}
+        showFilters={true}
+      />
 
-        <Divider sx={{ my: 5 }} />
+      <Divider sx={{ my: 5 }} />
 
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" component="h2" gutterBottom>
-            {t("startpage.popularCalendars", "Popular Calendars")}
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <PopularCalendars />
-        </Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          {t("startpage.popularCalendars", "Popular Calendars")}
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        <PopularCalendars />
       </Box>
     </Container>
   );

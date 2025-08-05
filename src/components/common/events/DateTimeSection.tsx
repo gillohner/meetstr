@@ -1,7 +1,6 @@
 // src/components/common/events/DateTimeSection.tsx
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import React from "react";
+import { LocalizedDateTimePicker } from "@/components/common/form/LocalizedDatePicker";
 import type { Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
@@ -39,49 +38,43 @@ export const DateTimeSection = ({
       <SectionHeader title={t("event.createEvent.dateTime.title")} />
       <Grid container spacing={2} direction="row">
         <Grid size={{ xs: 12, md: 4 }}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label={t("event.createEvent.dateTime.start")}
-              value={startDate}
-              onChange={(date) => onStartDateChange(date)}
-              slotProps={{
-                textField: {
-                  required: true,
-                  fullWidth: true,
-                  InputProps: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AccessTimeIcon color="primary" />
-                      </InputAdornment>
-                    ),
-                  },
+          <LocalizedDateTimePicker
+            label={t("event.createEvent.dateTime.start")}
+            value={startDate}
+            onChange={(date) => onStartDateChange(date)}
+            slotProps={{
+              textField: {
+                required: true,
+                fullWidth: true,
+                InputProps: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AccessTimeIcon color="primary" />
+                    </InputAdornment>
+                  ),
                 },
-              }}
-              ampm={false}
-            />
-          </LocalizationProvider>
+              },
+            }}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label={t("event.createEvent.dateTime.end")}
-              value={endDate}
-              onChange={(date) => onEndDateChange(date)}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  InputProps: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AccessTimeIcon color="primary" />
-                      </InputAdornment>
-                    ),
-                  },
+          <LocalizedDateTimePicker
+            label={t("event.createEvent.dateTime.end")}
+            value={endDate}
+            onChange={(date) => onEndDateChange(date)}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                InputProps: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AccessTimeIcon color="primary" />
+                    </InputAdornment>
+                  ),
                 },
-              }}
-              ampm={false}
-            />
-          </LocalizationProvider>
+              },
+            }}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <TextField

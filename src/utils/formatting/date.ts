@@ -1,13 +1,17 @@
 // src/utils/formatting/date.ts
-// Get user's locale with fallback to German format
-const getUserLocale = (): string => {
+// Get user's locale with fallback to German format - SSR safe
+export const getUserLocale = (): string => {
   if (typeof window !== "undefined") {
-    return navigator.language || navigator.languages?.[0] || "de-DE";
+    try {
+      return navigator.language || navigator.languages?.[0] || "de-CH";
+    } catch (error) {
+      return "de-CH"; // Fallback on any error
+    }
   }
-  return "de-DE"; // Default to German format (dd.mm.yyyy)
+  return "de-CH"; // Default to German-Swiss format (dd.mm.yyyy) for SSR
 };
 
-// Default format options for dd.mm.yyyy HH:mm
+// Default format options for dd.mm.yyyy HH:mm (German style) - SSR safe
 const getDefaultDateTimeFormat = () => ({
   day: "2-digit" as const,
   month: "2-digit" as const,
@@ -29,10 +33,13 @@ const getDefaultTimeFormat = () => ({
   hour12: false, // Use 24-hour format
 });
 
+// SSR-safe formatting functions that use appropriate locale
 const formatDate = (timestamp: string, fallbackText: string) => {
   try {
     const date = new Date(parseInt(timestamp) * 1000);
-    return date.toLocaleString(getUserLocale(), getDefaultDateTimeFormat());
+    // Use user locale on client side, German on server side for consistency
+    const locale = typeof window !== "undefined" ? getUserLocale() : "de-CH";
+    return date.toLocaleString(locale, getDefaultDateTimeFormat());
   } catch (e) {
     return fallbackText;
   }
@@ -41,7 +48,9 @@ const formatDate = (timestamp: string, fallbackText: string) => {
 const formatDateOnly = (timestamp: string, fallbackText: string) => {
   try {
     const date = new Date(parseInt(timestamp) * 1000);
-    return date.toLocaleDateString(getUserLocale(), getDefaultDateFormat());
+    // Use user locale on client side, German on server side for consistency
+    const locale = typeof window !== "undefined" ? getUserLocale() : "de-CH";
+    return date.toLocaleDateString(locale, getDefaultDateFormat());
   } catch (e) {
     return fallbackText;
   }
@@ -50,7 +59,9 @@ const formatDateOnly = (timestamp: string, fallbackText: string) => {
 const formatTimeOnly = (timestamp: string, fallbackText: string) => {
   try {
     const date = new Date(parseInt(timestamp) * 1000);
-    return date.toLocaleTimeString(getUserLocale(), getDefaultTimeFormat());
+    // Use user locale on client side, German on server side for consistency
+    const locale = typeof window !== "undefined" ? getUserLocale() : "de-CH";
+    return date.toLocaleTimeString(locale, getDefaultTimeFormat());
   } catch (e) {
     return fallbackText;
   }
@@ -73,8 +84,10 @@ const formatDateRange = (
     const startDate = new Date(parseInt(startTime) * 1000);
     const endDate = endTime ? new Date(parseInt(endTime) * 1000) : null;
 
+    // Use user locale on client side, German on server side for consistency
+    const locale = typeof window !== "undefined" ? getUserLocale() : "de-CH";
     const formattedStartDate = startDate.toLocaleString(
-      getUserLocale(),
+      locale,
       getDefaultDateTimeFormat()
     );
 
@@ -84,15 +97,15 @@ const formatDateRange = (
 
     if (isDatesEqual(startDate, endDate)) {
       const formattedEndTime = endDate.toLocaleTimeString(
-        getUserLocale(),
+        locale,
         getDefaultTimeFormat()
       );
       const formattedStartDateOnly = startDate.toLocaleDateString(
-        getUserLocale(),
+        locale,
         getDefaultDateFormat()
       );
       const formattedStartTimeOnly = startDate.toLocaleTimeString(
-        getUserLocale(),
+        locale,
         getDefaultTimeFormat()
       );
 
@@ -100,7 +113,7 @@ const formatDateRange = (
     }
 
     const formattedEndDate = endDate.toLocaleString(
-      getUserLocale(),
+      locale,
       getDefaultDateTimeFormat()
     );
 
@@ -114,9 +127,8 @@ const formatDateRange = (
 const formatDayjsDateTime = (date: any) => {
   if (!date) return "";
   try {
-    return date
-      .toDate()
-      .toLocaleString(getUserLocale(), getDefaultDateTimeFormat());
+    const locale = typeof window !== "undefined" ? getUserLocale() : "de-CH";
+    return date.toDate().toLocaleString(locale, getDefaultDateTimeFormat());
   } catch (e) {
     return "";
   }
@@ -126,9 +138,8 @@ const formatDayjsDateTime = (date: any) => {
 const formatDayjsDate = (date: any) => {
   if (!date) return "";
   try {
-    return date
-      .toDate()
-      .toLocaleDateString(getUserLocale(), getDefaultDateFormat());
+    const locale = typeof window !== "undefined" ? getUserLocale() : "de-CH";
+    return date.toDate().toLocaleDateString(locale, getDefaultDateFormat());
   } catch (e) {
     return "";
   }
@@ -141,7 +152,6 @@ export {
   formatTimeOnly,
   formatDayjsDateTime,
   formatDayjsDate,
-  getUserLocale,
   getDefaultDateTimeFormat,
   getDefaultDateFormat,
   getDefaultTimeFormat,
