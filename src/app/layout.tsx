@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import ClientProviders from "@/providers/ClientProviders";
 import type { Metadata } from "next";
+import Script from "next/script";
 
 // Base metadata for the application
 export const metadata: Metadata = {
@@ -77,7 +78,13 @@ export default async function RootLayout({
 
   return (
     <html lang={langHeader} suppressHydrationWarning>
-      <head />
+      <head>
+        <Script
+          defer
+          data-domain="meetstr.com"
+          src="https://plausible.io/js/script.js"
+        />
+      </head>
       <body suppressHydrationWarning>
         <ClientProviders serverLang={langHeader}>{children}</ClientProviders>
       </body>
