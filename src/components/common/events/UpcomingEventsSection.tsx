@@ -144,7 +144,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       const batchSize = params.get("batchSize");
       if (batchSize) {
         const parsed = parseInt(batchSize);
-        if (parsed >= 1 && parsed <= 100) {
+        if (parsed >= 1 && parsed <= 1000) {
           newFilters.batchSize = parsed;
         }
       }
@@ -170,7 +170,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     [router, filtersToURLParams, isClient]
   );
 
-  const BATCH_SIZE = filters.batchSize || 10;
+  const BATCH_SIZE = filters.batchSize || 50;
 
   // Prevent hydration mismatch and initialize from URL
   useEffect(() => {

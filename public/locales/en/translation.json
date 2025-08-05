@@ -215,8 +215,7 @@
       "endDate": "End Date",
       "addTags": "Add tags",
       "tagsPlaceholder": "Type and press Enter to add tags",
-      "batchSize": "Events per batch",
-      "batchSizeHelper": "Load 1-50 events at a time"
+      "batchSize": "Events per batch"
     }
   },
   "notification": {
