@@ -1,5 +1,5 @@
 // src/components/common/form/LocalizedDatePicker.tsx
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers/DatePicker";
 import {
@@ -7,11 +7,7 @@ import {
   DateTimePickerProps,
 } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { getDayjsLocale } from "@/utils/formatting/dayjsConfig";
-import {
-  getDatePickerFormat,
-  getDateTimePickerFormat,
-} from "@/utils/formatting/datePickerConfig";
+import { useClientLocale } from "@/hooks/useClientLocale";
 
 interface LocalizedDatePickerProps
   extends Omit<DatePickerProps<any>, "format"> {
@@ -24,25 +20,10 @@ interface LocalizedDateTimePickerProps
 }
 
 export const LocalizedDatePicker: React.FC<LocalizedDatePickerProps> = ({
-  format = getDatePickerFormat(),
+  format,
   ...props
 }) => {
-  const [isClient, setIsClient] = useState(false);
-  const [dayjsLocale, setDayjsLocale] = useState("de");
-  const [clientFormat, setClientFormat] = useState("DD.MM.YYYY");
-
-  useEffect(() => {
-    setIsClient(true);
-    const locale = getDayjsLocale();
-    setDayjsLocale(locale);
-    
-    // Update format based on actual browser locale
-    const formatToUse = getDatePickerFormat();
-    setClientFormat(formatToUse);
-    
-    // Configure dayjs with user locale
-    dayjs.locale(locale);
-  }, []);
+  const { locale, dateFormat, isClient } = useClientLocale();
 
   if (!isClient) {
     return null; // Don't render on server to prevent hydration mismatch
@@ -51,32 +32,17 @@ export const LocalizedDatePicker: React.FC<LocalizedDatePickerProps> = ({
   return (
     <LocalizationProvider
       dateAdapter={AdapterDayjs}
-      adapterLocale={dayjsLocale}
+      adapterLocale={locale}
     >
-      <DatePicker format={clientFormat} {...props} />
+      <DatePicker format={format || dateFormat} {...props} />
     </LocalizationProvider>
   );
 };
 
 export const LocalizedDateTimePicker: React.FC<
   LocalizedDateTimePickerProps
-> = ({ format = getDateTimePickerFormat(), ...props }) => {
-  const [isClient, setIsClient] = useState(false);
-  const [dayjsLocale, setDayjsLocale] = useState("de");
-  const [clientFormat, setClientFormat] = useState("DD.MM.YYYY HH:mm");
-
-  useEffect(() => {
-    setIsClient(true);
-    const locale = getDayjsLocale();
-    setDayjsLocale(locale);
-    
-    // Update format based on actual browser locale
-    const formatToUse = getDateTimePickerFormat();
-    setClientFormat(formatToUse);
-    
-    // Configure dayjs with user locale
-    dayjs.locale(locale);
-  }, []);
+> = ({ format, ...props }) => {
+  const { locale, dateTimeFormat, isClient } = useClientLocale();
 
   if (!isClient) {
     return null; // Don't render on server to prevent hydration mismatch
@@ -85,9 +51,9 @@ export const LocalizedDateTimePicker: React.FC<
   return (
     <LocalizationProvider
       dateAdapter={AdapterDayjs}
-      adapterLocale={dayjsLocale}
+      adapterLocale={locale}
     >
-      <DateTimePicker format={clientFormat} ampm={false} {...props} />
+      <DateTimePicker format={format || dateTimeFormat} ampm={false} {...props} />
     </LocalizationProvider>
   );
 };

@@ -44,6 +44,17 @@ export const configureDayjs = () => {
   return locale;
 };
 
+// Reconfigure dayjs with user locale on client side
+export const reconfigureClientDayjs = () => {
+  if (typeof window !== "undefined") {
+    const locale = getDayjsLocale();
+    dayjs.locale(locale);
+    console.log("Dayjs reconfigured for client with locale:", locale);
+    return locale;
+  }
+  return "de"; // Server fallback
+};
+
 // Set up dayjs on import with consistent behavior
 configureDayjs();
 
