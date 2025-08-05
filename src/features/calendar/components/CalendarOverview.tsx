@@ -341,7 +341,6 @@ export default function CalendarOverview({
       <FloatingActionButton
         calendarEvent={calendarEvent}
         isOwner={!!isCalendarOwner}
-        onCreateEvent={() => setAddEventDialogOpen(true)}
       />
     </Container>
   );
