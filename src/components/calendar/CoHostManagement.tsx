@@ -202,9 +202,6 @@ const CoHostManagement: React.FC<CoHostManagementProps> = ({
       // This file contains simplified co-host management without NIP-26 delegation
       // Co-hosts are now managed through simple calendar permissions
       // without cryptographic delegation tokens
-      export default function CoHostManagement() {
-        return null;
-      }
     } catch (error) {
       console.error("Error adding co-host:", error);
       showSnackbar("Failed to add co-host", "error");

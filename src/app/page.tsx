@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import PopularCalendars from "@/components/common/calendar/PopularCalendars";
@@ -23,8 +23,6 @@ export default function Home() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <DelegationNotification />
-
       <UpcomingEventsSection
         title={t("events.upcomingEvents", "Discover Upcoming Events")}
         showFilters={true}
