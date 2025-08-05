@@ -5,50 +5,19 @@ import Script from "next/script";
 
 // Base metadata for the application
 export const metadata: Metadata = {
-  metadataBase: new URL("https://meetstr.com"),
-  title: {
-    default: "Meetstr - Nostr Calendar Events",
-    template: "%s | Meetstr",
-  },
-  description:
-    "Discover, view, and manage NIP-52 based calendar events on the decentralized Nostr network.",
+  title: "Meetstr",
+  description: "Decentralized event discovery and calendar platform on Nostr",
   keywords: [
     "nostr",
-    "calendar",
     "events",
-    "decentralized",
-    "NIP-52",
+    "calendar",
     "meetups",
+    "decentralized",
     "bitcoin",
   ],
-  authors: [{ name: "Meetstr", url: "https://meetstr.com" }],
-  creator: "Meetstr",
-  publisher: "Meetstr",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://meetstr.com",
-    siteName: "Meetstr",
-    title: "Meetstr - Nostr Calendar Events",
-    description:
-      "Discover, view, and manage NIP-52 based calendar events on the decentralized Nostr network.",
-    images: [
-      {
-        url: "/og-default.png",
-        width: 1200,
-        height: 630,
-        alt: "Meetstr - Nostr Calendar Events",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Meetstr - Nostr Calendar Events",
-    description:
-      "Discover, view, and manage NIP-52 based calendar events on the decentralized Nostr network.",
-    creator: "@meetstr",
-    images: ["/og-default.png"],
-  },
+  authors: [{ name: "Gil Lohner", url: "https://riginode.xyz" }],
+  creator: "Gil Lohner",
+  publisher: "Gil Lohner",
   robots: {
     index: true,
     follow: true,
@@ -60,12 +29,45 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://meetstr.com",
+    title: "Meetstr - Decentralized Event Discovery",
+    description:
+      "Discover and organize events on the decentralized Nostr protocol",
+    siteName: "Meetstr",
   },
-  manifest: "/manifest.json",
+  twitter: {
+    card: "summary_large_image",
+    title: "Meetstr - Decentralized Event Discovery",
+    description:
+      "Discover and organize events on the decentralized Nostr protocol",
+    creator: "@meetstr",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      {
+        url: "/android-chrome-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/android-chrome-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default async function RootLayout({
