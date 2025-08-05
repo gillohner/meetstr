@@ -1,3 +1,4 @@
+// src/components/common/events/EventActionsMenu.tsx
 import * as React from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,12 +13,10 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import PersonIcon from "@mui/icons-material/Person";
 
 interface EventActionsMenuProps {
   onEdit?: () => void;
   onDelete?: () => void;
-  onManageCoHosts?: () => void;
   showEdit?: boolean;
   showDelete?: boolean;
   sx?: any;
@@ -26,7 +25,6 @@ interface EventActionsMenuProps {
 export default function EventActionsMenu({
   onEdit,
   onDelete,
-  onManageCoHosts,
   showEdit = true,
   showDelete = true,
   sx,
@@ -49,11 +47,6 @@ export default function EventActionsMenu({
 
   const handleDelete = () => {
     onDelete?.();
-    handleMenuClose();
-  };
-
-  const handleManageCoHosts = () => {
-    onManageCoHosts?.();
     handleMenuClose();
   };
 
@@ -111,22 +104,12 @@ export default function EventActionsMenu({
             <ListItemText>{t("event.edit.button")}</ListItemText>
           </MenuItem>
         )}
-        {onManageCoHosts && (
-          <MenuItem onClick={handleManageCoHosts}>
-            <ListItemIcon>
-              <PersonIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>{t("event.manageCoHosts.button")}</ListItemText>
-          </MenuItem>
-        )}
         {showDelete && onDelete && (
           <MenuItem onClick={handleDelete}>
             <ListItemIcon>
-              <DeleteIcon fontSize="small" color="error" />
+              <DeleteIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText sx={{ color: "error.main" }}>
-              {t("event.delete.button")}
-            </ListItemText>
+            <ListItemText>{t("event.delete.button")}</ListItemText>
           </MenuItem>
         )}
       </Menu>

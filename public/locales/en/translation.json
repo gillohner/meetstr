@@ -151,30 +151,6 @@
       "reason": "Event deleted by author",
       "success": "Event deleted successfully",
       "error": "Failed to delete event"
-    },
-    "manageCoHosts": {
-      "button": "Manage Co-Hosts",
-      "title": "Manage Co-Hosts",
-      "description": "Co-hosts can create and manage events in your calendar with delegated permissions.",
-      "addNew": "Add New Co-Host",
-      "publicKeyLabel": "Public Key or npub",
-      "publicKeyPlaceholder": "npub... or hex pubkey",
-      "permissions": "Permissions:",
-      "canCreateEvents": "Can create events",
-      "canEditEvents": "Can edit events",
-      "canDeleteEvents": "Can delete events",
-      "addButton": "Add Co-Host",
-      "currentCoHosts": "Current Co-Hosts",
-      "noCoHosts": "No co-hosts added yet.",
-      "expires": "Expires",
-      "ownerOnly": "Only the calendar owner can manage co-hosts.",
-      "addedSuccess": "Co-host added successfully",
-      "removedSuccess": "Co-host removed successfully",
-      "addedError": "Failed to add co-host",
-      "removedError": "Failed to remove co-host",
-      "invalidNpub": "Invalid npub format",
-      "invalidPubkey": "Invalid pubkey format. Please enter a valid npub or 64-character hex pubkey",
-      "alreadyExists": "Co-host already exists"
     }
   },
   "payment": {

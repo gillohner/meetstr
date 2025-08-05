@@ -33,9 +33,6 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import FloatingActionButton from "@/components/common/layout/FloatingActionButton";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import AddToCalendarButton from "@/components/common/events/AddToCalendarButton";
-import { useDelegationPermissions } from "@/hooks/useDelegationPermissions";
-import CoHostManagement from "@/components/calendar/CoHostManagement";
-import CoHostDisplay from "@/components/calendar/CoHostDisplay";
 
 interface CalendarOverviewProps {
   calendarId?: string;
@@ -65,10 +62,6 @@ export default function CalendarOverview({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [addEventDialogOpen, setAddEventDialogOpen] = useState(false);
-  const [coHostDialogOpen, setCoHostDialogOpen] = useState(false);
-
-  // Check user permissions using delegation hook
-  const permissions = useDelegationPermissions(calendarEvent);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -212,12 +205,10 @@ export default function CalendarOverview({
           <EventActionsMenu
             onEdit={handleEdit}
             onDelete={() => handleDelete(calendarEvent)}
-            onManageCoHosts={() => setCoHostDialogOpen(true)}
             sx={{
               position: "absolute",
               top: 16,
               right: 16,
-              zIndex: 1,
             }}
           />
         )}
@@ -248,7 +239,6 @@ export default function CalendarOverview({
                 {metadata.title || "Calendar"}
               </Typography>
               <EventHost hostPubkey={calendarEvent.pubkey} />
-              <CoHostDisplay calendarEvent={calendarEvent} variant="compact" />
               <Typography variant="body1" color="text.secondary">
                 {metadata.summary || ""}
               </Typography>
@@ -348,20 +338,10 @@ export default function CalendarOverview({
         calendarEvent={calendarEvent}
       />
 
-      <CoHostManagement
-        open={coHostDialogOpen}
-        onClose={() => setCoHostDialogOpen(false)}
-        calendarEvent={calendarEvent}
-        onCoHostsUpdated={() => {
-          // Refresh calendar data
-          fetchEvent(calendarEvent.id, expectedKinds);
-        }}
-      />
-
       <FloatingActionButton
         calendarEvent={calendarEvent}
         isOwner={!!isCalendarOwner}
-        onEdit={handleEdit}
+        onCreateEvent={() => setAddEventDialogOpen(true)}
       />
     </Container>
   );

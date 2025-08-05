@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import PopularCalendars from "@/components/common/calendar/PopularCalendars";
 import UpcomingEventsSection from "@/components/common/events/UpcomingEventsSection";
-import DelegationNotification from "@/components/calendar/DelegationNotification";
 import { useTranslation } from "react-i18next";
 
 export default function Home() {
