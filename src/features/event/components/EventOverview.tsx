@@ -22,6 +22,7 @@ import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventLocationMapCard from "@/components/common/events/EventLocationMapCard";
 import EventRsvpMenu from "@/components/common/events/EventRsvpMenu";
 import EventAttendeesCard from "@/components/common/events/EventAttendeesCard";
+import EventCalendarsCard from "@/components/common/events/EventCalendarsCard";
 import EventCommentsCard from "@/components/common/events/EventCommentsCard";
 import EventHost from "@/components/common/events/EventHost";
 import { useNostrUrlUpdate } from "@/hooks/useNostrUrlUpdate";
@@ -203,16 +204,22 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           </Box>
         </CardContent>
       </Card>
+
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 7, lg: 8 }} order={{ xs: 2, md: 1 }}>
-          <EventCommentsCard event={event} />
+        <Grid size={{ xs: 12, md: 7, lg: 8 }} order={{ xs: 3, md: 1 }}>
+          <EventCalendarsCard event={event} />
+          <Box sx={{ mt: 3 }}>
+            <EventCommentsCard event={event} />
+          </Box>
         </Grid>
         <Grid size={{ xs: 12, md: 5, lg: 4 }} order={{ xs: 1, md: 2 }}>
           <EventLocationMapCard metadata={metadata} />
-          <EventAttendeesCard
-            participants={metadata.participants.map((p) => ({ pubkey: p[0] }))}
-            event={event}
-          />
+          <Box sx={{ mt: 3 }}>
+            <EventAttendeesCard
+              participants={metadata.participants.map((p) => ({ pubkey: p[0] }))}
+              event={event}
+            />
+          </Box>
         </Grid>
       </Grid>
 

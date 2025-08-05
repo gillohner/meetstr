@@ -19,6 +19,7 @@ import {
   MoreVert as MoreVertIcon,
   Reply as ReplyIcon,
   Send as SendIcon,
+  Chat as ChatIcon,
 } from "@mui/icons-material";
 import { useProfile } from "nostr-hooks";
 import { nip19 } from "nostr-tools";
@@ -255,10 +256,13 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-          {t("event.comments.title")}{" "}
-          {!loading && `(${getTotalCommentCount(comments)})`}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <ChatIcon sx={{ mr: 1 }} color="primary" />
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            {t("event.comments.title")}{" "}
+            {!loading && `(${getTotalCommentCount(comments)})`}
+          </Typography>
+        </Box>
 
         {/* New Comment Input */}
         <Box sx={{ mb: 3 }}>

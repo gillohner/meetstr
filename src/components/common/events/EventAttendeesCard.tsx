@@ -9,6 +9,7 @@ import {
   Box,
   Chip,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import { useProfile } from "nostr-hooks";
 import { nip19 } from "nostr-tools";
@@ -16,6 +17,7 @@ import { useMemo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNdk } from "nostr-hooks";
 import type { NDKFilter } from "@nostr-dev-kit/ndk";
+import PeopleIcon from "@mui/icons-material/People";
 
 interface Participant {
   pubkey: string;
@@ -38,6 +40,11 @@ const EventAttendeesCard = ({
   const [rsvpTentative, setRsvpTentative] = useState<Participant[]>([]);
   const [rsvpDeclined, setRsvpDeclined] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const eventCoordinates = useMemo(() => {
     if (!event) return null;
@@ -118,12 +125,27 @@ const EventAttendeesCard = ({
     [categorizedParticipants]
   );
 
+  if (!isClient) {
+    return (
+      <Card sx={{ mt: 3 }}>
+        <CardContent>
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress />
+          </Box>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card sx={{ mt: 3 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-          {t("event.attendees")} {loading ? "" : `(${totalAttendees})`}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <PeopleIcon sx={{ mr: 1 }} color="primary" />
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            {t("event.attendees.title", "Attendees")} ({totalAttendees})
+          </Typography>
+        </Box>
 
         <Stack spacing={3}>
           <AttendanceCategory

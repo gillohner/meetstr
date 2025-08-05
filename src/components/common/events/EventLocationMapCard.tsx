@@ -17,6 +17,7 @@ import ContactlessOutlinedIcon from "@mui/icons-material/ContactlessOutlined";
 import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
 import CurrencyBitcoinOutlinedIcon from "@mui/icons-material/CurrencyBitcoinOutlined";
 import LinkOutlinedIcon from "@mui/icons-material/LinkOutlined";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 interface EventLocationMapCardProps {
   metadata: {
@@ -185,9 +186,12 @@ const EventLocationMapCard: React.FC<EventLocationMapCardProps> = ({
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {t("event.location")}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <LocationOnIcon sx={{ mr: 1 }} color="primary" />
+          <Typography variant="h6" gutterBottom>
+            {t("event.location")}
+          </Typography>
+        </Box>
 
         {isLoading && <CircularProgress size={24} />}
 

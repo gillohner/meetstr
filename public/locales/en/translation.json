@@ -73,6 +73,10 @@
     "remoteSignerFailure": "Remote signer failed"
   },
   "event": {
+    "calendars": {
+      "title": "Featured in Calendars",
+      "none": "This event is not featured in any calendars yet."
+    },
     "comments": {
       "title": "Comments",
       "placeholder": "Add a comment...",

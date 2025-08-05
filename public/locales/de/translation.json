@@ -4,21 +4,9 @@
     "popularCalendars": "Beliebte Kalender"
   },
   "event": {
-    "rsvp": {
-      "title": "RSVP",
-      "accept": "Akzeptieren",
-      "maybe": "Vielleicht",
-      "decline": "Alehnen",
-      "attending": "Angemeldet",
-      "notAttending": "Abgelehnt",
-      "withdraw": "Teilnahme zurücknehmen",
-      "accepted": "Akzeptiert",
-      "tentative": "Vielleicht",
-      "declined": "Abgelehnt",
-      "success": "RSVP erfolgreich",
-      "error": "RSVP error",
-      "deleted": "RSVP gelöscht",
-      "deleteError": "RSVP löschen fehlgeschlagen"
+    "calendars": {
+      "title": "In Kalendern enthalten",
+      "none": "Dieses Event ist noch in keinem Kalender enthalten."
     },
     "location": "Standort",
     "noLocation": "Kein Standort",
