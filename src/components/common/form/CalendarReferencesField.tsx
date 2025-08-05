@@ -365,7 +365,7 @@ const CalendarReferencesField: React.FC<CalendarReferencesFieldProps> = ({
                     )}
                     <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                       <Typography variant="subtitle2" noWrap>
-                        {metadata?.title || ref.naddr || ref.aTag}
+                        {metadata?.title || ref.naddr}
                       </Typography>
                       {metadata?.summary && (
                         <Typography
@@ -376,13 +376,6 @@ const CalendarReferencesField: React.FC<CalendarReferencesFieldProps> = ({
                           {metadata.summary}
                         </Typography>
                       )}
-                      <Typography
-                        variant="caption"
-                        display="block"
-                        color="text.secondary"
-                      >
-                        {ref.aTag}
-                      </Typography>
                     </Box>
                     {showRemoveInPreview && (
                       <IconButton

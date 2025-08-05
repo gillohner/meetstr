@@ -12,10 +12,12 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import PersonIcon from "@mui/icons-material/Person";
 
 interface EventActionsMenuProps {
   onEdit?: () => void;
   onDelete?: () => void;
+  onManageCoHosts?: () => void;
   showEdit?: boolean;
   showDelete?: boolean;
   sx?: any;
@@ -24,6 +26,7 @@ interface EventActionsMenuProps {
 export default function EventActionsMenu({
   onEdit,
   onDelete,
+  onManageCoHosts,
   showEdit = true,
   showDelete = true,
   sx,
@@ -46,6 +49,11 @@ export default function EventActionsMenu({
 
   const handleDelete = () => {
     onDelete?.();
+    handleMenuClose();
+  };
+
+  const handleManageCoHosts = () => {
+    onManageCoHosts?.();
     handleMenuClose();
   };
 
@@ -101,6 +109,14 @@ export default function EventActionsMenu({
               <EditIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>{t("event.edit.button")}</ListItemText>
+          </MenuItem>
+        )}
+        {onManageCoHosts && (
+          <MenuItem onClick={handleManageCoHosts}>
+            <ListItemIcon>
+              <PersonIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{t("event.manageCoHosts.button")}</ListItemText>
           </MenuItem>
         )}
         {showDelete && onDelete && (

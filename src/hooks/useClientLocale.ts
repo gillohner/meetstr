@@ -1,7 +1,10 @@
 // src/hooks/useClientLocale.ts
 import { useState, useEffect } from "react";
 import { getDayjsLocale } from "@/utils/formatting/dayjsConfig";
-import { getDatePickerFormat, getDateTimePickerFormat } from "@/utils/formatting/datePickerConfig";
+import {
+  getDatePickerFormat,
+  getDateTimePickerFormat,
+} from "@/utils/formatting/datePickerConfig";
 import dayjs from "dayjs";
 
 export interface LocaleInfo {
@@ -23,22 +26,22 @@ export const useClientLocale = (): LocaleInfo => {
 
   useEffect(() => {
     setIsClient(true);
-    
+
     // Get user's actual locale on client side
     const userLocale = getDayjsLocale();
     setLocale(userLocale);
-    
+
     // Configure dayjs with user's locale
     dayjs.locale(userLocale);
-    
+
     // Set appropriate formats based on locale
     setDateFormat(getDatePickerFormat());
     setDateTimeFormat(getDateTimePickerFormat());
-    
+
     console.log("Client locale configured:", {
       userLocale,
       dateFormat: getDatePickerFormat(),
-      dateTimeFormat: getDateTimePickerFormat()
+      dateTimeFormat: getDateTimePickerFormat(),
     });
   }, []);
 

@@ -1,0 +1,12 @@
+/* Custom styles for the Nostr Login banner */
+.nl-banner {
+  z-index: 1000 !important;
+}
+
+.nl-banner > div {
+  z-index: 1001 !important;
+}
+
+.nl-banner .nl-action-button {
+  z-index: 1002 !important;
+}

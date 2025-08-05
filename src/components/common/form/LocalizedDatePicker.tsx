@@ -1,11 +1,10 @@
 // src/components/common/form/LocalizedDatePicker.tsx
 import React from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
-import { DatePicker, DatePickerProps } from "@mui/x-date-pickers/DatePicker";
-import {
-  DateTimePicker,
-  DateTimePickerProps,
-} from "@mui/x-date-pickers/DateTimePicker";
+import type { DatePickerProps } from "@mui/x-date-pickers/DatePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import type { DateTimePickerProps } from "@mui/x-date-pickers/DateTimePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useClientLocale } from "@/hooks/useClientLocale";
 
@@ -30,10 +29,7 @@ export const LocalizedDatePicker: React.FC<LocalizedDatePickerProps> = ({
   }
 
   return (
-    <LocalizationProvider
-      dateAdapter={AdapterDayjs}
-      adapterLocale={locale}
-    >
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
       <DatePicker format={format || dateFormat} {...props} />
     </LocalizationProvider>
   );
@@ -49,11 +45,12 @@ export const LocalizedDateTimePicker: React.FC<
   }
 
   return (
-    <LocalizationProvider
-      dateAdapter={AdapterDayjs}
-      adapterLocale={locale}
-    >
-      <DateTimePicker format={format || dateTimeFormat} ampm={false} {...props} />
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
+      <DateTimePicker
+        format={format || dateTimeFormat}
+        ampm={false}
+        {...props}
+      />
     </LocalizationProvider>
   );
 };

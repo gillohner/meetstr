@@ -1,5 +1,5 @@
 // src/components/common/events/EventFilters.tsx
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Box,
@@ -15,17 +15,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TagIcon from "@mui/icons-material/Tag";
-import { getUserLocale as getAppUserLocale } from "@/utils/formatting/date";
-import dayjs from "@/utils/formatting/dayjsConfig";
+import type { dayjs } from "@/utils/formatting/dayjsConfig";
 import type { Dayjs } from "dayjs";
-
-// Get user's locale for date formatting - use the imported function
-const getUserLocale = (): string => {
-  if (typeof window !== "undefined") {
-    return getAppUserLocale();
-  }
-  return "ch-DE"; // Default to German to match app
-};
 
 export interface EventFilters {
   dateRange: {
@@ -87,8 +78,6 @@ const EventFilters: React.FC<EventFiltersProps> = ({
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const userLocale = isClient ? getUserLocale() : "de-CH";
 
   // Combine popular locations with actual event locations
   const allLocations = [...availableLocations].filter(

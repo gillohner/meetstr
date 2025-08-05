@@ -235,11 +235,11 @@ export default function CreateNewEventDialog({
         event.tags.push(["image", eventImage]);
       }
 
-      await handleCalendarReferences(event, uniqueId);
+      const publishedEvent = await handleCalendarReferences(event, uniqueId);
 
       // Redirect to the new event page if not edit mode
-      if (!isEditMode && event.id) {
-        router.push(`/event/${event.id}`);
+      if (!isEditMode && publishedEvent?.id) {
+        router.push(`/event/${publishedEvent.id}`);
       }
 
       if (isEditMode && onEventUpdated) {
@@ -254,7 +254,7 @@ export default function CreateNewEventDialog({
   const handleCalendarReferences = async (
     event: NDKEvent,
     uniqueId: string
-  ) => {
+  ): Promise<NDKEvent> => {
     if (!activeUser || !window.nostr) {
       throw new Error("No signer available");
     }
@@ -318,6 +318,8 @@ export default function CreateNewEventDialog({
       "success"
     );
     onClose();
+
+    return ndkEvent; // Return the published event
   };
 
   React.useEffect(() => {

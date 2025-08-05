@@ -65,6 +65,30 @@
       "submit": "Event bearbeiten",
       "success": "Event erfolgreich bearbeitet",
       "title": "Event bearbeiten"
+    },
+    "manageCoHosts": {
+      "button": "Co-Hosts verwalten",
+      "title": "Co-Hosts verwalten",
+      "description": "Co-Hosts können Events in Ihrem Kalender erstellen und verwalten mit delegierten Berechtigungen.",
+      "addNew": "Neuen Co-Host hinzufügen",
+      "publicKeyLabel": "Öffentlicher Schlüssel oder npub",
+      "publicKeyPlaceholder": "npub... oder hex pubkey",
+      "permissions": "Berechtigungen:",
+      "canCreateEvents": "Kann Events erstellen",
+      "canEditEvents": "Kann Events bearbeiten",
+      "canDeleteEvents": "Kann Events löschen",
+      "addButton": "Co-Host hinzufügen",
+      "currentCoHosts": "Aktuelle Co-Hosts",
+      "noCoHosts": "Noch keine Co-Hosts hinzugefügt.",
+      "expires": "Läuft ab",
+      "ownerOnly": "Nur der Kalenderbesitzer kann Co-Hosts verwalten.",
+      "addedSuccess": "Co-Host erfolgreich hinzugefügt",
+      "removedSuccess": "Co-Host erfolgreich entfernt",
+      "addedError": "Fehler beim Hinzufügen des Co-Hosts",
+      "removedError": "Fehler beim Entfernen des Co-Hosts",
+      "invalidNpub": "Ungültiges npub Format",
+      "invalidPubkey": "Ungültiges pubkey Format. Bitte geben Sie einen gültigen npub oder 64-Zeichen hex pubkey ein",
+      "alreadyExists": "Co-Host existiert bereits"
     }
   },
   "payment": {

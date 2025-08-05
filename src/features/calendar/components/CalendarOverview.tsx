@@ -15,11 +15,11 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   CircularProgress,
-  Button,
+  Fab,
+  Tooltip,
   IconButton,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import { Add as AddIcon, Person as PersonIcon } from "@mui/icons-material";
 import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventSection from "@/components/common/events/EventSection";
@@ -33,6 +33,9 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import FloatingActionButton from "@/components/common/layout/FloatingActionButton";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import AddToCalendarButton from "@/components/common/events/AddToCalendarButton";
+import { useDelegationPermissions } from "@/hooks/useDelegationPermissions";
+import CoHostManagement from "@/components/calendar/CoHostManagement";
+import CoHostDisplay from "@/components/calendar/CoHostDisplay";
 
 interface CalendarOverviewProps {
   calendarId?: string;
@@ -62,6 +65,10 @@ export default function CalendarOverview({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [addEventDialogOpen, setAddEventDialogOpen] = useState(false);
+  const [coHostDialogOpen, setCoHostDialogOpen] = useState(false);
+
+  // Check user permissions using delegation hook
+  const permissions = useDelegationPermissions(calendarEvent);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -205,6 +212,7 @@ export default function CalendarOverview({
           <EventActionsMenu
             onEdit={handleEdit}
             onDelete={() => handleDelete(calendarEvent)}
+            onManageCoHosts={() => setCoHostDialogOpen(true)}
             sx={{
               position: "absolute",
               top: 16,
@@ -234,18 +242,20 @@ export default function CalendarOverview({
           />
         )}
         <CardContent>
-          <Grid container spacing={2} direction="row">
-            <Grid size={{ xs: 12, sm: 9 }}>
+          <Grid container>
+            <Grid item size={10}>
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || "Calendar"}
               </Typography>
               <EventHost hostPubkey={calendarEvent.pubkey} />
+              <CoHostDisplay calendarEvent={calendarEvent} variant="compact" />
               <Typography variant="body1" color="text.secondary">
                 {metadata.summary || ""}
               </Typography>
             </Grid>
             <Grid
-              size={{ xs: 12, sm: 3 }}
+              item
+              size={2}
               sx={{
                 display: "flex",
                 flexDirection: "row",
@@ -337,6 +347,16 @@ export default function CalendarOverview({
         open={addEventDialogOpen}
         onClose={() => setAddEventDialogOpen(false)}
         calendarEvent={calendarEvent}
+      />
+
+      <CoHostManagement
+        open={coHostDialogOpen}
+        onClose={() => setCoHostDialogOpen(false)}
+        calendarEvent={calendarEvent}
+        onCoHostsUpdated={() => {
+          // Refresh calendar data
+          fetchEvent(calendarEvent.id, expectedKinds);
+        }}
       />
 
       <FloatingActionButton

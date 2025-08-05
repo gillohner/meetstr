@@ -12,12 +12,15 @@ import {
   CardContent,
   IconButton,
   Autocomplete,
+  Chip,
   CircularProgress,
   Avatar,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EventIcon from "@mui/icons-material/Event";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import {
+  Delete as DeleteIcon,
+  CalendarMonth as CalendarMonthIcon,
+  Event as EventIcon,
+} from "@mui/icons-material";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { nip19 } from "nostr-tools";
 import dayjs from "dayjs";
@@ -250,7 +253,7 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
         });
       }
     },
-    [ndk, onChange] // Remove value, loadingEntities, loadedEntities to prevent infinite loop
+    [ndk, onChange]
   );
 
   // Load entity data for existing references on mount and when new refs are added
@@ -267,7 +270,7 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [value.map((ref) => ref.aTag).join(","), loadedEntities]); // Remove batchLoadEntities from deps to prevent infinite loop
+  }, [value.map((ref) => ref.aTag).join(","), loadedEntities]);
 
   // Generate URL for entity
   const getEntityUrl = useCallback(
@@ -615,10 +618,12 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
         renderOption={(props, entity) => {
           if (typeof entity === "string") return null;
           const metadata = getEventMetadata(entity);
+          const { key, ...otherProps } = props;
           return (
             <Box
+              key={key}
               component="li"
-              {...props}
+              {...otherProps}
               sx={{ display: "flex", alignItems: "center", gap: 2 }}
             >
               {metadata.image ? (
@@ -675,6 +680,7 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
           {value.map((ref, index) => {
             const metadata = ref.entity ? getEventMetadata(ref.entity) : null;
             const isLoading = loadingEntities.has(ref.aTag);
+
             return (
               <Card
                 key={ref.aTag}
@@ -682,10 +688,7 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
                 sx={{
                   mb: 1,
                   cursor: "pointer",
-                  "&:hover": {
-                    boxShadow: 2,
-                    borderColor: "primary.main",
-                  },
+                  "&:hover": { bgcolor: "action.hover" },
                 }}
                 onClick={() => handlePreviewClick(ref)}
               >
@@ -698,20 +701,13 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
                       />
                     ) : (
                       <Avatar sx={{ width: 40, height: 40 }}>
-                        {isLoading ? (
-                          <CircularProgress size={20} />
-                        ) : isCalendar ? (
-                          <CalendarMonthIcon />
-                        ) : (
-                          <EventIcon />
-                        )}
+                        {isCalendar ? <CalendarMonthIcon /> : <EventIcon />}
                       </Avatar>
                     )}
                     <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                       <Typography variant="subtitle2" noWrap>
-                        {isLoading
-                          ? "Loading..."
-                          : metadata?.title || ref.naddr || ref.aTag}
+                        {metadata?.title ||
+                          `Untitled ${isCalendar ? "Calendar" : "Event"}`}
                       </Typography>
                       {metadata?.summary && (
                         <Typography
@@ -732,20 +728,13 @@ const NostrEntitySearchField: React.FC<NostrEntitySearchFieldProps> = ({
                           📍 {metadata.location}
                         </Typography>
                       )}
-                      <Typography
-                        variant="caption"
-                        display="block"
-                        color="text.secondary"
-                        sx={{ fontFamily: "monospace" }}
-                      >
-                        {ref.aTag}
-                      </Typography>
                     </Box>
+                    {isLoading && <CircularProgress size={20} />}
                     {showRemoveInPreview && (
                       <IconButton
                         size="small"
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevent card click
+                          e.stopPropagation();
                           removeReference(index);
                         }}
                         color="error"

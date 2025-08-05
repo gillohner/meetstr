@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
@@ -7,6 +6,7 @@ import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import PopularCalendars from "@/components/common/calendar/PopularCalendars";
 import UpcomingEventsSection from "@/components/common/events/UpcomingEventsSection";
+import DelegationNotification from "@/components/calendar/DelegationNotification";
 import { useTranslation } from "react-i18next";
 
 export default function Home() {
@@ -19,10 +19,12 @@ export default function Home() {
   }, []);
 
   // during SSR/hydration
-  if (!isClient) return;
+  if (!isClient) return null;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <DelegationNotification />
+
       <UpcomingEventsSection
         title={t("events.upcomingEvents", "Discover Upcoming Events")}
         showFilters={true}

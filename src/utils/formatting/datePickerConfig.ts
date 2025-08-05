@@ -12,7 +12,7 @@ export const getDatePickerFormat = () => {
 
 export const getDateTimePickerFormat = () => {
   const locale = getDayjsLocale();
-  // Return appropriate format for user's locale  
+  // Return appropriate format for user's locale
   if (locale === "en") return "MM/DD/YYYY HH:mm";
   return "DD.MM.YYYY HH:mm"; // German and other locales
 };

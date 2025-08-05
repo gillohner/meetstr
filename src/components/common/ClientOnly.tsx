@@ -1,5 +1,5 @@
 // src/components/common/ClientOnly.tsx
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { type ReactNode, useState, useEffect } from "react";
 
 interface ClientOnlyProps {
   children: ReactNode;
@@ -10,7 +10,7 @@ interface ClientOnlyProps {
  * A component that only renders its children on the client side
  * to prevent hydration mismatches when dealing with browser-specific APIs
  */
-const ClientOnly: React.FC<ClientOnlyProps> = ({
+export const ClientOnly: React.FC<ClientOnlyProps> = ({
   children,
   fallback = null,
 }) => {
