@@ -1,5 +1,8 @@
 {
   "appName": "Meetstr",
+  "startpage": {
+    "popularCalendars": "Beliebte Kalender"
+  },
   "event": {
     "rsvp": {
       "title": "RSVP",

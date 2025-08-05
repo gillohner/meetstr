@@ -24,7 +24,7 @@ export default function Home() {
 
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" component="h2" gutterBottom>
-            {t("nav.startpage", "Popular Calendars")}
+            {t("startpage.popularCalendars", "Popular Calendars")}
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <PopularCalendars />

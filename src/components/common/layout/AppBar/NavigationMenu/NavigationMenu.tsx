@@ -38,9 +38,7 @@ export const MobileNavigation = ({
           href={"/"}
           passHref
         >
-          <Typography textAlign="center">
-            {t("nav.startpage", "Popular Calendars")}
-          </Typography>
+          <Typography textAlign="center">{t("nav.startpage")}</Typography>
         </MenuItem>
         {pages.map((page) => (
           <MenuItem

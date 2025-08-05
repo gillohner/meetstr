@@ -1,5 +1,8 @@
 {
   "appName": "Meetstr",
+  "startpage": {
+    "popularCalendars": "Popular Calendars"
+  },
   "nav": {
     "new-calendar": "New Calendar",
     "dezentralschweiz": "Dezentralschweiz Calendar",
