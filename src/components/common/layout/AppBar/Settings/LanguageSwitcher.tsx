@@ -9,7 +9,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useTranslation } from "react-i18next";
 
 export default function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -28,11 +28,11 @@ export default function LanguageSwitcher() {
 
   return (
     <>
-      <Tooltip title="Change language">
+      <Tooltip title={t("common.changeLanguage", "Change language")}>
         <IconButton
           color="inherit"
           onClick={handleOpen}
-          aria-label="Change language"
+          aria-label={t("common.changeLanguage", "Change language")}
           sx={{ ml: 1 }}
         >
           <LanguageIcon />

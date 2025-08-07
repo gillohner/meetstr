@@ -1,0 +1,217 @@
+{
+  "appName": "Meetstr",
+  "startpage": {
+    "popularCalendars": "Calendarios Populares"
+  },
+  "event": {
+    "calendars": {
+      "title": "En los calendarios",
+      "none": "Este evento aún no está en ningún calendario."
+    },
+    "location": "Ubicación",
+    "noLocation": "Sin ubicación",
+    "createEvent": {
+      "imageUpload": {
+        "upload": "Subir",
+        "success": "Imagen subida con éxito",
+        "error": "Error al subir la imagen"
+      },
+      "title": "Agregar evento",
+      "addToCalendar": "Agregar evento al calendario",
+      "newEvent": "Agregar evento",
+      "dateTime": {
+        "title": "Fecha y hora",
+        "start": "Hora de inicio (DD.MM.AAAA HH:mm)",
+        "end": "Hora de finalización (DD.MM.AAAA HH:mm)"
+      },
+      "form": {
+        "timezone": "Zona horaria",
+        "title": "Título",
+        "description": "Descripción",
+        "location": "Ubicación",
+        "addHashtag": "Agregar hashtags ...",
+        "addReference": "Agregar enlaces ...",
+        "hashtags": "Hashtags",
+        "references": "Enlaces",
+        "calendars": "Agregar a calendarios",
+        "addCalendar": "Buscar calendario o agregar naddr..."
+      },
+      "submit": "Crear evento",
+      "error": "No se pudo crear el evento",
+      "success": "Evento creado con éxito"
+    },
+    "attendees": "Asistentes",
+    "comments": {
+      "copyProfile": "Copiar enlace de perfil",
+      "empty": "Aún no hay comentarios. \n¡Sé el primero en comentar!",
+      "placeholder": "Agrega un comentario ...",
+      "post": "Publicar",
+      "replies": "Respuestas",
+      "reply": "Responder",
+      "replyPlaceholder": "Responde a este comentario ...",
+      "signerRequired": "Debes estar registrado para publicar comentarios",
+      "title": "Comentarios",
+      "viewProfile": "Ver perfil"
+    },
+    "delete": {
+      "button": "Eliminar",
+      "confirm": "¿Estás seguro de que deseas eliminar este evento?",
+      "error": "No se pudo eliminar el evento",
+      "reason": "Evento eliminado por el autor",
+      "success": "Evento eliminado con éxito"
+    },
+    "edit": {
+      "button": "Editar",
+      "submit": "Editar evento",
+      "success": "Evento editado con éxito",
+      "title": "Editar evento"
+    }
+  },
+  "payment": {
+    "bitcoinAccepted": "Pagos en Bitcoin aceptados",
+    "onChain": "En cadena",
+    "lightning": "Lightning",
+    "contactless": "Sin contacto"
+  },
+  "service": {
+    "openstreetmap": "Openstreetmap",
+    "btcmap": "BTCMap",
+    "googlemaps": "Google Maps",
+    "applemaps": "Apple Maps"
+  },
+  "error": {
+    "remoteSignerFailure": "Error en el firmante remoto",
+    "event": {
+      "noName": "Sin título",
+      "invalidDate": "Fecha inválida",
+      "notFound": "404: Calendario no encontrado",
+      "invalidKind": "Tipo de Nostr inválido",
+      "invalidId": "El ID del evento no es válido"
+    },
+    "generic": "Algo salió mal. \nPor favor, inténtalo de nuevo más tarde."
+  },
+  "common": {
+    "changeLanguage": "Cambiar idioma",
+    "posting": "Publicando...",
+    "change": "Cambiar",
+    "remove": "Eliminar",
+    "cancel": "Cancelar",
+    "loading": "Cargando..."
+  },
+  "logout": "Cerrar sesión",
+  "tooltip": {
+    "openProfile": "Abrir perfil"
+  },
+  "calendar": {
+    "upcomingEvents": "Próximos eventos",
+    "noUpcomingEvents": "No hay eventos próximos",
+    "pastEvents": "Eventos pasados",
+    "noPastEvents": "No hay eventos pasados",
+    "onlyApproved": "Solo meetups aprobados",
+    "allMeetups": "Todos los meetups",
+    "noCalendarsFound": "No se encontraron calendarios.",
+    "edit": {
+      "title": "Editar calendario",
+      "submit": "Actualizar calendario",
+      "success": "Calendario actualizado con éxito",
+      "error": "No se pudo actualizar el calendario. Por favor, inténtalo de nuevo."
+    },
+    "subscription": {
+      "added": "Suscripción al calendario añadida"
+    },
+    "copyLink": "Copiar enlace Webcal",
+    "addToCalendar": "Suscribirse al calendario",
+    "link": {
+      "copied": "Enlace Webcal copiado",
+      "error": "No se pudo copiar el enlace"
+    },
+    "download": {
+      "success": "Calendario descargado",
+      "desc": "Descarga única de ICS",
+      "title": "Descargar calendario"
+    },
+    "subscribe": {
+      "desc": "Actualizaciones automáticas con nuevos eventos",
+      "text": "Suscribirse al calendario"
+    }
+  },
+  "createCalendar": {
+    "error": "No se pudo crear el calendario. \nPor favor, inténtalo de nuevo.",
+    "form": {
+      "addReference": "Agregar evento de calendario ...",
+      "addReferenceNaddr": "Pegar Naddr de evento o URL de Meetstr",
+      "calendarReferences": "Eventos de calendario",
+      "description": "Descripción del calendario",
+      "title": "Título del calendario"
+    },
+    "submit": "Crear calendario",
+    "success": "¡Calendario creado con éxito!",
+    "title": "Crear calendario"
+  },
+  "login": {
+    "requireLogin": "Por favor inicia sesión para acceder a esta página"
+  },
+  "modal": {
+    "login": {
+      "extension": {
+        "button": "Inicio de sesión con extensión del navegador",
+        "description": "Usa una extensión del navegador como Alby o NOS2X para gestionar tus claves de forma segura.",
+        "error": "Error al iniciar sesión con la extensión."
+      },
+      "remoteSigner": {
+        "button": "Conectar firmante remoto",
+        "description": "Agrega una URL de Bunker o una dirección NIP-05 de un firmante remoto.",
+        "error": "Error en la conexión remota. \nPor favor, verifica tu URL y inténtalo de nuevo.",
+        "inputHelper": "Ejemplo: Bunker: // Pubkey? Relay = WSS: //relay.nsec.app o alice@nsec.app",
+        "inputLabel": "URL de Bunker o dirección NIP-05",
+        "inputRequired": "Por favor, ingresa una URL de Bunker o dirección NIP-05 válida."
+      },
+      "tabs": {
+        "extension": "Extensión del navegador",
+        "remoteSigner": "Firmante remoto"
+      },
+      "title": "Inicio de sesión en Nostr"
+    }
+  },
+  "nav": {
+    "dezentralschweiz": "Calendario DezentralSchweiz",
+    "new-calendar": "Crear Calendario",
+    "new-event": "Crear Evento",
+    "startpage": "Inicio"
+  },
+  "navbar": {
+    "login": {
+      "loading": "Cargando...",
+      "login": "Iniciar sesión",
+      "not-found": "Usuario no encontrado en los relays"
+    }
+  },
+  "notification": {
+    "accepted": "Aceptar",
+    "dismiss": "Descartar",
+    "eventDetails": "Detalles del evento",
+    "location": "Ubicación",
+    "noNotifications": "No hay notificaciones",
+    "rsvpEventLink": "Ver evento",
+    "rsvpStatus": "Estado RSVP",
+    "unknownEvent": "Evento desconocido",
+    "accept": "Aceptar"
+  },
+  "events": {
+    "upcomingEvents": "Descubrir Eventos Próximos",
+    "loadMore": "Cargar más",
+    "noEventsWithFilters": "No se encontraron eventos que coincidan con tus filtros.",
+    "noUpcomingEvents": "No se encontraron eventos próximos.",
+    "filters": {
+      "title": "Filtrar Eventos",
+      "search": "Buscar eventos",
+      "searchPlaceholder": "Buscar por título, descripción o ubicación",
+      "location": "Ubicación",
+      "locationPlaceholder": "Filtrar por ubicación",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "addTags": "Agregar etiquetas",
+      "tagsPlaceholder": "Escribe y presiona Enter para agregar etiquetas"
+    }
+  }
+}
