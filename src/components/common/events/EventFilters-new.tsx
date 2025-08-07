@@ -20,11 +20,11 @@ import MyLocationIcon from "@mui/icons-material/MyLocation";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TagIcon from "@mui/icons-material/Tag";
 import type { dayjs } from "@/utils/formatting/dayjsConfig";
-import { 
-  normalizeLocation, 
-  getAllNormalizedLocations, 
+import {
+  normalizeLocation,
+  getAllNormalizedLocations,
   getCurrentLocation,
-  type GeolocationCoordinates 
+  type GeolocationCoordinates,
 } from "@/utils/location/locationUtils";
 
 export interface EventFilters {
@@ -68,7 +68,9 @@ const EventFilters: React.FC<EventFiltersProps> = ({
 
   // Combine normalized locations with actual event locations
   const normalizedLocations = getAllNormalizedLocations();
-  const allLocations = [...new Set([...normalizedLocations, ...availableLocations])].sort();
+  const allLocations = [
+    ...new Set([...normalizedLocations, ...availableLocations]),
+  ].sort();
 
   // Combine popular tags with actual event tags
   const allTags = [...availableTags].filter(
@@ -99,12 +101,14 @@ const EventFilters: React.FC<EventFiltersProps> = ({
 
     // Normalize the location
     const normalized = normalizeLocation(value);
-    
+
     onChange({
       ...filters,
       location: {
         name: normalized.normalized,
-        coordinates: normalized.coordinates ? [normalized.coordinates.latitude, normalized.coordinates.longitude] : null,
+        coordinates: normalized.coordinates
+          ? [normalized.coordinates.latitude, normalized.coordinates.longitude]
+          : null,
         radius: filters.location?.radius || 50,
       },
     });
@@ -234,11 +238,17 @@ const EventFilters: React.FC<EventFiltersProps> = ({
                     ),
                     endAdornment: (
                       <InputAdornment position="end">
-                        <Tooltip title={t("location.useMyLocation", "Use my location")}>
+                        <Tooltip
+                          title={t("location.useMyLocation", "Use my location")}
+                        >
                           <IconButton
-                            onClick={() => handleGeolocationToggle(!filters.useGeolocation)}
+                            onClick={() =>
+                              handleGeolocationToggle(!filters.useGeolocation)
+                            }
                             disabled={gettingLocation}
-                            color={filters.useGeolocation ? "primary" : "default"}
+                            color={
+                              filters.useGeolocation ? "primary" : "default"
+                            }
                             size="small"
                           >
                             <MyLocationIcon />
@@ -250,7 +260,7 @@ const EventFilters: React.FC<EventFiltersProps> = ({
                 />
               )}
             />
-            
+
             {/* Radius Slider */}
             {filters.location && (
               <Box sx={{ mt: 2, px: 1 }}>

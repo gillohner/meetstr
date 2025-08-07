@@ -24,11 +24,32 @@ import EventFilters, {
   type EventFilters as EventFiltersType,
 } from "@/components/common/events/EventFilters";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
+import {
+  isLocationWithinRadius,
+  normalizeLocation,
+} from "@/utils/location/locationUtils";
 import dayjs from "dayjs";
 
-// Event cache for immediate display
+// Event cache for immediate display with longer duration
 const eventCache = new Map<string, { events: NDKEvent[]; timestamp: number }>();
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (longer cache)
+const INITIAL_CACHE_KEY = 'initial-events';
+
+// Enhanced cache management
+const getFromCache = (key: string): NDKEvent[] | null => {
+  const cached = eventCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.events;
+  }
+  return null;
+};
+
+const saveToCache = (key: string, events: NDKEvent[]) => {
+  eventCache.set(key, {
+    events: [...events], // Clone to prevent mutations
+    timestamp: Date.now(),
+  });
+};
 
 const getDefaultFilters = (): EventFiltersType => ({
   dateRange: {
@@ -36,9 +57,10 @@ const getDefaultFilters = (): EventFiltersType => ({
     end: null,
   },
   location: null,
+  useGeolocation: false,
+  userLocation: null,
   tags: [],
   searchQuery: "",
-  batchSize: 50,
 });
 
 const defaultFilters: EventFiltersType = getDefaultFilters();
@@ -46,6 +68,7 @@ const defaultFilters: EventFiltersType = getDefaultFilters();
 interface UpcomingEventsSectionProps {
   title?: string;
   showFilters?: boolean;
+  filtersDefaultOpen?: boolean;
 }
 
 const INITIAL_DISPLAY_COUNT = 20;
@@ -96,6 +119,7 @@ const filterDeletedEvents = async (
 const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   title = "Upcoming Events",
   showFilters = true,
+  filtersDefaultOpen = false,
 }) => {
   const { t } = useTranslation();
   const { ndk } = useNdk();
@@ -107,7 +131,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const [loadingMore, setLoadingMore] = useState(false);
   const [backgroundLoading, setBackgroundLoading] = useState(false);
   const [filters, setFilters] = useState<EventFiltersType>(defaultFilters);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(filtersDefaultOpen);
   const [activeFilterCount, setActiveFilterCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [currentBatch, setCurrentBatch] = useState(0);
@@ -140,10 +164,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
 
     if (filters.dateRange.end) {
       params.set("endDate", filters.dateRange.end.format("YYYY-MM-DD"));
-    }
-
-    if (filters.batchSize !== 50) {
-      params.set("batchSize", filters.batchSize.toString());
     }
 
     return params;
@@ -188,14 +208,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         }
       }
 
-      const batchSize = params.get("batchSize");
-      if (batchSize) {
-        const parsed = parseInt(batchSize);
-        if (parsed >= 1 && parsed <= 1000) {
-          newFilters.batchSize = parsed;
-        }
-      }
-
       return newFilters;
     },
     []
@@ -216,8 +228,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     },
     [router, filtersToURLParams, isClient]
   );
-
-  const BATCH_SIZE = filters.batchSize || 50;
 
   // Prevent hydration mismatch and initialize from URL
   useEffect(() => {
@@ -264,7 +274,23 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       console.log("Loading events from cache immediately");
       setAllEvents(cached.events);
+      setEvents(cached.events.slice(0, 50));
       setLoading(false);
+      
+      // Extract locations and tags from cached events
+      const locations = new Set<string>();
+      const tags = new Set<string>();
+      cached.events.forEach((event) => {
+        const metadata = getEventMetadata(event);
+        if (metadata.location) {
+          locations.add(metadata.location);
+        }
+        metadata.hashtags.forEach((tag) => {
+          tags.add(tag);
+        });
+      });
+      setAvailableLocations(Array.from(locations).sort());
+      setAvailableTags(Array.from(tags).sort());
     }
   }, []);
 
@@ -384,9 +410,15 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         timestamp: Date.now(),
       });
 
+      // Also cache as initial events for faster next load
+      saveToCache(INITIAL_CACHE_KEY, activeEvents.slice(0, 50));
+
       setAvailableLocations(Array.from(locations).sort());
       setAvailableTags(Array.from(tags).sort());
       setAllEvents(activeEvents);
+      
+      // Set initial display events immediately
+      setEvents(activeEvents.slice(0, 50));
 
       // Continue background fetching
       setTimeout(() => {
@@ -555,7 +587,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       try {
         const now = Math.floor(Date.now() / 1000);
         const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
-        const batchSize = BATCH_SIZE; // Smaller batches for background
+        const batchSize = 50; // Fixed batch size for background
 
         // Enhanced strategies to find more events
         const filters: NDKFilter[] = [
@@ -726,15 +758,33 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         setBackgroundLoading(false);
       }
     },
-    [ndk, BATCH_SIZE, lastFetchTime, availableTags]
+    [ndk, lastFetchTime, availableTags]
   );
 
-  // Initial load
+  // Initial load with immediate cache check
   useEffect(() => {
-    setCurrentBatch(0);
-    fetchEventsBatch(0, false);
-    fetchAllEvents();
-  }, [fetchEventsBatch, fetchAllEvents]);
+    const initializeEvents = async () => {
+      // Check cache immediately for instant loading
+      const cachedEvents = getFromCache(INITIAL_CACHE_KEY);
+      if (cachedEvents && cachedEvents.length > 0) {
+        console.log("Loading events from cache immediately");
+        setEvents(cachedEvents);
+        setAllEvents(cachedEvents);
+        setLoading(false);
+        
+        // Continue with background refresh
+        setTimeout(() => {
+          fetchAllEvents();
+        }, 100);
+      } else {
+        // No cache, fetch immediately
+        setCurrentBatch(0);
+        await fetchAllEvents();
+      }
+    };
+
+    initializeEvents();
+  }, [ndk]);
 
   // Background loading to continuously discover events
   useEffect(() => {
@@ -787,13 +837,39 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         }
       }
 
-      // Location filter
+      // Location filter with geolocation support
       if (filters.location) {
         if (metadata.location) {
-          const locationMatch = metadata.location
-            .toLowerCase()
-            .includes(filters.location.name.toLowerCase());
-          if (!locationMatch) return false;
+          if (filters.useGeolocation && filters.userLocation) {
+            // Use geolocation radius filtering
+            const withinRadius = isLocationWithinRadius(
+              metadata.location,
+              filters.userLocation,
+              filters.location.radius
+            );
+            if (!withinRadius) return false;
+          } else {
+            // Use text-based location matching with normalization
+            const eventLocationNormalized = normalizeLocation(
+              metadata.location
+            );
+            const filterLocationNormalized = normalizeLocation(
+              filters.location.name
+            );
+
+            const locationMatch =
+              eventLocationNormalized.normalized
+                .toLowerCase()
+                .includes(filterLocationNormalized.normalized.toLowerCase()) ||
+              filterLocationNormalized.normalized
+                .toLowerCase()
+                .includes(eventLocationNormalized.normalized.toLowerCase()) ||
+              metadata.location
+                .toLowerCase()
+                .includes(filters.location.name.toLowerCase());
+
+            if (!locationMatch) return false;
+          }
         } else {
           return false; // No location data, exclude if location filter is active
         }

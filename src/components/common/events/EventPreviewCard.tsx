@@ -14,7 +14,6 @@ import {
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import EventLocationText from "@/components/common/events/EventLocationText";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
-import { formatDateRange } from "@/utils/formatting/date";
 
 interface EventPreviewCardProps {
   event: NDKEvent;

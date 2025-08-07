@@ -8,7 +8,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { initI18n } from "@/lib/i18n";
 import theme from "@/theme";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
-import CustomAppBar from "@/components/common/layout/AppBar/AppBar";
+import AppLayout from "@/components/common/layout/AppLayout";
 import CssBaseline from "@mui/material/CssBaseline";
 import { useNdk } from "nostr-hooks";
 import { SnackbarProvider } from "@/context/SnackbarContext";
@@ -39,7 +39,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
   // Initialize nostr-login with floating manager (like nostr.band)
   useEffect(() => {
     if (!isClient) return; // Only run on client side
-    
+
     import("nostr-login")
       .then(async ({ init }) => {
         init({
@@ -117,8 +117,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
 
   return (
     <SnackbarProvider>
-      {isClient && <CustomAppBar />}
-      {children}
+      <AppLayout>{children}</AppLayout>
     </SnackbarProvider>
   );
 }
