@@ -26,10 +26,14 @@ import EventFilters, {
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import dayjs from "dayjs";
 
+// Event cache for immediate display
+const eventCache = new Map<string, { events: NDKEvent[]; timestamp: number }>();
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
 const getDefaultFilters = (): EventFiltersType => ({
   dateRange: {
-    start: null, // Set to null initially to avoid hydration mismatch
-    end: null, // Will be set on client side
+    start: null,
+    end: null,
   },
   location: null,
   tags: [],
@@ -44,9 +48,8 @@ interface UpcomingEventsSectionProps {
   showFilters?: boolean;
 }
 
-// Cache for events to avoid repeated fetches
-const eventCache = new Map<string, { events: NDKEvent[]; timestamp: number }>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const INITIAL_DISPLAY_COUNT = 20;
+const LOAD_MORE_COUNT = 10;
 
 const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   title = "Upcoming Events",
@@ -57,6 +60,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [events, setEvents] = useState<NDKEvent[]>([]);
+  const [allEvents, setAllEvents] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [backgroundLoading, setBackgroundLoading] = useState(false);
@@ -70,6 +74,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [fetchingMore, setFetchingMore] = useState(false);
 
   // URL synchronization functions
   const filtersToURLParams = useCallback((filters: EventFiltersType) => {
@@ -211,6 +216,257 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     setActiveFilterCount(count);
   }, [filters, isClient]);
 
+  // Check cache immediately on mount
+  useEffect(() => {
+    const cached = eventCache.get("all-events");
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      console.log("Loading events from cache immediately");
+      setAllEvents(cached.events);
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch ALL events aggressively with much higher limits
+  const fetchAllEvents = useCallback(async () => {
+    if (!ndk) return;
+
+    // Don't show loading if we have cached events
+    const cached = eventCache.get("all-events");
+    if (!cached || Date.now() - cached.timestamp >= CACHE_DURATION) {
+      setLoading(true);
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
+
+    try {
+      // Much more aggressive fetching with higher limits
+      const filters: NDKFilter[] = [
+        // Get recent events (last 90 days) - much longer range
+        {
+          kinds: [31922 as any, 31923 as any],
+          since: now - 90 * 24 * 3600,
+          limit: 2000,
+        },
+        // Get future events - much higher limit
+        {
+          kinds: [31922 as any, 31923 as any],
+          since: now,
+          until: sixMonthsFromNow,
+          limit: 2000,
+        },
+        // Get events without time restrictions - higher limit
+        {
+          kinds: [31922 as any, 31923 as any],
+          limit: 1500,
+        },
+        // Get events from further back
+        {
+          kinds: [31922 as any, 31923 as any],
+          until: now - 30 * 24 * 3600,
+          limit: 1000,
+        },
+        // Get very recent events
+        {
+          kinds: [31922 as any, 31923 as any],
+          since: now - 7 * 24 * 3600,
+          limit: 1000,
+        },
+      ];
+
+      console.log(
+        "Fetching all upcoming events with very aggressive strategies..."
+      );
+
+      const allEvents: NDKEvent[] = [];
+
+      // Fetch from multiple strategies in parallel
+      const fetchPromises = filters.map(async (filter) => {
+        try {
+          const eventSet = await ndk.fetchEvents(filter);
+          return Array.from(eventSet.values());
+        } catch (error) {
+          console.error("Error with filter:", filter, error);
+          return [];
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      results.forEach((events) => allEvents.push(...events));
+
+      console.log(`Total fetched events for batch:`, allEvents.length);
+
+      // Remove duplicates and filter for upcoming events
+      const uniqueEvents = allEvents.filter(
+        (event, index, self) =>
+          index === self.findIndex((e) => e.id === event.id)
+      );
+
+      const upcomingEvents = uniqueEvents.filter((event) => {
+        const metadata = getEventMetadata(event);
+        if (!metadata.start) return false;
+
+        const eventStart = parseInt(metadata.start);
+        return eventStart >= now && eventStart <= sixMonthsFromNow;
+      });
+
+      // Always sort by start time chronologically
+      upcomingEvents.sort((a, b) => {
+        const aStart = getEventMetadata(a).start;
+        const bStart = getEventMetadata(b).start;
+        if (!aStart) return 1;
+        if (!bStart) return -1;
+        return parseInt(aStart) - parseInt(bStart);
+      });
+
+      // Extract unique locations and tags from all events
+      const locations = new Set<string>();
+      const tags = new Set<string>();
+
+      upcomingEvents.forEach((event) => {
+        const metadata = getEventMetadata(event);
+        if (metadata.location) {
+          locations.add(metadata.location);
+        }
+        metadata.hashtags.forEach((tag) => {
+          if (tag) tags.add(tag);
+        });
+      });
+
+      // Cache the results immediately
+      eventCache.set("all-events", {
+        events: upcomingEvents,
+        timestamp: Date.now(),
+      });
+
+      setAvailableLocations(Array.from(locations).sort());
+      setAvailableTags(Array.from(tags).sort());
+      setAllEvents(upcomingEvents);
+
+      // Continue background fetching
+      setTimeout(() => {
+        fetchMoreInBackground();
+      }, 1000); // Start sooner
+    } catch (error) {
+      console.error("Error fetching all events:", error);
+      setAllEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [ndk]);
+
+  // Background fetching with higher limits
+  const fetchMoreInBackground = useCallback(async () => {
+    if (!ndk || fetchingMore) return;
+
+    setFetchingMore(true);
+
+    try {
+      const filters: NDKFilter[] = [
+        // Look much further back
+        {
+          kinds: [31922 as any, 31923 as any],
+          until: Math.floor(Date.now() / 1000) - 90 * 24 * 3600,
+          limit: 1000,
+        },
+        // Search by popular tags with higher limit
+        ...(availableTags.length > 0
+          ? [
+              {
+                kinds: [31922 as any, 31923 as any],
+                "#t": availableTags.slice(0, 20), // More tags
+                limit: 800,
+              },
+            ]
+          : []),
+        // Additional broad search
+        {
+          kinds: [31922 as any, 31923 as any],
+          limit: 1000,
+        },
+      ];
+
+      // Fetch from multiple strategies in parallel
+      const fetchPromises = filters.map(async (filter) => {
+        try {
+          const eventSet = await ndk.fetchEvents(filter);
+          return Array.from(eventSet.values());
+        } catch (error) {
+          console.error("Error with filter:", filter, error);
+          return [];
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      let newEvents: NDKEvent[] = [];
+      results.forEach((events) => newEvents.push(...events));
+
+      // Remove duplicates and filter for upcoming events
+      newEvents = newEvents.filter(
+        (event, index, self) =>
+          index === self.findIndex((e) => e.id === event.id)
+      );
+
+      const now = Math.floor(Date.now() / 1000);
+      const upcomingEvents = newEvents.filter((event) => {
+        const metadata = getEventMetadata(event);
+        if (!metadata.start) return false;
+
+        const eventStart = parseInt(metadata.start);
+        return eventStart >= now;
+      });
+
+      // Always sort by start time chronologically
+      upcomingEvents.sort((a, b) => {
+        const aStart = getEventMetadata(a).start;
+        const bStart = getEventMetadata(b).start;
+        if (!aStart) return 1;
+        if (!bStart) return -1;
+        return parseInt(aStart) - parseInt(bStart);
+      });
+
+      // Update cache with new events
+      if (newEvents.length > 0) {
+        setAllEvents((prev) => {
+          const combined = [...prev, ...newEvents];
+          const unique = combined.filter(
+            (event, index, self) =>
+              index === self.findIndex((e) => e.id === event.id)
+          );
+
+          const now = Math.floor(Date.now() / 1000);
+          const upcoming = unique.filter((event) => {
+            const metadata = getEventMetadata(event);
+            if (!metadata.start) return false;
+            return parseInt(metadata.start) >= now;
+          });
+
+          const sorted = upcoming.sort((a, b) => {
+            const aStart = getEventMetadata(a).start;
+            const bStart = getEventMetadata(b).start;
+            if (!aStart) return 1;
+            if (!bStart) return -1;
+            return parseInt(aStart) - parseInt(bStart);
+          });
+
+          // Update cache
+          eventCache.set("all-events", {
+            events: sorted,
+            timestamp: Date.now(),
+          });
+
+          return sorted;
+        });
+
+        console.log(`Added ${newEvents.length} more events in background`);
+      }
+    } catch (error) {
+      console.error("Background fetch error:", error);
+    } finally {
+      setFetchingMore(false);
+    }
+  }, [ndk, fetchingMore, availableTags]);
+
   // Fetch events from Nostr network with caching and background loading
   const fetchEventsBatch = useCallback(
     async (
@@ -251,7 +507,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       try {
         const now = Math.floor(Date.now() / 1000);
         const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
-        const batchSize = isBackground ? Math.min(BATCH_SIZE, 5) : BATCH_SIZE; // Smaller batches for background
+        const batchSize = BATCH_SIZE; // Smaller batches for background
 
         // Enhanced strategies to find more events
         const filters: NDKFilter[] = [
@@ -429,7 +685,8 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   useEffect(() => {
     setCurrentBatch(0);
     fetchEventsBatch(0, false);
-  }, [fetchEventsBatch]);
+    fetchAllEvents();
+  }, [fetchEventsBatch, fetchAllEvents]);
 
   // Background loading to continuously discover events
   useEffect(() => {
@@ -625,7 +882,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
                 ))}
               </Grid>
 
-              {/* Load More Button - Always visible, never hide */}
               <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                 <Button
                   variant="outlined"
