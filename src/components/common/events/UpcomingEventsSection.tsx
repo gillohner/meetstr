@@ -51,6 +51,48 @@ interface UpcomingEventsSectionProps {
 const INITIAL_DISPLAY_COUNT = 20;
 const LOAD_MORE_COUNT = 10;
 
+// Helper function to filter out deleted events using NIP-09
+const filterDeletedEvents = async (
+  ndk: any,
+  events: NDKEvent[]
+): Promise<NDKEvent[]> => {
+  if (!ndk || events.length === 0) return events;
+
+  try {
+    // Batch check for deletions of all events
+    const eventIds = events.map((e) => e.id);
+    const authors = [...new Set(events.map((e) => e.pubkey))];
+
+    const deletionFilter = {
+      kinds: [5],
+      "#e": eventIds,
+      authors: authors,
+    };
+
+    const deletions = await ndk.fetchEvents(deletionFilter);
+    const deletedEventIds = new Set<string>();
+
+    // Extract which events are deleted
+    for (const deletion of Array.from(deletions.values()) as NDKEvent[]) {
+      const eventTags = deletion.tags.filter((tag: string[]) => tag[0] === "e");
+      eventTags.forEach((tag: string[]) => {
+        if (
+          tag[1] &&
+          deletion.pubkey === events.find((e) => e.id === tag[1])?.pubkey
+        ) {
+          deletedEventIds.add(tag[1]);
+        }
+      });
+    }
+
+    // Filter out deleted events
+    return events.filter((event) => !deletedEventIds.has(event.id));
+  } catch (error) {
+    console.error("Error filtering deleted events:", error);
+    return events; // Return original events if filtering fails
+  }
+};
+
 const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   title = "Upcoming Events",
   showFilters = true,
@@ -310,8 +352,11 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         return eventStart >= now && eventStart <= sixMonthsFromNow;
       });
 
+      // Filter out deleted events using NIP-09
+      const activeEvents = await filterDeletedEvents(ndk, upcomingEvents);
+
       // Always sort by start time chronologically
-      upcomingEvents.sort((a, b) => {
+      activeEvents.sort((a, b) => {
         const aStart = getEventMetadata(a).start;
         const bStart = getEventMetadata(b).start;
         if (!aStart) return 1;
@@ -323,7 +368,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       const locations = new Set<string>();
       const tags = new Set<string>();
 
-      upcomingEvents.forEach((event) => {
+      activeEvents.forEach((event) => {
         const metadata = getEventMetadata(event);
         if (metadata.location) {
           locations.add(metadata.location);
@@ -335,13 +380,13 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
 
       // Cache the results immediately
       eventCache.set("all-events", {
-        events: upcomingEvents,
+        events: activeEvents,
         timestamp: Date.now(),
       });
 
       setAvailableLocations(Array.from(locations).sort());
       setAvailableTags(Array.from(tags).sort());
-      setAllEvents(upcomingEvents);
+      setAllEvents(activeEvents);
 
       // Continue background fetching
       setTimeout(() => {
@@ -416,8 +461,11 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         return eventStart >= now;
       });
 
+      // Filter out deleted events using NIP-09
+      const activeEvents = await filterDeletedEvents(ndk, upcomingEvents);
+
       // Always sort by start time chronologically
-      upcomingEvents.sort((a, b) => {
+      activeEvents.sort((a, b) => {
         const aStart = getEventMetadata(a).start;
         const bStart = getEventMetadata(b).start;
         if (!aStart) return 1;
@@ -426,7 +474,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       });
 
       // Update cache with new events
-      if (newEvents.length > 0) {
+      if (activeEvents.length > 0) {
         setAllEvents((prev) => {
           const combined = [...prev, ...newEvents];
           const unique = combined.filter(
@@ -458,7 +506,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           return sorted;
         });
 
-        console.log(`Added ${newEvents.length} more events in background`);
+        console.log(`Added ${activeEvents.length} more events in background`);
       }
     } catch (error) {
       console.error("Background fetch error:", error);
