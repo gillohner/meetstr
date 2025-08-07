@@ -20,19 +20,21 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ClearIcon from "@mui/icons-material/Clear";
-import EventCard from "@/components/common/events/EventCard";
 import EventFilters, {
   type EventFilters as EventFiltersType,
 } from "@/components/common/events/EventFilters";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
-import { isLocationWithinRadius, normalizeLocation } from "@/utils/location/locationUtils";
+import {
+  isLocationWithinRadius,
+  normalizeLocation,
+} from "@/utils/location/locationUtils";
 import dayjs from "dayjs";
 
 // Optimized event cache with immediate display
 const eventCache = new Map<string, { events: NDKEvent[]; timestamp: number }>();
 const CACHE_DURATION = 45 * 60 * 1000; // 45 minutes for longer cache
-const INSTANT_CACHE_KEY = 'instant-events';
-const BACKGROUND_CACHE_KEY = 'background-events';
+const INSTANT_CACHE_KEY = "instant-events";
+const BACKGROUND_CACHE_KEY = "background-events";
 
 // Fast cache operations
 const getCachedEvents = (key: string): NDKEvent[] | null => {
@@ -79,7 +81,7 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const { ndk } = useNdk();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // State management
   const [events, setEvents] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,14 +97,14 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   // Immediate cache check on mount
   useEffect(() => {
     setIsClient(true);
-    
+
     // Check for instant cached events first
     const instantCache = getCachedEvents(INSTANT_CACHE_KEY);
     if (instantCache && instantCache.length > 0) {
       console.log("⚡ Loading events from instant cache");
       setEvents(instantCache);
       setLoading(false);
-      
+
       // Extract metadata for filters
       const locations = new Set<string>();
       const tags = new Set<string>();
@@ -114,7 +116,7 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       setAvailableLocations(Array.from(locations).sort());
       setAvailableTags(Array.from(tags).sort());
     }
-    
+
     // Initialize filters from URL
     const urlFilters = urlParamsToFilters(searchParams);
     if (!urlFilters.dateRange.start && !urlFilters.dateRange.end) {
@@ -131,7 +133,7 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     if (!ndk) return;
 
     console.log("🚀 Starting fast event fetch");
-    
+
     // Don't show loading if we have cached events
     const hasCached = getCachedEvents(INSTANT_CACHE_KEY);
     if (!hasCached) {
@@ -160,13 +162,13 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       // Fetch the first batch immediately
       const firstFilter = quickFilters[0];
       console.log("⚡ Fetching first batch...");
-      
+
       const firstBatch = await ndk.fetchEvents(firstFilter);
       const firstEvents = Array.from(firstBatch.values()) as NDKEvent[];
-      
+
       if (firstEvents.length > 0) {
         console.log(`⚡ Got ${firstEvents.length} events in first batch`);
-        
+
         // Filter and sort immediately
         const upcomingEvents = firstEvents
           .filter((event) => {
@@ -186,10 +188,10 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         // Show immediately
         setEvents(upcomingEvents.slice(0, 50));
         setLoading(false);
-        
+
         // Cache for instant loading
         cacheEvents(INSTANT_CACHE_KEY, upcomingEvents);
-        
+
         // Extract filter data
         const locations = new Set<string>();
         const tags = new Set<string>();
@@ -216,14 +218,15 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
 
       const additionalResults = await Promise.all(remainingPromises);
       const allAdditionalEvents = additionalResults.flat();
-      
+
       if (allAdditionalEvents.length > 0) {
         console.log(`🔄 Got ${allAdditionalEvents.length} additional events`);
-        
+
         // Merge and deduplicate
         const allEvents = [...firstEvents, ...allAdditionalEvents];
         const uniqueEvents = allEvents.filter(
-          (event, index, self) => index === self.findIndex((e) => e.id === event.id)
+          (event, index, self) =>
+            index === self.findIndex((e) => e.id === event.id)
         );
 
         const allUpcomingEvents = uniqueEvents
@@ -244,7 +247,7 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         // Update with full dataset
         setEvents(allUpcomingEvents);
         cacheEvents(BACKGROUND_CACHE_KEY, allUpcomingEvents);
-        
+
         // Update filter data
         const allLocations = new Set<string>();
         const allTags = new Set<string>();
@@ -256,7 +259,6 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
         setAvailableLocations(Array.from(allLocations).sort());
         setAvailableTags(Array.from(allTags).sort());
       }
-
     } catch (error) {
       console.error("Error in fast fetch:", error);
       setEvents([]);
@@ -288,43 +290,51 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     return params;
   }, []);
 
-  const urlParamsToFilters = useCallback((params: URLSearchParams): EventFiltersType => {
-    const newFilters: EventFiltersType = { ...defaultFilters };
-    const search = params.get("search");
-    if (search) newFilters.searchQuery = search;
-    
-    const location = params.get("location");
-    if (location) {
-      newFilters.location = { name: location, coordinates: null, radius: 50 };
-    }
-    
-    const tags = params.get("tags");
-    if (tags) {
-      newFilters.tags = tags.split(",").filter((tag) => tag.trim());
-    }
-    
-    const startDate = params.get("startDate");
-    if (startDate) {
-      const parsed = dayjs(startDate);
-      if (parsed.isValid()) newFilters.dateRange.start = parsed;
-    }
-    
-    const endDate = params.get("endDate");
-    if (endDate) {
-      const parsed = dayjs(endDate);
-      if (parsed.isValid()) newFilters.dateRange.end = parsed;
-    }
-    
-    return newFilters;
-  }, []);
+  const urlParamsToFilters = useCallback(
+    (params: URLSearchParams): EventFiltersType => {
+      const newFilters: EventFiltersType = { ...defaultFilters };
+      const search = params.get("search");
+      if (search) newFilters.searchQuery = search;
 
-  const updateURL = useCallback((filters: EventFiltersType) => {
-    if (!isClient) return;
-    const params = filtersToURLParams(filters);
-    const currentPath = window.location.pathname;
-    const newURL = params.toString() ? `${currentPath}?${params.toString()}` : currentPath;
-    router.replace(newURL, { scroll: false });
-  }, [router, filtersToURLParams, isClient]);
+      const location = params.get("location");
+      if (location) {
+        newFilters.location = { name: location, coordinates: null, radius: 50 };
+      }
+
+      const tags = params.get("tags");
+      if (tags) {
+        newFilters.tags = tags.split(",").filter((tag) => tag.trim());
+      }
+
+      const startDate = params.get("startDate");
+      if (startDate) {
+        const parsed = dayjs(startDate);
+        if (parsed.isValid()) newFilters.dateRange.start = parsed;
+      }
+
+      const endDate = params.get("endDate");
+      if (endDate) {
+        const parsed = dayjs(endDate);
+        if (parsed.isValid()) newFilters.dateRange.end = parsed;
+      }
+
+      return newFilters;
+    },
+    []
+  );
+
+  const updateURL = useCallback(
+    (filters: EventFiltersType) => {
+      if (!isClient) return;
+      const params = filtersToURLParams(filters);
+      const currentPath = window.location.pathname;
+      const newURL = params.toString()
+        ? `${currentPath}?${params.toString()}`
+        : currentPath;
+      router.replace(newURL, { scroll: false });
+    },
+    [router, filtersToURLParams, isClient]
+  );
 
   // Calculate active filter count
   useEffect(() => {
@@ -333,8 +343,16 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     if (filters.location) count++;
     if (filters.tags.length > 0) count++;
     if (filters.searchQuery.trim()) count++;
-    if (filters.dateRange.start && !filters.dateRange.start.isSame(dayjs(), "day")) count++;
-    if (filters.dateRange.end && !filters.dateRange.end.isSame(dayjs().add(3, "months"), "day")) count++;
+    if (
+      filters.dateRange.start &&
+      !filters.dateRange.start.isSame(dayjs(), "day")
+    )
+      count++;
+    if (
+      filters.dateRange.end &&
+      !filters.dateRange.end.isSame(dayjs().add(3, "months"), "day")
+    )
+      count++;
     setActiveFilterCount(count);
   }, [filters, isClient]);
 
@@ -346,10 +364,16 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       // Date range filter
       if (metadata.start) {
         const eventStart = dayjs.unix(parseInt(metadata.start));
-        if (filters.dateRange.start && eventStart.isBefore(filters.dateRange.start, "day")) {
+        if (
+          filters.dateRange.start &&
+          eventStart.isBefore(filters.dateRange.start, "day")
+        ) {
           return false;
         }
-        if (filters.dateRange.end && eventStart.isAfter(filters.dateRange.end, "day")) {
+        if (
+          filters.dateRange.end &&
+          eventStart.isAfter(filters.dateRange.end, "day")
+        ) {
           return false;
         }
       }
@@ -365,14 +389,24 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
             );
             if (!withinRadius) return false;
           } else {
-            const eventLocationNormalized = normalizeLocation(metadata.location);
-            const filterLocationNormalized = normalizeLocation(filters.location.name);
-            
-            const locationMatch = 
-              eventLocationNormalized.normalized.toLowerCase().includes(filterLocationNormalized.normalized.toLowerCase()) ||
-              filterLocationNormalized.normalized.toLowerCase().includes(eventLocationNormalized.normalized.toLowerCase()) ||
-              metadata.location.toLowerCase().includes(filters.location.name.toLowerCase());
-            
+            const eventLocationNormalized = normalizeLocation(
+              metadata.location
+            );
+            const filterLocationNormalized = normalizeLocation(
+              filters.location.name
+            );
+
+            const locationMatch =
+              eventLocationNormalized.normalized
+                .toLowerCase()
+                .includes(filterLocationNormalized.normalized.toLowerCase()) ||
+              filterLocationNormalized.normalized
+                .toLowerCase()
+                .includes(eventLocationNormalized.normalized.toLowerCase()) ||
+              metadata.location
+                .toLowerCase()
+                .includes(filters.location.name.toLowerCase());
+
             if (!locationMatch) return false;
           }
         } else {
@@ -382,9 +416,11 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
 
       // Tags filter
       if (filters.tags.length > 0) {
-        const eventTags = metadata.hashtags.map(tag => tag.toLowerCase());
-        const hasMatchingTag = filters.tags.some(filterTag =>
-          eventTags.some(eventTag => eventTag.includes(filterTag.toLowerCase()))
+        const eventTags = metadata.hashtags.map((tag) => tag.toLowerCase());
+        const hasMatchingTag = filters.tags.some((filterTag) =>
+          eventTags.some((eventTag) =>
+            eventTag.includes(filterTag.toLowerCase())
+          )
         );
         if (!hasMatchingTag) return false;
       }
@@ -397,8 +433,11 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           metadata.summary,
           metadata.location,
           ...metadata.hashtags,
-        ].filter(Boolean).join(" ").toLowerCase();
-        
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
         if (!searchableText.includes(query)) return false;
       }
 
@@ -431,20 +470,25 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   return (
     <Box sx={{ mb: 4 }}>
       {/* Header with filter toggle */}
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
         <Typography variant="h5" component="h2">
           {title}
-          {backgroundLoading && (
-            <CircularProgress size={16} sx={{ ml: 2 }} />
-          )}
+          {backgroundLoading && <CircularProgress size={16} sx={{ ml: 2 }} />}
         </Typography>
-        
+
         {showFilters && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             {activeFilterCount > 0 && (
               <>
                 <Chip
-                  label={`${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`}
+                  label={`${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""} active`}
                   size="small"
                   color="primary"
                   onDelete={clearFilters}
@@ -518,22 +562,53 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
                     const metadata = getEventMetadata(event);
                     return (
                       <>
-                        <Typography variant="h6" component="h3" gutterBottom noWrap>
+                        <Typography
+                          variant="h6"
+                          component="h3"
+                          gutterBottom
+                          noWrap
+                        >
                           {metadata.title || "Untitled Event"}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          {metadata.start && dayjs.unix(parseInt(metadata.start)).format("MMM D, YYYY h:mm A")}
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 1 }}
+                        >
+                          {metadata.start &&
+                            dayjs
+                              .unix(parseInt(metadata.start))
+                              .format("MMM D, YYYY h:mm A")}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 1 }}
+                        >
                           📍 {metadata.location || "Location TBD"}
                         </Typography>
-                        <Typography variant="body2" sx={{ flexGrow: 1, overflow: "hidden" }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ flexGrow: 1, overflow: "hidden" }}
+                        >
                           {metadata.summary || "No description available"}
                         </Typography>
                         {metadata.hashtags.length > 0 && (
-                          <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                          <Box
+                            sx={{
+                              mt: 1,
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 0.5,
+                            }}
+                          >
                             {metadata.hashtags.slice(0, 3).map((tag, index) => (
-                              <Chip key={index} label={`#${tag}`} size="small" variant="outlined" />
+                              <Chip
+                                key={index}
+                                label={`#${tag}`}
+                                size="small"
+                                variant="outlined"
+                              />
                             ))}
                           </Box>
                         )}
@@ -553,7 +628,10 @@ const OptimizedUpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
           <Typography variant="body2" color="text.secondary">
             {activeFilterCount > 0
               ? t("events.tryDifferentFilters", "Try adjusting your filters")
-              : t("events.noEventsAvailable", "No events are currently available")}
+              : t(
+                  "events.noEventsAvailable",
+                  "No events are currently available"
+                )}
           </Typography>
           {activeFilterCount > 0 && (
             <Button onClick={clearFilters} sx={{ mt: 2 }}>
