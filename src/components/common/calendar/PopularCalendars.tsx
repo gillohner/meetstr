@@ -15,9 +15,14 @@ import {
   useMediaQuery,
   FormControlLabel,
   Checkbox,
+  Collapse,
+  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -58,6 +63,7 @@ const PopularCalendars: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [hideEmpty, setHideEmpty] = useState(true);
   const [hideTest, setHideTest] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [calendarCounts, setCalendarCounts] = useState<
     Map<string, { upcoming: number; past: number }>
   >(new Map());
@@ -300,29 +306,72 @@ const PopularCalendars: React.FC = () => {
             ),
           }}
         />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={hideEmpty}
-              onChange={(e) => setHideEmpty(e.target.checked)}
-              color="primary"
+
+        {/* Filter Toggle Button - Right aligned */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: showFilters ? 2 : 0 }}>
+          <Button
+            startIcon={<FilterListIcon />}
+            endIcon={showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            onClick={() => setShowFilters(!showFilters)}
+            variant="outlined"
+            size="small"
+          >
+            {t("calendar.filters", "Filters")}
+            {(hideEmpty || hideTest) && !showFilters && (
+              <Box
+                component="span"
+                sx={{
+                  ml: 1,
+                  px: 1,
+                  py: 0.25,
+                  borderRadius: 1,
+                  backgroundColor: "primary.main",
+                  color: "primary.contrastText",
+                  fontSize: "0.75rem",
+                  minWidth: 16,
+                  height: 16,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {(hideEmpty ? 1 : 0) + (hideTest ? 1 : 0)}
+              </Box>
+            )}
+          </Button>
+        </Box>
+
+        {/* Collapsible Filters */}
+        <Collapse in={showFilters}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={hideEmpty}
+                  onChange={(e) => setHideEmpty(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label={t(
+                "calendar.hideEmpty",
+                "Hide calendars with no upcoming events"
+              )}
             />
-          }
-          label={t(
-            "calendar.hideEmpty",
-            "Hide calendars with no upcoming events"
-          )}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={hideTest}
-              onChange={(e) => setHideTest(e.target.checked)}
-              color="primary"
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={hideTest}
+                  onChange={(e) => setHideTest(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label={t(
+                "calendar.hideTest",
+                "Hide test calendars"
+              )}
             />
-          }
-          label={t("calendar.hideTest", "Hide test calendars")}
-        />
+          </Box>
+        </Collapse>
       </Paper>
 
       {/* Results Info */}

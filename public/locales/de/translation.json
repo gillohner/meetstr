@@ -116,6 +116,8 @@
     "eventCount": "{{count}} Events",
     "searchCalendars": "Kalender suchen...",
     "hideEmpty": "Kalender ohne bevorstehende Events ausblenden",
+    "hideTest": "Test-Kalender ausblenden",
+    "filters": "Filter",
     "searchResults": "{{count}} Kalender gefunden für \"{{query}}\"",
     "totalCalendars": "{{count}} Kalender angezeigt",
     "noSearchResults": "Keine Kalender gefunden für Ihre Suche.",
