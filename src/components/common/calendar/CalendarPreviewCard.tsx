@@ -34,6 +34,18 @@ const CalendarPreviewCard: React.FC<CalendarPreviewCardProps> = ({
   const metadata = getEventMetadata(calendar);
   const name = metadata.title || t("calendar.untitled", "Untitled Calendar");
 
+  // Truncate text to prevent overflow
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + "...";
+  };
+
+  // Ensure safe text lengths for mobile
+  const safeName = truncateText(name, 60); // Limit title length
+  const safeSummary = metadata.summary
+    ? truncateText(metadata.summary, 120)
+    : ""; // Limit description
+
   const calendarHref = useMemo(() => {
     try {
       const dTag = calendar.tags.find((t) => t[0] === "d")?.[1] || "";
@@ -57,6 +69,10 @@ const CalendarPreviewCard: React.FC<CalendarPreviewCardProps> = ({
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        maxWidth: "100%", // Prevent overflow on mobile
+        overflow: "hidden", // Contain all content
+        wordWrap: "break-word", // Break long words
+        wordBreak: "break-word", // Break long words
         ...sx,
       }}
     >
@@ -89,7 +105,8 @@ const CalendarPreviewCard: React.FC<CalendarPreviewCardProps> = ({
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            padding: 2,
+            padding: { xs: 1.5, sm: 2 }, // Less padding on mobile
+            minHeight: 0, // Allow flex shrinking
           }}
         >
           {name && (
@@ -103,25 +120,34 @@ const CalendarPreviewCard: React.FC<CalendarPreviewCardProps> = ({
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                fontSize: { xs: "1rem", sm: "1.25rem" }, // Smaller font on mobile
+                lineHeight: 1.2,
+                wordBreak: "break-word", // Break long words
+                hyphens: "auto", // Allow hyphenation
               }}
             >
-              {name}
+              {safeName}
             </Typography>
           )}
-          {metadata.summary && (
+          {safeSummary && (
             <Typography
               variant="body2"
               color="text.secondary"
               sx={{
                 display: "-webkit-box",
-                WebkitLineClamp: 2,
+                WebkitLineClamp: { xs: 2, sm: 3 }, // Less lines on mobile
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 mb: 1,
+                fontSize: { xs: "0.75rem", sm: "0.875rem" }, // Smaller font on mobile
+                lineHeight: 1.3,
+                wordBreak: "break-word", // Break long words
+                hyphens: "auto", // Allow hyphenation
+                maxHeight: { xs: "2.6em", sm: "3.9em" }, // Limit height based on line clamp
               }}
             >
-              {metadata.summary}
+              {safeSummary}
             </Typography>
           )}
         </CardContent>

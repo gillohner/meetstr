@@ -176,7 +176,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 display: "flex",
                 flexDirection: { xs: "row", sm: "column" },
                 gap: 1,
-                justifyContent: { xs: "flex-end", sm: "flex-start" }, // align right on mobile
+                justifyContent: { xs: "flex-start", sm: "flex-start" }, // align right on mobile
                 alignItems: { xs: "flex-end", sm: "flex-end" },
                 mt: { xs: 2, sm: 0 },
               }}
