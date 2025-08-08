@@ -10,10 +10,8 @@ import {
   CircularProgress,
   Paper,
   Grid,
-  Slider,
   useTheme,
   useMediaQuery,
-  Skeleton,
 } from "@mui/material";
 import EventFilters, {
   type EventFilters as EventFiltersType,
@@ -62,13 +60,9 @@ const getDefaultFilters = (): EventFiltersType => ({
 
 const defaultFilters: EventFiltersType = getDefaultFilters();
 
-interface UpcomingEventsSectionProps {
-  filtersDefaultOpen?: boolean;
-}
+interface UpcomingEventsSectionProps {}
 
-const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
-  filtersDefaultOpen = false,
-}) => {
+const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
   const { t } = useTranslation();
   const { ndk } = useNdk();
   const router = useRouter();
@@ -79,14 +73,10 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   // State management
   const [events, setEvents] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [backgroundLoading, setBackgroundLoading] = useState(false);
   const [filters, setFilters] = useState<EventFiltersType>(defaultFilters);
-  const [filtersOpen, setFiltersOpen] = useState(filtersDefaultOpen);
-  const [activeFilterCount, setActiveFilterCount] = useState(0);
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [cardsPerRow, setCardsPerRow] = useState(3);
 
   // Immediate cache check on mount
@@ -200,7 +190,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       }
 
       // Continue with background fetching for more events
-      setBackgroundLoading(true);
       const remainingPromises = quickFilters.slice(1).map(async (filter) => {
         try {
           const events = await ndk.fetchEvents(filter);
@@ -259,7 +248,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       setEvents([]);
     } finally {
       setLoading(false);
-      setBackgroundLoading(false);
     }
   }, [ndk]);
 
@@ -348,7 +336,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       !filters.dateRange.end.isSame(dayjs().add(3, "months"), "day")
     )
       count++;
-    setActiveFilterCount(count);
   }, [filters, isClient]);
 
   // Fast client-side filtering
