@@ -154,7 +154,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         <CardContent>
           <Grid container>
             <Grid
-              size={{ xs: 12, sm: 6 }}
+              size={{ xs: 12, sm: 10 }}
               sx={{ pr: isOwner ? 3 : 0 }} // Add padding to prevent content overlap with menu
             >
               <Typography gutterBottom variant="h4" component="div">
@@ -171,13 +171,13 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               </Typography>
             </Grid>
             <Grid
-              size={{ xs: 12, sm: 6 }}
+              size={{ xs: 3, sm: 2 }}
               sx={{
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: { xs: "row", sm: "column" },
                 gap: 1,
-                justifyContent: "flex-start",
-                alignItems: "stretch",
+                justifyContent: { xs: "flex-end", sm: "flex-start" }, // align right on mobile
+                alignItems: { xs: "flex-end", sm: "flex-end" },
                 mt: { xs: 2, sm: 0 },
               }}
             >

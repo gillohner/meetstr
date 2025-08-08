@@ -1,11 +1,7 @@
 // src/utils/nostr/eventCacheUtils.ts
 import type NDK from "@nostr-dev-kit/ndk";
-import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
+import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { getEventMetadata } from "./eventUtils";
-import {
-  filterDeletedEvents,
-  filterDeletedEventsUltraFast,
-} from "./deletionUtils";
 import dayjs from "dayjs";
 
 // Shared event cache with different strategies
@@ -110,7 +106,7 @@ export async function fetchEvents(ndk: NDK): Promise<{
     console.log(`🔄 Got ${uniqueEvents.length} unique events`);
 
     // Filter out deleted events using ultra-optimized batch deletion checking
-    const activeEvents = await filterDeletedEventsUltraFast(ndk, uniqueEvents);
+    const activeEvents = uniqueEvents;
     console.log(
       `✅ ${activeEvents.length}/${uniqueEvents.length} events are active after deletion filtering`
     );

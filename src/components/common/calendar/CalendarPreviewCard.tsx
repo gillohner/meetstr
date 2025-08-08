@@ -124,37 +124,6 @@ const CalendarPreviewCard: React.FC<CalendarPreviewCardProps> = ({
               {metadata.summary}
             </Typography>
           )}
-
-          {/* Event counts as chips */}
-          {eventCounts ? (
-            <Stack direction="row" spacing={1} sx={{ mt: "auto" }}>
-              <Chip
-                label={`${eventCounts.upcoming} ${t("calendar.upcoming", "upcoming")}`}
-                size="small"
-                color={eventCounts.upcoming > 0 ? "primary" : "default"}
-                variant="outlined"
-              />
-              <Chip
-                label={`${eventCounts.past} ${t("calendar.past", "past")}`}
-                size="small"
-                color="default"
-                variant="outlined"
-              />
-            </Stack>
-          ) : (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                mt: "auto",
-                fontSize: 14,
-              }}
-            >
-              {t("calendar.eventCount", "{{count}} events", {
-                count: eventCount,
-              })}
-            </Typography>
-          )}
         </CardContent>
       </CardActionArea>
     </Card>

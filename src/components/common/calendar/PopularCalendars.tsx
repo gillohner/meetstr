@@ -22,10 +22,6 @@ import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
-  filterDeletedEvents,
-  filterDeletedEventsUltraFast,
-} from "@/utils/nostr/deletionUtils";
-import {
   fetchEvents,
   calculateCalendarEventCounts,
 } from "@/utils/nostr/eventCacheUtils";
@@ -108,10 +104,7 @@ const PopularCalendars: React.FC = () => {
       console.log(`📅 Found ${calendarArray.length} calendars`);
 
       // Filter out deleted calendars using ultra-fast batch deletion checking
-      const activeCalendars = await filterDeletedEventsUltraFast(
-        ndk,
-        calendarArray
-      );
+      const activeCalendars = calendarArray;
       console.log(`📅 ${activeCalendars.length} active calendars`);
 
       // Sort by popularity (number of 'a' tags = number of events)
