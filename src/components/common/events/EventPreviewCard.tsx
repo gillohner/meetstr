@@ -122,22 +122,6 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({
               }}
             />
           )}
-          {metadata.summary && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                flexGrow: 1,
-                WebkitLineClamp: 3,
-                overflow: "hidden",
-                display: "-webkit-box",
-                WebkitBoxOrient: "vertical",
-                mt: 1,
-              }}
-            >
-              {metadata.summary}
-            </Typography>
-          )}
         </CardContent>
       </CardActionArea>
     </Card>
