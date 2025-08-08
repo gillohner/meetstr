@@ -8,29 +8,26 @@ import {
   type UnsignedEvent,
   type Event,
 } from "nostr-tools";
+import { authService } from "@/services/authService";
 
 export const useBlossomUpload = () => {
   const { ndk } = useNdk();
   const activeUser = useActiveUser();
 
   const uploadFile = async (file: File) => {
-    if (!ndk || !activeUser?.pubkey || !window.nostr) return null;
+    if (!ndk || !activeUser?.pubkey) return null;
 
     try {
-      // 1. Create signer function that uses window.nostr
+      // 1. Create signer function that uses authService
       const signer = async (draft: EventTemplate) => {
-        if (!window.nostr) {
-          throw new Error("window.nostr not available");
-        }
-
         const event: UnsignedEvent = {
           ...draft,
           pubkey: activeUser.pubkey,
           created_at: Math.floor(Date.now() / 1000),
         };
 
-        // Sign with window.nostr
-        const signedEvent = await window.nostr.signEvent(event);
+        // Sign with authService (will handle authentication)
+        const signedEvent = await authService.signEvent(event);
 
         // Return the signed event with proper id calculated from the unsigned event
         return {
@@ -38,7 +35,9 @@ export const useBlossomUpload = () => {
           sig: signedEvent.sig,
           id: getEventHash(event),
         } as Event;
-      }; // 2. Create client instance with signer
+      };
+
+      // 2. Create client instance with signer
       const server = "https://blossom.nostr.build";
       const client = new BlossomClient(server, signer);
 

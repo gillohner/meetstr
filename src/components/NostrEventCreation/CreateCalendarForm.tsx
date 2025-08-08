@@ -28,6 +28,7 @@ import NostrEntitySearchField, {
 } from "@/components/common/form/NostrEntitySearchField";
 import { useRouter } from "next/navigation";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
+import { authService } from "@/services/authService";
 
 // Icons
 import EventIcon from "@mui/icons-material/Event";
@@ -122,7 +123,7 @@ export default function CreateCalendarForm({
   };
 
   const onSubmit = useCallback(async () => {
-    if (!activeUser || !ndk || !isFormValid || !window.nostr) return;
+    if (!activeUser || !ndk || !isFormValid) return;
 
     setIsSubmitting(true);
 
@@ -163,8 +164,8 @@ export default function CreateCalendarForm({
         eventData.tags.push(["a", ref.aTag]);
       });
 
-      // Sign with window.nostr
-      const signedEvent = await window.nostr.signEvent(eventData);
+      // Sign with authService
+      const signedEvent = await authService.signEvent(eventData);
 
       // Convert to NDKEvent for publishing
       const ndkEvent = new NDKEvent(ndk, signedEvent);

@@ -1,5 +1,6 @@
-// src/hooks/useCurrentUser.ts
+// src/hooks/useActiveUser.ts
 import { useState, useEffect } from "react";
+import { authService } from "@/services/authService";
 
 export function useActiveUser() {
   const [user, setUser] = useState<{
@@ -9,19 +10,10 @@ export function useActiveUser() {
 
   useEffect(() => {
     const checkUser = async () => {
-      if (typeof window !== "undefined" && window.nostr) {
-        try {
-          const pubkey = await window.nostr.getPublicKey();
-          if (pubkey) {
-            // Convert to npub format if needed
-            const { nip19 } = await import("nostr-tools");
-            const npub = nip19.npubEncode(pubkey);
-            setUser({ pubkey, npub });
-          }
-        } catch (error) {
-          console.log("No user logged in");
-          setUser(null);
-        }
+      const isAuthenticated = await authService.isAuthenticated();
+      if (isAuthenticated) {
+        const userInfo = authService.getUserInfo();
+        setUser(userInfo);
       } else {
         setUser(null);
       }
@@ -31,11 +23,14 @@ export function useActiveUser() {
     checkUser();
 
     // Listen for nostr-login auth events
-    const handleAuth = () => {
-      setTimeout(checkUser, 100); // Small delay to ensure window.nostr is ready
+    const handleAuth = async () => {
+      await authService.refreshAuthState();
+      const userInfo = authService.getUserInfo();
+      setUser(userInfo);
     };
 
     const handleLogout = () => {
+      authService.logout();
       setUser(null);
     };
 

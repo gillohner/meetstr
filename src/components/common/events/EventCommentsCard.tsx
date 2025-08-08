@@ -27,6 +27,7 @@ import { useMemo, useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNdk } from "nostr-hooks";
 import type { NDKFilter, NDKEvent } from "@nostr-dev-kit/ndk";
+import { authService } from "@/services/authService";
 
 interface Comment {
   id: string;
@@ -145,12 +146,10 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
 
   // Post a new comment
   const handlePostComment = useCallback(async () => {
-    if (!ndk || !event || !newComment.trim() || !window.nostr) return;
+    if (!ndk || !event || !newComment.trim()) return;
 
     setPosting(true);
     try {
-      const pubkey = await window.nostr.getPublicKey();
-
       const unsignedEvent = {
         kind: 1111, // NIP-22 comment kind
         content: newComment.trim(),
@@ -170,11 +169,11 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
           ["p", event.pubkey],
         ],
         created_at: Math.floor(Date.now() / 1000),
-        pubkey,
+        pubkey: "", // Will be set by authService
       };
 
-      // Sign with window.nostr
-      const signedEvent = await window.nostr.signEvent(unsignedEvent);
+      // Sign with authService
+      const signedEvent = await authService.signEvent(unsignedEvent);
 
       // Convert to NDKEvent for publishing
       const NDKEvent = (await import("@nostr-dev-kit/ndk")).NDKEvent;
@@ -193,12 +192,10 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
   // Post a reply to a comment
   const handlePostReply = useCallback(
     async (parentCommentId: string) => {
-      if (!ndk || !event || !replyText.trim() || !window.nostr) return;
+      if (!ndk || !event || !replyText.trim()) return;
 
       setPosting(true);
       try {
-        const pubkey = await window.nostr.getPublicKey();
-
         const unsignedEvent = {
           kind: 1111,
           content: replyText.trim(),
@@ -220,11 +217,11 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
             ],
           ],
           created_at: Math.floor(Date.now() / 1000),
-          pubkey,
+          pubkey: "", // Will be set by authService
         };
 
-        // Sign with window.nostr
-        const signedEvent = await window.nostr.signEvent(unsignedEvent);
+        // Sign with authService
+        const signedEvent = await authService.signEvent(unsignedEvent);
 
         // Convert to NDKEvent for publishing
         const NDKEvent = (await import("@nostr-dev-kit/ndk")).NDKEvent;

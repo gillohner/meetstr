@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import EventTimeDisplay from "@/components/common/events/EventTimeDisplay";
 import EventLocationText from "@/components/common/events/EventLocationText";
+import { authService } from "@/services/authService";
 
 interface Notification {
   id: string;
@@ -148,8 +149,7 @@ export default function NotificationCenter() {
       !notification ||
       !ndk ||
       !activeUser ||
-      !calendarEvents.length ||
-      !window.nostr
+      !calendarEvents.length
     )
       return;
 
@@ -195,8 +195,8 @@ export default function NotificationCenter() {
         pubkey: activeUser.pubkey,
       };
 
-      // Sign with window.nostr
-      const signedCalendar = await window.nostr.signEvent(unsignedCalendar);
+      // Sign with authService
+      const signedCalendar = await authService.signEvent(unsignedCalendar);
 
       // Convert to NDKEvent for publishing
       const ndkCalendar = new NDKEvent(ndk, signedCalendar);

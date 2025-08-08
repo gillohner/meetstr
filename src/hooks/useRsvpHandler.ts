@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useTranslation } from "react-i18next";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { authService } from "@/services/authService";
 
 export type RsvpStatus = "accepted" | "tentative" | "declined" | null;
 
@@ -83,7 +84,7 @@ export function useRsvpHandler(event: EventWithTags) {
   // Create new RSVP
   const createRsvp = useCallback(
     async (status: RsvpStatus) => {
-      if (!ndk || !event?.id || !activeUser || !window.nostr) return;
+      if (!ndk || !event?.id || !activeUser) return;
 
       try {
         setLoading(true);
@@ -96,7 +97,7 @@ export function useRsvpHandler(event: EventWithTags) {
         const eTag = event.id;
         const aTag = getEventCoordinates() || "";
 
-        // Create event using nostr-tools
+        // Create event using authService
         const unsignedEvent = {
           kind: 31925,
           content: status || "",
@@ -111,8 +112,8 @@ export function useRsvpHandler(event: EventWithTags) {
           pubkey: activeUser.pubkey,
         };
 
-        // Sign with window.nostr
-        const signedEvent = await window.nostr.signEvent(unsignedEvent);
+        // Sign with authService (will handle authentication)
+        const signedEvent = await authService.signEvent(unsignedEvent);
 
         // Convert to NDKEvent for publishing
         const ndkEvent = new NDKEvent(ndk, signedEvent);
@@ -123,7 +124,11 @@ export function useRsvpHandler(event: EventWithTags) {
         showSnackbar(t("event.rsvp.success"), "success");
       } catch (error) {
         console.error("Error creating RSVP:", error);
-        showSnackbar(t("event.rsvp.error"), "error");
+        if (error instanceof Error && error.message.includes('Authentication required')) {
+          showSnackbar(t("auth.required", "Please log in to RSVP"), "warning");
+        } else {
+          showSnackbar(t("event.rsvp.error"), "error");
+        }
       } finally {
         setLoading(false);
       }
@@ -133,12 +138,12 @@ export function useRsvpHandler(event: EventWithTags) {
 
   // Delete RSVP using NIP-09
   const deleteRsvp = useCallback(async () => {
-    if (!ndk || !currentRsvp || !activeUser || !window.nostr) return;
+    if (!ndk || !currentRsvp || !activeUser) return;
 
     try {
       setLoading(true);
 
-      // Create NIP-09 deletion event using nostr-tools
+      // Create NIP-09 deletion event using authService
       const unsignedEvent = {
         kind: 5, // Event deletion request
         content: "RSVP withdrawn",
@@ -150,8 +155,8 @@ export function useRsvpHandler(event: EventWithTags) {
         pubkey: activeUser.pubkey,
       };
 
-      // Sign with window.nostr
-      const signedEvent = await window.nostr.signEvent(unsignedEvent);
+      // Sign with authService
+      const signedEvent = await authService.signEvent(unsignedEvent);
 
       // Convert to NDKEvent for publishing
       const ndkEvent = new NDKEvent(ndk, signedEvent);

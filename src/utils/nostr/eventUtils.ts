@@ -2,6 +2,7 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import type NDK from "@nostr-dev-kit/ndk";
 import { NDKEvent as NDKEventClass } from "@nostr-dev-kit/ndk";
+import { authService } from "@/services/authService";
 
 export const getEventMetadata = (event: NDKEvent) => {
   const getTagValue = (tagName: string) =>
@@ -42,8 +43,10 @@ export async function republishEvent(
   original: NDKEvent,
   mutate: (e: NDKEvent) => void
 ) {
-  if (!window.nostr) {
-    throw new Error("No signer available");
+  // Get user info from authService
+  const userInfo = authService.getUserInfo();
+  if (!userInfo) {
+    throw new Error("Authentication required");
   }
 
   // Create event template from original
@@ -52,7 +55,7 @@ export async function republishEvent(
     content: original.content,
     tags: [...original.tags], // Deep copy tags
     created_at: Math.floor(Date.now() / 1000),
-    pubkey: await window.nostr.getPublicKey(),
+    pubkey: userInfo.pubkey,
   };
 
   // Let caller modify the event template
@@ -67,8 +70,8 @@ export async function republishEvent(
   unsignedEvent.content = tempEvent.content;
   unsignedEvent.tags = tempEvent.tags;
 
-  // Sign with window.nostr
-  const signedEvent = await window.nostr.signEvent(unsignedEvent);
+  // Sign with authService
+  const signedEvent = await authService.signEvent(unsignedEvent);
 
   // Convert to NDKEvent for publishing
   const ndkEvent = new NDKEventClass(ndk, signedEvent);
@@ -78,18 +81,18 @@ export async function republishEvent(
 
 /** Publish a NIP-09 deletion request for one event */
 export async function deleteEvent(ndk: NDK, toDelete: NDKEvent, reason = "") {
-  if (!window.nostr) {
-    throw new Error("No signer available");
+  // Get user info from authService
+  const userInfo = authService.getUserInfo();
+  if (!userInfo) {
+    throw new Error("Authentication required");
   }
-
-  const pubkey = await window.nostr.getPublicKey();
 
   const unsignedEvent = {
     kind: 5, // NIP-09 deletion
     content: reason,
     tags: [] as string[][],
     created_at: Math.floor(Date.now() / 1000),
-    pubkey,
+    pubkey: userInfo.pubkey,
   };
 
   // Reference by 'a' tag for parameterized replaceable events
@@ -100,8 +103,8 @@ export async function deleteEvent(ndk: NDK, toDelete: NDKEvent, reason = "") {
     unsignedEvent.tags = [["e", toDelete.id]];
   }
 
-  // Sign with window.nostr
-  const signedEvent = await window.nostr.signEvent(unsignedEvent);
+  // Sign with authService
+  const signedEvent = await authService.signEvent(unsignedEvent);
 
   // Convert to NDKEvent for publishing
   const ndkEvent = new NDKEventClass(ndk, signedEvent);
