@@ -114,9 +114,17 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
   const metadata = getEventMetadata(event);
 
   return (
-    <Container maxWidth="lg" sx={{ mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mb: 4, px: { xs: 1, sm: 3 } }}>
       <Card
-        sx={{ width: "100%", mb: 4, position: "relative", overflow: "visible" }}
+        sx={{
+          width: "100%",
+          mb: 4,
+          position: "relative",
+          overflow: "visible",
+          maxWidth: "100%", // Prevent overflow on mobile
+          wordWrap: "break-word", // Break long words
+          wordBreak: "break-word", // Break long words
+        }}
       >
         {/* EventActionsMenu positioned in top-right corner */}
         {isOwner && (
@@ -155,9 +163,24 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           <Grid container>
             <Grid
               size={{ xs: 12, sm: 10 }}
-              sx={{ pr: isOwner ? 3 : 0 }} // Add padding to prevent content overlap with menu
+              sx={{ pr: isOwner ? { xs: 2, sm: 3 } : 0 }} // Add padding to prevent content overlap with menu, less on mobile
             >
-              <Typography gutterBottom variant="h4" component="div">
+              <Typography
+                gutterBottom
+                variant="h4"
+                component="div"
+                sx={{
+                  fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" }, // Responsive font size
+                  lineHeight: 1.2,
+                  wordBreak: "break-word", // Break long words
+                  hyphens: "auto", // Allow hyphenation
+                  overflow: "hidden", // Hide overflow
+                  display: "-webkit-box",
+                  WebkitLineClamp: { xs: 3, sm: 2 }, // More lines on mobile
+                  WebkitBoxOrient: "vertical",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {metadata.title || t("error.event.noName", "Unnamed Event")}
               </Typography>
               <EventHost hostPubkey={event.pubkey} />
@@ -166,17 +189,31 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 endTime={metadata.end}
               />
               <EventLocationText location={metadata.location} />
-              <Typography variant="body1" paragraph>
+              <Typography 
+                variant="body1" 
+                paragraph
+                sx={{
+                  wordBreak: "break-word", // Break long words
+                  hyphens: "auto", // Allow hyphenation
+                  overflow: "hidden", // Hide overflow
+                  display: "-webkit-box",
+                  WebkitLineClamp: { xs: 6, sm: 8 }, // Limit lines on mobile
+                  WebkitBoxOrient: "vertical",
+                  textOverflow: "ellipsis",
+                  fontSize: { xs: "0.875rem", sm: "1rem" }, // Smaller font on mobile
+                  lineHeight: 1.4,
+                }}
+              >
                 {metadata.summary}
               </Typography>
             </Grid>
             <Grid
-              size={{ xs: 3, sm: 2 }}
+              size={{ xs: 12, sm: 2 }}
               sx={{
                 display: "flex",
                 flexDirection: { xs: "row", sm: "column" },
                 gap: 1,
-                justifyContent: { xs: "flex-start", sm: "flex-start" }, // align right on mobile
+                justifyContent: { xs: "flex-start", sm: "flex-start" },
                 alignItems: { xs: "flex-end", sm: "flex-end" },
                 mt: { xs: 2, sm: 0 },
               }}
