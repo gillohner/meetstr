@@ -34,7 +34,7 @@ export default function EventPageClient({ params }: EventPageClientProps) {
   }
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 3 } }}>
       <Box sx={{ mt: 4, mb: 4 }}>
         <EventOverview eventId={eventId} />
       </Box>

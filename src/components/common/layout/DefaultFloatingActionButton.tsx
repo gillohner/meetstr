@@ -100,12 +100,10 @@ const DefaultFloatingActionButton: React.FC = () => {
           />
         ))}
       </SpeedDial>
-
       <CreateNewEventDialog
         open={eventDialogOpen}
         onClose={() => setEventDialogOpen(false)}
       />
-
       <CreateCalendarForm
         open={calendarDialogOpen}
         onClose={() => setCalendarDialogOpen(false)}

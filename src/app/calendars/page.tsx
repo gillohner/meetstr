@@ -18,7 +18,7 @@ export default function CalendarsPage() {
   if (!isClient) return null;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, px: { xs: 1, sm: 3 } }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           {t("calendars.title", "Calendars")}

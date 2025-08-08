@@ -16,7 +16,7 @@ export default function EventsPage() {
   if (!isClient) return null;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, px: { xs: 1, sm: 3 } }}>
       <UpcomingEventsSection />
     </Container>
   );

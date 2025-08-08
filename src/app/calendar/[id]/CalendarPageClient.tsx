@@ -14,7 +14,7 @@ export default function CalendarPageClient({ params }: Props) {
   const id = routeParams?.id?.toString() || "";
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 3 } }}>
       <Box sx={{ my: 4 }}>
         <CalendarOverview calendarId={id} />
       </Box>

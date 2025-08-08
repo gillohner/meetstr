@@ -199,9 +199,17 @@ export default function CalendarOverview({
   const filterValue = showUnapproved ? "all" : "approved";
 
   return (
-    <Container maxWidth="lg" sx={{ mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mb: 4, px: { xs: 1, sm: 3 } }}>
       <Card
-        sx={{ width: "100%", mb: 4, position: "relative", overflow: "visible" }}
+        sx={{
+          width: "100%",
+          mb: 4,
+          position: "relative",
+          overflow: "visible",
+          maxWidth: "100%", // Prevent overflow on mobile
+          wordWrap: "break-word", // Break long words
+          wordBreak: "break-word", // Break long words
+        }}
       >
         {/* EventActionsMenu positioned in top-right corner for calendar owner */}
         {isCalendarOwner && (
@@ -238,11 +246,40 @@ export default function CalendarOverview({
         <CardContent>
           <Grid container spacing={2} direction="row">
             <Grid size={{ xs: 12, sm: 9 }}>
-              <Typography gutterBottom variant="h4" component="div">
+              <Typography 
+                gutterBottom 
+                variant="h4" 
+                component="div"
+                sx={{
+                  fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" }, // Responsive font size
+                  lineHeight: 1.2,
+                  wordBreak: "break-word", // Break long words
+                  hyphens: "auto", // Allow hyphenation
+                  overflow: "hidden", // Hide overflow
+                  display: "-webkit-box",
+                  WebkitLineClamp: { xs: 3, sm: 2 }, // More lines on mobile
+                  WebkitBoxOrient: "vertical",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {metadata.title || "Calendar"}
               </Typography>
               <EventHost hostPubkey={calendarEvent.pubkey} />
-              <Typography variant="body1" color="text.secondary">
+              <Typography 
+                variant="body1" 
+                color="text.secondary"
+                sx={{
+                  wordBreak: "break-word", // Break long words
+                  hyphens: "auto", // Allow hyphenation
+                  overflow: "hidden", // Hide overflow
+                  display: "-webkit-box",
+                  WebkitLineClamp: { xs: 4, sm: 6 }, // Limit lines on mobile
+                  WebkitBoxOrient: "vertical",
+                  textOverflow: "ellipsis",
+                  fontSize: { xs: "0.875rem", sm: "1rem" }, // Smaller font on mobile
+                  lineHeight: 1.4,
+                }}
+              >
                 {metadata.summary || ""}
               </Typography>
             </Grid>
