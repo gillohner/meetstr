@@ -21,7 +21,6 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, Person as PersonIcon } from "@mui/icons-material";
 import { fetchCalendarEvents } from "@/utils/nostr/nostrUtils";
-import { fetchEvents } from "@/utils/nostr/eventCacheUtils";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import EventSection from "@/components/common/events/EventSection";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";

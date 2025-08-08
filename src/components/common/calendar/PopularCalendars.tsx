@@ -57,6 +57,7 @@ const PopularCalendars: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [hideEmpty, setHideEmpty] = useState(true);
+  const [hideTest, setHideTest] = useState(true);
   const [calendarCounts, setCalendarCounts] = useState<
     Map<string, { upcoming: number; past: number }>
   >(new Map());
@@ -184,7 +185,7 @@ const PopularCalendars: React.FC = () => {
     }
   }, [ndk, isClient, fetchCalendars]);
 
-  // Filter calendars based on search query and hideEmpty setting
+  // Filter calendars based on search query and filter settings
   const filteredCalendars = useMemo(() => {
     let filtered = calendars;
 
@@ -210,8 +211,32 @@ const PopularCalendars: React.FC = () => {
       });
     }
 
+    // Apply hideTest filter
+    if (hideTest) {
+      filtered = filtered.filter((calendar) => {
+        const metadata = getEventMetadata(calendar);
+
+        // Check title for "test"
+        const titleContainsTest =
+          metadata.title?.toLowerCase().includes("test") ||
+          metadata.title?.toLowerCase().includes("sample") ||
+          false;
+
+        // Check tags for "test"
+        const tagsContainTest =
+          metadata.hashtags?.some(
+            (tag) =>
+              tag.toLowerCase().includes("test") ||
+              tag.toLowerCase().includes("sample")
+          ) || false;
+
+        // Keep calendar only if it doesn't contain "test" in title or tags
+        return !titleContainsTest && !tagsContainTest;
+      });
+    }
+
     return filtered.slice(0, 48); // Show up to 48 calendars
-  }, [calendars, searchQuery, hideEmpty, calendarCounts]);
+  }, [calendars, searchQuery, hideEmpty, hideTest, calendarCounts]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -287,6 +312,16 @@ const PopularCalendars: React.FC = () => {
             "calendar.hideEmpty",
             "Hide calendars with no upcoming events"
           )}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={hideTest}
+              onChange={(e) => setHideTest(e.target.checked)}
+              color="primary"
+            />
+          }
+          label={t("calendar.hideTest", "Hide test calendars")}
         />
       </Paper>
 
