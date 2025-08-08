@@ -17,10 +17,7 @@ export default function EventsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <UpcomingEventsSection
-        title={t("events.upcomingEvents", "Upcoming Events")}
-        showFilters={true}
-      />
+      <UpcomingEventsSection />
     </Container>
   );
 }

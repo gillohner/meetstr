@@ -63,14 +63,10 @@ const getDefaultFilters = (): EventFiltersType => ({
 const defaultFilters: EventFiltersType = getDefaultFilters();
 
 interface UpcomingEventsSectionProps {
-  title?: string;
-  showFilters?: boolean;
   filtersDefaultOpen?: boolean;
 }
 
 const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
-  title = "Upcoming Events",
-  showFilters = true,
   filtersDefaultOpen = false,
 }) => {
   const { t } = useTranslation();

@@ -49,12 +49,6 @@ const NavigationRail: React.FC = () => {
 
   const navigationItems: NavigationItem[] = [
     {
-      key: "home",
-      label: t("nav.home", "Home"),
-      icon: <HomeIcon />,
-      path: "/",
-    },
-    {
       key: "events",
       label: t("nav.events", "Events"),
       icon: <EventIcon />,
