@@ -24,8 +24,8 @@ export default function EventLocationText({
           variant="body1"
           color="text.secondary"
           {...typographyProps}
-          sx={{ 
-            whiteSpace: "pre-line", 
+          sx={{
+            whiteSpace: "pre-line",
             wordBreak: "break-word", // Break long words
             hyphens: "auto", // Allow hyphenation
             overflow: "hidden", // Hide overflow
@@ -34,7 +34,7 @@ export default function EventLocationText({
             WebkitBoxOrient: "vertical",
             textOverflow: "ellipsis",
             fontSize: { xs: "0.875rem", sm: "1rem" }, // Smaller font on mobile
-            ...typographyProps?.sx 
+            ...typographyProps?.sx,
           }}
         >
           {formatTextWithLineBreaks(location)}

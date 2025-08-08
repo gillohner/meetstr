@@ -246,9 +246,9 @@ export default function CalendarOverview({
         <CardContent>
           <Grid container spacing={2} direction="row">
             <Grid size={{ xs: 12, sm: 9 }}>
-              <Typography 
-                gutterBottom 
-                variant="h4" 
+              <Typography
+                gutterBottom
+                variant="h4"
                 component="div"
                 sx={{
                   fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" }, // Responsive font size
@@ -265,8 +265,8 @@ export default function CalendarOverview({
                 {metadata.title || "Calendar"}
               </Typography>
               <EventHost hostPubkey={calendarEvent.pubkey} />
-              <Typography 
-                variant="body1" 
+              <Typography
+                variant="body1"
                 color="text.secondary"
                 sx={{
                   wordBreak: "break-word", // Break long words

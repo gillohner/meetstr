@@ -189,8 +189,8 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 endTime={metadata.end}
               />
               <EventLocationText location={metadata.location} />
-              <Typography 
-                variant="body1" 
+              <Typography
+                variant="body1"
                 paragraph
                 sx={{
                   wordBreak: "break-word", // Break long words
@@ -230,8 +230,8 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 key={`link-${index}`}
                 target="_blank"
                 variant="body2"
-                sx={{ 
-                  mr: 2, 
+                sx={{
+                  mr: 2,
                   display: "inline-block",
                   wordBreak: "break-all", // Break long URLs
                   fontSize: { xs: "0.75rem", sm: "0.875rem" }, // Smaller on mobile
@@ -250,7 +250,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 key={`hashtag-${index}`}
                 label={`#${hashtag}`}
                 size="small"
-                sx={{ 
+                sx={{
                   m: 0.5,
                   fontSize: { xs: "0.7rem", sm: "0.75rem" }, // Smaller on mobile
                   maxWidth: { xs: "calc(50% - 8px)", sm: "auto" }, // Limit width on mobile
@@ -262,7 +262,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 key={`label-${index}`}
                 label={`${label}`}
                 size="small"
-                sx={{ 
+                sx={{
                   m: 0.5,
                   fontSize: { xs: "0.7rem", sm: "0.75rem" }, // Smaller on mobile
                   maxWidth: { xs: "calc(50% - 8px)", sm: "auto" }, // Limit width on mobile
