@@ -154,8 +154,8 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
         <CardContent>
           <Grid container>
             <Grid
-              size={{ xs: 12, sm: 8 }}
-              sx={{ pr: isOwner ? 6 : 0 }} // Add padding to prevent content overlap with menu
+              size={{ xs: 12, sm: 6 }}
+              sx={{ pr: isOwner ? 3 : 0 }} // Add padding to prevent content overlap with menu
             >
               <Typography gutterBottom variant="h4" component="div">
                 {metadata.title || t("error.event.noName", "Unnamed Event")}
@@ -171,13 +171,13 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
               </Typography>
             </Grid>
             <Grid
-              size={{ xs: 12, sm: 4 }}
+              size={{ xs: 12, sm: 6 }}
               sx={{
                 display: "flex",
-                flexDirection: { xs: "row", sm: "column" },
+                flexDirection: "column",
                 gap: 1,
-                justifyContent: { xs: "center", sm: "flex-end" },
-                alignItems: { xs: "center", sm: "flex-end" },
+                justifyContent: "flex-start",
+                alignItems: "stretch",
                 mt: { xs: 2, sm: 0 },
               }}
             >

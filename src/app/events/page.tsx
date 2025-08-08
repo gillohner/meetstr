@@ -1,9 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import OptimizedUpcomingEventsSection from "@/components/common/events/OptimizedUpcomingEventsSection";
+import UpcomingEventsSection from "@/components/common/events/UpcomingEventsSection";
 import { useTranslation } from "react-i18next";
 
 export default function EventsPage() {
@@ -19,16 +17,7 @@ export default function EventsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          {t("events.title", "Events")}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {t("events.description", "Discover and join events in your area")}
-        </Typography>
-      </Box>
-
-      <OptimizedUpcomingEventsSection
+      <UpcomingEventsSection
         title={t("events.upcomingEvents", "Upcoming Events")}
         showFilters={true}
       />

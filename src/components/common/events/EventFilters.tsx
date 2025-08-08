@@ -19,6 +19,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TagIcon from "@mui/icons-material/Tag";
+import GridViewIcon from "@mui/icons-material/GridView";
 import type { dayjs } from "@/utils/formatting/dayjsConfig";
 import {
   normalizeLocation,
@@ -48,6 +49,8 @@ interface EventFiltersProps {
   onChange: (filters: EventFilters) => void;
   availableLocations?: string[];
   availableTags?: string[];
+  cardsPerRow?: number;
+  onCardsPerRowChange?: (value: number) => void;
 }
 
 const EventFilters: React.FC<EventFiltersProps> = ({
@@ -55,16 +58,30 @@ const EventFilters: React.FC<EventFiltersProps> = ({
   onChange,
   availableLocations = [],
   availableTags = [],
+  cardsPerRow,
+  onCardsPerRowChange,
 }) => {
   const { t } = useTranslation();
   const [tagInput, setTagInput] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [radiusTimeout, setRadiusTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   // Prevent hydration mismatch by only getting locale on client
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (radiusTimeout) {
+        clearTimeout(radiusTimeout);
+      }
+    };
+  }, [radiusTimeout]);
 
   // Combine normalized locations with actual event locations
   const normalizedLocations = getAllNormalizedLocations();
@@ -151,13 +168,23 @@ const EventFilters: React.FC<EventFiltersProps> = ({
 
   const handleRadiusChange = (value: number) => {
     if (filters.location) {
-      onChange({
-        ...filters,
-        location: {
-          ...filters.location,
-          radius: value,
-        },
-      });
+      // Clear existing timeout
+      if (radiusTimeout) {
+        clearTimeout(radiusTimeout);
+      }
+
+      // Set new timeout to debounce the change
+      const timeout = setTimeout(() => {
+        onChange({
+          ...filters,
+          location: {
+            ...filters.location!,
+            radius: value,
+          },
+        });
+      }, 300);
+
+      setRadiusTimeout(timeout);
     }
   };
 
@@ -213,74 +240,6 @@ const EventFilters: React.FC<EventFiltersProps> = ({
           />
         </Grid>
 
-        {/* Location Filter */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box>
-            <Autocomplete
-              freeSolo
-              options={allLocations}
-              value={filters.location?.name || ""}
-              onChange={(_, value) => handleLocationChange(value)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={t("events.filters.location", "Location")}
-                  placeholder={t(
-                    "events.filters.locationPlaceholder",
-                    "Filter by location"
-                  )}
-                  InputProps={{
-                    ...params.InputProps,
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Tooltip
-                          title={t("location.useMyLocation", "Use my location")}
-                        >
-                          <IconButton
-                            onClick={() =>
-                              handleGeolocationToggle(!filters.useGeolocation)
-                            }
-                            disabled={gettingLocation}
-                            color={
-                              filters.useGeolocation ? "primary" : "default"
-                            }
-                            size="small"
-                          >
-                            <MyLocationIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              )}
-            />
-
-            {/* Radius Slider */}
-            {filters.location && (
-              <Box sx={{ mt: 2, px: 1 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {t("location.radius", "Radius")}: {filters.location.radius} km
-                </Typography>
-                <Slider
-                  value={filters.location.radius}
-                  onChange={(_, value) => handleRadiusChange(value as number)}
-                  min={1}
-                  max={200}
-                  step={5}
-                  size="small"
-                  sx={{ mt: 1 }}
-                />
-              </Box>
-            )}
-          </Box>
-        </Grid>
-
         {/* Date Range */}
         <Grid size={{ xs: 12, md: 6 }}>
           {isClient ? (
@@ -305,7 +264,7 @@ const EventFilters: React.FC<EventFiltersProps> = ({
             <TextField
               fullWidth
               label={t("events.filters.startDate", "Start Date")}
-              placeholder="Select start date"
+              placeholder={t("events.filters.startDate", "Select start date")}
               disabled
               InputProps={{
                 startAdornment: (
@@ -341,7 +300,7 @@ const EventFilters: React.FC<EventFiltersProps> = ({
             <TextField
               fullWidth
               label={t("events.filters.endDate", "End Date")}
-              placeholder="Select end date"
+              placeholder={t("events.filters.endDate", "Select end date")}
               disabled
               InputProps={{
                 startAdornment: (
@@ -407,6 +366,86 @@ const EventFilters: React.FC<EventFiltersProps> = ({
               ))}
             </Box>
           )}
+        </Grid>
+
+        {/* Location Filter */}
+        <Grid size={{ xs: 12 }}>
+          <Box>
+            <Autocomplete
+              freeSolo
+              options={allLocations}
+              value={filters.location?.name || ""}
+              onChange={(_, value) => handleLocationChange(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t("events.filters.location", "Location")}
+                  placeholder={t(
+                    "events.filters.locationPlaceholder",
+                    "Filter by location"
+                  )}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOnIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Tooltip
+                          title={t("location.useMyLocation", "Use my location")}
+                        >
+                          <IconButton
+                            onClick={() =>
+                              handleGeolocationToggle(!filters.useGeolocation)
+                            }
+                            disabled={gettingLocation}
+                            color={
+                              filters.useGeolocation ? "primary" : "default"
+                            }
+                            size="small"
+                          >
+                            <MyLocationIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            />
+
+            {/* Radius Slider */}
+            {filters.location && (
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  px: 1,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ minWidth: "fit-content" }}
+                >
+                  {t("location.radius", "Radius")}: {filters.location.radius} km
+                </Typography>
+                <Slider
+                  value={filters.location.radius}
+                  onChange={(_, value) => handleRadiusChange(value as number)}
+                  min={1}
+                  max={200}
+                  step={5}
+                  size="small"
+                  sx={{ flex: 1 }}
+                />
+              </Box>
+            )}
+          </Box>
         </Grid>
       </Grid>
     </Box>

@@ -211,7 +211,13 @@
       "startDate": "Fecha de inicio",
       "endDate": "Fecha de fin",
       "addTags": "Agregar etiquetas",
-      "tagsPlaceholder": "Escribe y presiona Enter para agregar etiquetas"
+      "tagsPlaceholder": "Escribe y presiona Enter para agregar etiquetas",
+      "cardsPerRow": "Tarjetas por fila"
     }
+  },
+  "location": {
+    "radius": "Radio",
+    "yourLocation": "Tu ubicación",
+    "useMyLocation": "Usar mi ubicación"
   }
 }

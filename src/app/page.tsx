@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
-import OptimizedUpcomingEventsSection from "@/components/common/events/OptimizedUpcomingEventsSection";
+import UpcomingEventsSection from "@/components/common/events/UpcomingEventsSection";
 import { useTranslation } from "react-i18next";
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <OptimizedUpcomingEventsSection
+      <UpcomingEventsSection
         title={t("events.upcomingEvents", "Upcoming Events")}
         showFilters={true}
         filtersDefaultOpen={true}

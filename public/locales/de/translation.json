@@ -95,7 +95,8 @@
     "remove": "Entfernen",
     "cancel": "Abbrechen",
     "loading": "Laden...",
-    "posting": "Posting ..."
+    "posting": "Posting ...",
+    "changeLanguage": "Sprache ändern"
   },
   "logout": "Ausloggen",
   "tooltip": {
@@ -211,7 +212,13 @@
       "endDate": "Enddatum",
       "addTags": "Tags hinzufügen",
       "tagsPlaceholder": "Eingeben und Enter drücken um Tags hinzuzufügen",
-      "batchSize": "Events pro Batch"
+      "batchSize": "Events pro Batch",
+      "cardsPerRow": "Karten pro Zeile"
     }
+  },
+  "location": {
+    "radius": "Radius",
+    "yourLocation": "Ihr Standort",
+    "useMyLocation": "Meinen Standort verwenden"
   }
 }

@@ -67,7 +67,7 @@ const DefaultFloatingActionButton: React.FC = () => {
           position: "fixed",
           bottom: 24,
           right: 24,
-          zIndex: 1000,
+          zIndex: 100000,
           "& .MuiSpeedDial-fab": {
             backgroundColor: "warning.main",
             color: "warning.contrastText",

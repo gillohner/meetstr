@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNdk } from "nostr-hooks";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -7,22 +7,18 @@ import { type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import {
   Box,
   Typography,
-  Divider,
-  Grid,
   CircularProgress,
   Paper,
-  Chip,
-  IconButton,
-  Collapse,
-  Button,
+  Grid,
+  Slider,
+  useTheme,
+  useMediaQuery,
+  Skeleton,
 } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import EventPreviewCard from "@/components/common/events/EventPreviewCard";
 import EventFilters, {
   type EventFilters as EventFiltersType,
 } from "@/components/common/events/EventFilters";
+import EventPreviewCard from "@/components/common/events/EventPreviewCard";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import {
   isLocationWithinRadius,
@@ -30,13 +26,14 @@ import {
 } from "@/utils/location/locationUtils";
 import dayjs from "dayjs";
 
-// Event cache for immediate display with longer duration
+// Optimized event cache with immediate display
 const eventCache = new Map<string, { events: NDKEvent[]; timestamp: number }>();
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (longer cache)
-const INITIAL_CACHE_KEY = 'initial-events';
+const CACHE_DURATION = 45 * 60 * 1000; // 45 minutes for longer cache
+const INSTANT_CACHE_KEY = "instant-events";
+const BACKGROUND_CACHE_KEY = "background-events";
 
-// Enhanced cache management
-const getFromCache = (key: string): NDKEvent[] | null => {
+// Fast cache operations
+const getCachedEvents = (key: string): NDKEvent[] | null => {
   const cached = eventCache.get(key);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     return cached.events;
@@ -44,9 +41,9 @@ const getFromCache = (key: string): NDKEvent[] | null => {
   return null;
 };
 
-const saveToCache = (key: string, events: NDKEvent[]) => {
+const cacheEvents = (key: string, events: NDKEvent[]) => {
   eventCache.set(key, {
-    events: [...events], // Clone to prevent mutations
+    events: [...events],
     timestamp: Date.now(),
   });
 };
@@ -71,51 +68,6 @@ interface UpcomingEventsSectionProps {
   filtersDefaultOpen?: boolean;
 }
 
-const INITIAL_DISPLAY_COUNT = 20;
-const LOAD_MORE_COUNT = 10;
-
-// Helper function to filter out deleted events using NIP-09
-const filterDeletedEvents = async (
-  ndk: any,
-  events: NDKEvent[]
-): Promise<NDKEvent[]> => {
-  if (!ndk || events.length === 0) return events;
-
-  try {
-    // Batch check for deletions of all events
-    const eventIds = events.map((e) => e.id);
-    const authors = [...new Set(events.map((e) => e.pubkey))];
-
-    const deletionFilter = {
-      kinds: [5],
-      "#e": eventIds,
-      authors: authors,
-    };
-
-    const deletions = await ndk.fetchEvents(deletionFilter);
-    const deletedEventIds = new Set<string>();
-
-    // Extract which events are deleted
-    for (const deletion of Array.from(deletions.values()) as NDKEvent[]) {
-      const eventTags = deletion.tags.filter((tag: string[]) => tag[0] === "e");
-      eventTags.forEach((tag: string[]) => {
-        if (
-          tag[1] &&
-          deletion.pubkey === events.find((e) => e.id === tag[1])?.pubkey
-        ) {
-          deletedEventIds.add(tag[1]);
-        }
-      });
-    }
-
-    // Filter out deleted events
-    return events.filter((event) => !deletedEventIds.has(event.id));
-  } catch (error) {
-    console.error("Error filtering deleted events:", error);
-    return events; // Return original events if filtering fails
-  }
-};
-
 const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   title = "Upcoming Events",
   showFilters = true,
@@ -125,66 +77,227 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const { ndk } = useNdk();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down("sm"));
+
+  // State management
   const [events, setEvents] = useState<NDKEvent[]>([]);
-  const [allEvents, setAllEvents] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [backgroundLoading, setBackgroundLoading] = useState(false);
   const [filters, setFilters] = useState<EventFiltersType>(defaultFilters);
   const [filtersOpen, setFiltersOpen] = useState(filtersDefaultOpen);
   const [activeFilterCount, setActiveFilterCount] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [currentBatch, setCurrentBatch] = useState(0);
-  const [totalEventPool, setTotalEventPool] = useState<NDKEvent[]>([]);
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const [lastFetchTime, setLastFetchTime] = useState(0);
-  const [fetchingMore, setFetchingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [cardsPerRow, setCardsPerRow] = useState(3);
 
-  // URL synchronization functions
+  // Immediate cache check on mount
+  useEffect(() => {
+    setIsClient(true);
+
+    // Check for instant cached events first
+    const instantCache = getCachedEvents(INSTANT_CACHE_KEY);
+    if (instantCache && instantCache.length > 0) {
+      console.log("⚡ Loading events from instant cache");
+      setEvents(instantCache);
+      setLoading(false);
+
+      // Extract metadata for filters
+      const locations = new Set<string>();
+      const tags = new Set<string>();
+      instantCache.forEach((event) => {
+        const metadata = getEventMetadata(event);
+        if (metadata.location) locations.add(metadata.location);
+        metadata.hashtags.forEach((tag) => tags.add(tag));
+      });
+      setAvailableLocations(Array.from(locations).sort());
+      setAvailableTags(Array.from(tags).sort());
+    }
+
+    // Initialize filters from URL
+    const urlFilters = urlParamsToFilters(searchParams);
+    if (!urlFilters.dateRange.start && !urlFilters.dateRange.end) {
+      urlFilters.dateRange = {
+        start: dayjs(),
+        end: dayjs().add(3, "months"),
+      };
+    }
+    setFilters(urlFilters);
+  }, []);
+
+  // Fast event fetching with immediate display
+  const fetchEventsQuick = useCallback(async () => {
+    if (!ndk) return;
+
+    console.log("🚀 Starting fast event fetch");
+
+    // Don't show loading if we have cached events
+    const hasCached = getCachedEvents(INSTANT_CACHE_KEY);
+    if (!hasCached) {
+      setLoading(true);
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
+
+    try {
+      // Priority strategy: recent and upcoming events with high limits
+      const quickFilters: NDKFilter[] = [
+        {
+          kinds: [31922 as any, 31923 as any],
+          since: now,
+          until: sixMonthsFromNow,
+          limit: 1000,
+        },
+        {
+          kinds: [31922 as any, 31923 as any],
+          since: now - 7 * 24 * 3600, // Last week
+          limit: 500,
+        },
+      ];
+
+      // Fetch the first batch immediately
+      const firstFilter = quickFilters[0];
+      console.log("⚡ Fetching first batch...");
+
+      const firstBatch = await ndk.fetchEvents(firstFilter);
+      const firstEvents = Array.from(firstBatch.values()) as NDKEvent[];
+
+      if (firstEvents.length > 0) {
+        console.log(`⚡ Got ${firstEvents.length} events in first batch`);
+
+        // Filter and sort immediately
+        const upcomingEvents = firstEvents
+          .filter((event) => {
+            const metadata = getEventMetadata(event);
+            if (!metadata.start) return false;
+            const eventStart = parseInt(metadata.start);
+            return eventStart >= now && eventStart <= sixMonthsFromNow;
+          })
+          .sort((a, b) => {
+            const aStart = getEventMetadata(a).start;
+            const bStart = getEventMetadata(b).start;
+            if (!aStart) return 1;
+            if (!bStart) return -1;
+            return parseInt(aStart) - parseInt(bStart);
+          });
+
+        // Show immediately
+        setEvents(upcomingEvents.slice(0, 50));
+        setLoading(false);
+
+        // Cache for instant loading
+        cacheEvents(INSTANT_CACHE_KEY, upcomingEvents);
+
+        // Extract filter data
+        const locations = new Set<string>();
+        const tags = new Set<string>();
+        upcomingEvents.forEach((event) => {
+          const metadata = getEventMetadata(event);
+          if (metadata.location) locations.add(metadata.location);
+          metadata.hashtags.forEach((tag) => tags.add(tag));
+        });
+        setAvailableLocations(Array.from(locations).sort());
+        setAvailableTags(Array.from(tags).sort());
+      }
+
+      // Continue with background fetching for more events
+      setBackgroundLoading(true);
+      const remainingPromises = quickFilters.slice(1).map(async (filter) => {
+        try {
+          const events = await ndk.fetchEvents(filter);
+          return Array.from(events.values()) as NDKEvent[];
+        } catch (error) {
+          console.error("Background fetch error:", error);
+          return [];
+        }
+      });
+
+      const additionalResults = await Promise.all(remainingPromises);
+      const allAdditionalEvents = additionalResults.flat();
+
+      if (allAdditionalEvents.length > 0) {
+        console.log(`🔄 Got ${allAdditionalEvents.length} additional events`);
+
+        // Merge and deduplicate
+        const allEvents = [...firstEvents, ...allAdditionalEvents];
+        const uniqueEvents = allEvents.filter(
+          (event, index, self) =>
+            index === self.findIndex((e) => e.id === event.id)
+        );
+
+        const allUpcomingEvents = uniqueEvents
+          .filter((event) => {
+            const metadata = getEventMetadata(event);
+            if (!metadata.start) return false;
+            const eventStart = parseInt(metadata.start);
+            return eventStart >= now && eventStart <= sixMonthsFromNow;
+          })
+          .sort((a, b) => {
+            const aStart = getEventMetadata(a).start;
+            const bStart = getEventMetadata(b).start;
+            if (!aStart) return 1;
+            if (!bStart) return -1;
+            return parseInt(aStart) - parseInt(bStart);
+          });
+
+        // Update with full dataset
+        setEvents(allUpcomingEvents);
+        cacheEvents(BACKGROUND_CACHE_KEY, allUpcomingEvents);
+
+        // Update filter data
+        const allLocations = new Set<string>();
+        const allTags = new Set<string>();
+        allUpcomingEvents.forEach((event) => {
+          const metadata = getEventMetadata(event);
+          if (metadata.location) allLocations.add(metadata.location);
+          metadata.hashtags.forEach((tag) => allTags.add(tag));
+        });
+        setAvailableLocations(Array.from(allLocations).sort());
+        setAvailableTags(Array.from(allTags).sort());
+      }
+    } catch (error) {
+      console.error("Error in fast fetch:", error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+      setBackgroundLoading(false);
+    }
+  }, [ndk]);
+
+  // Load events on NDK ready
+  useEffect(() => {
+    if (ndk && isClient) {
+      fetchEventsQuick();
+    }
+  }, [ndk, isClient, fetchEventsQuick]);
+
+  // URL synchronization
   const filtersToURLParams = useCallback((filters: EventFiltersType) => {
     const params = new URLSearchParams();
-
-    if (filters.searchQuery) {
-      params.set("search", filters.searchQuery);
-    }
-
-    if (filters.location) {
-      params.set("location", filters.location.name);
-    }
-
-    if (filters.tags.length > 0) {
-      params.set("tags", filters.tags.join(","));
-    }
-
+    if (filters.searchQuery) params.set("search", filters.searchQuery);
+    if (filters.location) params.set("location", filters.location.name);
+    if (filters.tags.length > 0) params.set("tags", filters.tags.join(","));
     if (filters.dateRange.start) {
       params.set("startDate", filters.dateRange.start.format("YYYY-MM-DD"));
     }
-
     if (filters.dateRange.end) {
       params.set("endDate", filters.dateRange.end.format("YYYY-MM-DD"));
     }
-
     return params;
   }, []);
 
   const urlParamsToFilters = useCallback(
     (params: URLSearchParams): EventFiltersType => {
       const newFilters: EventFiltersType = { ...defaultFilters };
-
       const search = params.get("search");
-      if (search) {
-        newFilters.searchQuery = search;
-      }
+      if (search) newFilters.searchQuery = search;
 
       const location = params.get("location");
       if (location) {
-        newFilters.location = {
-          name: location,
-          coordinates: null,
-          radius: 50,
-        };
+        newFilters.location = { name: location, coordinates: null, radius: 50 };
       }
 
       const tags = params.get("tags");
@@ -195,17 +308,13 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       const startDate = params.get("startDate");
       if (startDate) {
         const parsed = dayjs(startDate);
-        if (parsed.isValid()) {
-          newFilters.dateRange.start = parsed;
-        }
+        if (parsed.isValid()) newFilters.dateRange.start = parsed;
       }
 
       const endDate = params.get("endDate");
       if (endDate) {
         const parsed = dayjs(endDate);
-        if (parsed.isValid()) {
-          newFilters.dateRange.end = parsed;
-        }
+        if (parsed.isValid()) newFilters.dateRange.end = parsed;
       }
 
       return newFilters;
@@ -216,41 +325,19 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const updateURL = useCallback(
     (filters: EventFiltersType) => {
       if (!isClient) return;
-
       const params = filtersToURLParams(filters);
       const currentPath = window.location.pathname;
       const newURL = params.toString()
         ? `${currentPath}?${params.toString()}`
         : currentPath;
-
-      // Use replace to avoid cluttering browser history
       router.replace(newURL, { scroll: false });
     },
     [router, filtersToURLParams, isClient]
   );
 
-  // Prevent hydration mismatch and initialize from URL
-  useEffect(() => {
-    setIsClient(true);
-
-    // Initialize filters from URL
-    const urlFilters = urlParamsToFilters(searchParams);
-
-    // Set proper date range if not specified in URL
-    if (!urlFilters.dateRange.start && !urlFilters.dateRange.end) {
-      urlFilters.dateRange = {
-        start: dayjs(),
-        end: dayjs().add(3, "months"),
-      };
-    }
-
-    setFilters(urlFilters);
-  }, [searchParams, urlParamsToFilters]);
-
   // Calculate active filter count
   useEffect(() => {
-    if (!isClient) return; // Don't calculate on server side
-
+    if (!isClient) return;
     let count = 0;
     if (filters.location) count++;
     if (filters.tags.length > 0) count++;
@@ -268,556 +355,9 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
     setActiveFilterCount(count);
   }, [filters, isClient]);
 
-  // Check cache immediately on mount
-  useEffect(() => {
-    const cached = eventCache.get("all-events");
-    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-      console.log("Loading events from cache immediately");
-      setAllEvents(cached.events);
-      setEvents(cached.events.slice(0, 50));
-      setLoading(false);
-      
-      // Extract locations and tags from cached events
-      const locations = new Set<string>();
-      const tags = new Set<string>();
-      cached.events.forEach((event) => {
-        const metadata = getEventMetadata(event);
-        if (metadata.location) {
-          locations.add(metadata.location);
-        }
-        metadata.hashtags.forEach((tag) => {
-          tags.add(tag);
-        });
-      });
-      setAvailableLocations(Array.from(locations).sort());
-      setAvailableTags(Array.from(tags).sort());
-    }
-  }, []);
-
-  // Fetch ALL events aggressively with much higher limits
-  const fetchAllEvents = useCallback(async () => {
-    if (!ndk) return;
-
-    // Don't show loading if we have cached events
-    const cached = eventCache.get("all-events");
-    if (!cached || Date.now() - cached.timestamp >= CACHE_DURATION) {
-      setLoading(true);
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
-
-    try {
-      // Much more aggressive fetching with higher limits
-      const filters: NDKFilter[] = [
-        // Get recent events (last 90 days) - much longer range
-        {
-          kinds: [31922 as any, 31923 as any],
-          since: now - 90 * 24 * 3600,
-          limit: 2000,
-        },
-        // Get future events - much higher limit
-        {
-          kinds: [31922 as any, 31923 as any],
-          since: now,
-          until: sixMonthsFromNow,
-          limit: 2000,
-        },
-        // Get events without time restrictions - higher limit
-        {
-          kinds: [31922 as any, 31923 as any],
-          limit: 1500,
-        },
-        // Get events from further back
-        {
-          kinds: [31922 as any, 31923 as any],
-          until: now - 30 * 24 * 3600,
-          limit: 1000,
-        },
-        // Get very recent events
-        {
-          kinds: [31922 as any, 31923 as any],
-          since: now - 7 * 24 * 3600,
-          limit: 1000,
-        },
-      ];
-
-      console.log(
-        "Fetching all upcoming events with very aggressive strategies..."
-      );
-
-      const allEvents: NDKEvent[] = [];
-
-      // Fetch from multiple strategies in parallel
-      const fetchPromises = filters.map(async (filter) => {
-        try {
-          const eventSet = await ndk.fetchEvents(filter);
-          return Array.from(eventSet.values());
-        } catch (error) {
-          console.error("Error with filter:", filter, error);
-          return [];
-        }
-      });
-
-      const results = await Promise.all(fetchPromises);
-      results.forEach((events) => allEvents.push(...events));
-
-      console.log(`Total fetched events for batch:`, allEvents.length);
-
-      // Remove duplicates and filter for upcoming events
-      const uniqueEvents = allEvents.filter(
-        (event, index, self) =>
-          index === self.findIndex((e) => e.id === event.id)
-      );
-
-      const upcomingEvents = uniqueEvents.filter((event) => {
-        const metadata = getEventMetadata(event);
-        if (!metadata.start) return false;
-
-        const eventStart = parseInt(metadata.start);
-        return eventStart >= now && eventStart <= sixMonthsFromNow;
-      });
-
-      // Filter out deleted events using NIP-09
-      const activeEvents = await filterDeletedEvents(ndk, upcomingEvents);
-
-      // Always sort by start time chronologically
-      activeEvents.sort((a, b) => {
-        const aStart = getEventMetadata(a).start;
-        const bStart = getEventMetadata(b).start;
-        if (!aStart) return 1;
-        if (!bStart) return -1;
-        return parseInt(aStart) - parseInt(bStart);
-      });
-
-      // Extract unique locations and tags from all events
-      const locations = new Set<string>();
-      const tags = new Set<string>();
-
-      activeEvents.forEach((event) => {
-        const metadata = getEventMetadata(event);
-        if (metadata.location) {
-          locations.add(metadata.location);
-        }
-        metadata.hashtags.forEach((tag) => {
-          if (tag) tags.add(tag);
-        });
-      });
-
-      // Cache the results immediately
-      eventCache.set("all-events", {
-        events: activeEvents,
-        timestamp: Date.now(),
-      });
-
-      // Also cache as initial events for faster next load
-      saveToCache(INITIAL_CACHE_KEY, activeEvents.slice(0, 50));
-
-      setAvailableLocations(Array.from(locations).sort());
-      setAvailableTags(Array.from(tags).sort());
-      setAllEvents(activeEvents);
-      
-      // Set initial display events immediately
-      setEvents(activeEvents.slice(0, 50));
-
-      // Continue background fetching
-      setTimeout(() => {
-        fetchMoreInBackground();
-      }, 1000); // Start sooner
-    } catch (error) {
-      console.error("Error fetching all events:", error);
-      setAllEvents([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [ndk]);
-
-  // Background fetching with higher limits
-  const fetchMoreInBackground = useCallback(async () => {
-    if (!ndk || fetchingMore) return;
-
-    setFetchingMore(true);
-
-    try {
-      const filters: NDKFilter[] = [
-        // Look much further back
-        {
-          kinds: [31922 as any, 31923 as any],
-          until: Math.floor(Date.now() / 1000) - 90 * 24 * 3600,
-          limit: 1000,
-        },
-        // Search by popular tags with higher limit
-        ...(availableTags.length > 0
-          ? [
-              {
-                kinds: [31922 as any, 31923 as any],
-                "#t": availableTags.slice(0, 20), // More tags
-                limit: 800,
-              },
-            ]
-          : []),
-        // Additional broad search
-        {
-          kinds: [31922 as any, 31923 as any],
-          limit: 1000,
-        },
-      ];
-
-      // Fetch from multiple strategies in parallel
-      const fetchPromises = filters.map(async (filter) => {
-        try {
-          const eventSet = await ndk.fetchEvents(filter);
-          return Array.from(eventSet.values());
-        } catch (error) {
-          console.error("Error with filter:", filter, error);
-          return [];
-        }
-      });
-
-      const results = await Promise.all(fetchPromises);
-      let newEvents: NDKEvent[] = [];
-      results.forEach((events) => newEvents.push(...events));
-
-      // Remove duplicates and filter for upcoming events
-      newEvents = newEvents.filter(
-        (event, index, self) =>
-          index === self.findIndex((e) => e.id === event.id)
-      );
-
-      const now = Math.floor(Date.now() / 1000);
-      const upcomingEvents = newEvents.filter((event) => {
-        const metadata = getEventMetadata(event);
-        if (!metadata.start) return false;
-
-        const eventStart = parseInt(metadata.start);
-        return eventStart >= now;
-      });
-
-      // Filter out deleted events using NIP-09
-      const activeEvents = await filterDeletedEvents(ndk, upcomingEvents);
-
-      // Always sort by start time chronologically
-      activeEvents.sort((a, b) => {
-        const aStart = getEventMetadata(a).start;
-        const bStart = getEventMetadata(b).start;
-        if (!aStart) return 1;
-        if (!bStart) return -1;
-        return parseInt(aStart) - parseInt(bStart);
-      });
-
-      // Update cache with new events
-      if (activeEvents.length > 0) {
-        setAllEvents((prev) => {
-          const combined = [...prev, ...newEvents];
-          const unique = combined.filter(
-            (event, index, self) =>
-              index === self.findIndex((e) => e.id === event.id)
-          );
-
-          const now = Math.floor(Date.now() / 1000);
-          const upcoming = unique.filter((event) => {
-            const metadata = getEventMetadata(event);
-            if (!metadata.start) return false;
-            return parseInt(metadata.start) >= now;
-          });
-
-          const sorted = upcoming.sort((a, b) => {
-            const aStart = getEventMetadata(a).start;
-            const bStart = getEventMetadata(b).start;
-            if (!aStart) return 1;
-            if (!bStart) return -1;
-            return parseInt(aStart) - parseInt(bStart);
-          });
-
-          // Update cache
-          eventCache.set("all-events", {
-            events: sorted,
-            timestamp: Date.now(),
-          });
-
-          return sorted;
-        });
-
-        console.log(`Added ${activeEvents.length} more events in background`);
-      }
-    } catch (error) {
-      console.error("Background fetch error:", error);
-    } finally {
-      setFetchingMore(false);
-    }
-  }, [ndk, fetchingMore, availableTags]);
-
-  // Fetch events from Nostr network with caching and background loading
-  const fetchEventsBatch = useCallback(
-    async (
-      batchNumber: number = 0,
-      appendToExisting: boolean = false,
-      isBackground: boolean = false
-    ) => {
-      if (!ndk) return;
-
-      // Prevent duplicate concurrent requests
-      const now = Date.now();
-      if (now - lastFetchTime < 1000) return; // Wait at least 1 second between requests
-      setLastFetchTime(now);
-
-      const cacheKey = `upcoming-events-${batchNumber}`;
-      const cached = eventCache.get(cacheKey);
-
-      // Check cache first (skip cache for background loading to get fresh data)
-      if (
-        !isBackground &&
-        cached &&
-        Date.now() - cached.timestamp < CACHE_DURATION
-      ) {
-        if (appendToExisting) {
-          setEvents((prev) => [...prev, ...cached.events]);
-        } else {
-          setEvents(cached.events);
-        }
-        setLoading(false);
-        setLoadingMore(false);
-        return cached.events;
-      }
-
-      if (batchNumber === 0 && !isBackground) setLoading(true);
-      else if (!isBackground) setLoadingMore(true);
-      else setBackgroundLoading(true);
-
-      try {
-        const now = Math.floor(Date.now() / 1000);
-        const sixMonthsFromNow = Math.floor(dayjs().add(6, "months").unix());
-        const batchSize = 50; // Fixed batch size for background
-
-        // Enhanced strategies to find more events
-        const filters: NDKFilter[] = [
-          // Strategy 1: Recent events by creation time
-          {
-            kinds: [31922 as any, 31923 as any],
-            limit: batchSize,
-            until: now - batchNumber * 12 * 3600, // Go back 12 hours per batch
-          },
-          // Strategy 2: Search by time range (future events)
-          {
-            kinds: [31922 as any, 31923 as any],
-            limit: batchSize,
-            since: now,
-            until: sixMonthsFromNow,
-          },
-          // Strategy 3: Popular relays with different time windows
-          {
-            kinds: [31922 as any, 31923 as any],
-            limit: batchSize,
-            until: now + batchNumber * 24 * 3600, // Look in different time windows
-          },
-          // Strategy 4: Search by common tags if we have available tags
-          ...(availableTags.length > 0
-            ? [
-                {
-                  kinds: [31922 as any, 31923 as any],
-                  "#t": availableTags.slice(0, 5), // Search by known tags
-                  limit: batchSize,
-                },
-              ]
-            : []),
-        ];
-
-        console.log(
-          `Fetching batch ${batchNumber} (background: ${isBackground}) with ${filters.length} strategies`
-        );
-
-        const allEvents: NDKEvent[] = [];
-
-        // Fetch from multiple strategies in parallel
-        const fetchPromises = filters.map(async (filter) => {
-          try {
-            const eventSet = await ndk.fetchEvents(filter);
-            return Array.from(eventSet.values());
-          } catch (error) {
-            console.error("Error with filter:", filter, error);
-            return [];
-          }
-        });
-
-        const results = await Promise.all(fetchPromises);
-        results.forEach((events) => allEvents.push(...events));
-
-        console.log(
-          `Total fetched events for batch ${batchNumber}:`,
-          allEvents.length
-        );
-
-        // Remove duplicates and filter for upcoming events
-        const uniqueEvents = allEvents.filter(
-          (event, index, self) =>
-            index === self.findIndex((e) => e.id === event.id)
-        );
-
-        const upcomingEvents = uniqueEvents.filter((event) => {
-          const metadata = getEventMetadata(event);
-          if (!metadata.start) return false;
-
-          const eventStart = parseInt(metadata.start);
-          return eventStart >= now && eventStart <= sixMonthsFromNow;
-        });
-
-        // Always sort by start time chronologically
-        upcomingEvents.sort((a, b) => {
-          const aStart = getEventMetadata(a).start;
-          const bStart = getEventMetadata(b).start;
-          if (!aStart) return 1;
-          if (!bStart) return -1;
-          return parseInt(aStart) - parseInt(bStart);
-        });
-
-        // Extract unique locations and tags from all events
-        const locations = new Set<string>();
-        const tags = new Set<string>();
-
-        upcomingEvents.forEach((event) => {
-          const metadata = getEventMetadata(event);
-          if (metadata.location) {
-            locations.add(metadata.location);
-          }
-          metadata.hashtags.forEach((tag) => {
-            if (tag) tags.add(tag);
-          });
-        });
-
-        // Update available locations and tags for filters
-        setAvailableLocations((prev) => {
-          const combined = [...new Set([...prev, ...Array.from(locations)])];
-          return combined.sort();
-        });
-        setAvailableTags((prev) => {
-          const combined = [...new Set([...prev, ...Array.from(tags)])];
-          return combined.sort();
-        });
-
-        // Cache the results
-        eventCache.set(cacheKey, {
-          events: upcomingEvents,
-          timestamp: Date.now(),
-        });
-
-        // Update total event pool for better filtering
-        setTotalEventPool((prev) => {
-          const combined = [...prev, ...upcomingEvents];
-          const unique = combined.filter(
-            (event, index, self) =>
-              index === self.findIndex((e) => e.id === event.id)
-          );
-          // Keep sorted chronologically
-          return unique.sort((a, b) => {
-            const aStart = getEventMetadata(a).start;
-            const bStart = getEventMetadata(b).start;
-            if (!aStart) return 1;
-            if (!bStart) return -1;
-            return parseInt(aStart) - parseInt(bStart);
-          });
-        });
-
-        if (!isBackground) {
-          if (appendToExisting) {
-            setEvents((prev) => {
-              const combined = [...prev, ...upcomingEvents];
-              // Remove duplicates and sort chronologically
-              const unique = combined.filter(
-                (event, index, self) =>
-                  index === self.findIndex((e) => e.id === event.id)
-              );
-              return unique.sort((a, b) => {
-                const aStart = getEventMetadata(a).start;
-                const bStart = getEventMetadata(b).start;
-                if (!aStart) return 1;
-                if (!bStart) return -1;
-                return parseInt(aStart) - parseInt(bStart);
-              });
-            });
-          } else {
-            setEvents(upcomingEvents);
-          }
-
-          // Always keep load more button available - there might be more events
-          setHasMore(true);
-        }
-
-        return upcomingEvents;
-      } catch (error) {
-        console.error("Error fetching upcoming events:", error);
-        if (!appendToExisting && !isBackground) {
-          setEvents([]);
-        }
-        // Don't disable hasMore on errors - keep trying
-        return [];
-      } finally {
-        if (!isBackground) {
-          setLoading(false);
-          setLoadingMore(false);
-        }
-        setBackgroundLoading(false);
-      }
-    },
-    [ndk, lastFetchTime, availableTags]
-  );
-
-  // Initial load with immediate cache check
-  useEffect(() => {
-    const initializeEvents = async () => {
-      // Check cache immediately for instant loading
-      const cachedEvents = getFromCache(INITIAL_CACHE_KEY);
-      if (cachedEvents && cachedEvents.length > 0) {
-        console.log("Loading events from cache immediately");
-        setEvents(cachedEvents);
-        setAllEvents(cachedEvents);
-        setLoading(false);
-        
-        // Continue with background refresh
-        setTimeout(() => {
-          fetchAllEvents();
-        }, 100);
-      } else {
-        // No cache, fetch immediately
-        setCurrentBatch(0);
-        await fetchAllEvents();
-      }
-    };
-
-    initializeEvents();
-  }, [ndk]);
-
-  // Background loading to continuously discover events
-  useEffect(() => {
-    if (!isClient) return;
-
-    const backgroundLoadingInterval = setInterval(() => {
-      if (!loadingMore && !loading && hasMore) {
-        // Fetch in background every 30 seconds
-        const nextBatch = currentBatch + 1;
-        fetchEventsBatch(nextBatch, true, true); // Background loading
-        setCurrentBatch(nextBatch);
-      }
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(backgroundLoadingInterval);
-  }, [currentBatch, loadingMore, loading, hasMore, isClient, fetchEventsBatch]);
-
-  // Load more events
-  const loadMoreEvents = useCallback(() => {
-    if (!loadingMore && hasMore) {
-      const nextBatch = currentBatch + 1;
-      setCurrentBatch(nextBatch);
-      fetchEventsBatch(nextBatch, true);
-    }
-  }, [currentBatch, loadingMore, hasMore, fetchEventsBatch]);
-
-  // Filter events based on criteria - now works with totalEventPool for better results
+  // Fast client-side filtering
   const filteredEvents = useMemo(() => {
-    // Use the larger pool of events for filtering if available
-    const eventPool =
-      totalEventPool.length > events.length ? totalEventPool : events;
-
-    let filtered = eventPool.filter((event) => {
+    return events.filter((event) => {
       const metadata = getEventMetadata(event);
 
       // Date range filter
@@ -841,7 +381,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       if (filters.location) {
         if (metadata.location) {
           if (filters.useGeolocation && filters.userLocation) {
-            // Use geolocation radius filtering
             const withinRadius = isLocationWithinRadius(
               metadata.location,
               filters.userLocation,
@@ -849,7 +388,6 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
             );
             if (!withinRadius) return false;
           } else {
-            // Use text-based location matching with normalization
             const eventLocationNormalized = normalizeLocation(
               metadata.location
             );
@@ -871,15 +409,17 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
             if (!locationMatch) return false;
           }
         } else {
-          return false; // No location data, exclude if location filter is active
+          return false;
         }
       }
 
       // Tags filter
       if (filters.tags.length > 0) {
         const eventTags = metadata.hashtags.map((tag) => tag.toLowerCase());
-        const hasMatchingTag = filters.tags.some((filterTag: string) =>
-          eventTags.includes(filterTag.toLowerCase())
+        const hasMatchingTag = filters.tags.some((filterTag) =>
+          eventTags.some((eventTag) =>
+            eventTag.includes(filterTag.toLowerCase())
+          )
         );
         if (!hasMatchingTag) return false;
       }
@@ -887,33 +427,22 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
       // Search query filter
       if (filters.searchQuery.trim()) {
         const query = filters.searchQuery.toLowerCase();
-        const title = (metadata.title || "").toLowerCase();
-        const summary = (metadata.summary || "").toLowerCase();
-        const location = (metadata.location || "").toLowerCase();
+        const searchableText = [
+          metadata.title,
+          metadata.summary,
+          metadata.location,
+          ...metadata.hashtags,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
 
-        if (
-          !title.includes(query) &&
-          !summary.includes(query) &&
-          !location.includes(query)
-        ) {
-          return false;
-        }
+        if (!searchableText.includes(query)) return false;
       }
 
       return true;
     });
-
-    // Always sort chronologically by start time
-    filtered.sort((a, b) => {
-      const aStart = getEventMetadata(a).start;
-      const bStart = getEventMetadata(b).start;
-      if (!aStart) return 1;
-      if (!bStart) return -1;
-      return parseInt(aStart) - parseInt(bStart);
-    });
-
-    return filtered.slice(0);
-  }, [events, totalEventPool, filters]);
+  }, [events, filters]);
 
   const handleFiltersChange = (newFilters: EventFiltersType) => {
     setFilters(newFilters);
@@ -923,128 +452,59 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   const clearFilters = () => {
     const clearedFilters = {
       ...defaultFilters,
-      dateRange: {
-        start: dayjs(),
-        end: dayjs().add(3, "months"),
-      },
+      dateRange: { start: dayjs(), end: dayjs().add(3, "months") },
     };
     setFilters(clearedFilters);
     updateURL(clearedFilters);
   };
 
+  const handleSliderChange = (_: Event, value: number | number[]) => {
+    if (typeof value === "number") setCardsPerRow(value);
+  };
+
+  if (!isClient) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ mb: 4 }}>
-      {!isClient ? (
-        // Render static content during SSR
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <EventFilters
+          filters={filters}
+          onChange={handleFiltersChange}
+          availableLocations={availableLocations}
+          availableTags={availableTags}
+          cardsPerRow={isMobileView ? undefined : cardsPerRow}
+          onCardsPerRowChange={isMobileView ? undefined : setCardsPerRow}
+        />
+      </Paper>
+
+      {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
           <CircularProgress />
         </Box>
-      ) : (
-        <>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2,
-            }}
-          >
-            <Typography variant="h5" component="h2">
-              {title}
-            </Typography>
-
-            {showFilters && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                {activeFilterCount > 0 && (
-                  <Chip
-                    label={`${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""}`}
-                    size="small"
-                    onDelete={clearFilters}
-                    color="primary"
-                  />
-                )}
-                <IconButton
-                  onClick={() => setFiltersOpen(!filtersOpen)}
-                  color={filtersOpen ? "primary" : "default"}
-                >
-                  <FilterListIcon />
-                  {filtersOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </IconButton>
-              </Box>
-            )}
-          </Box>
-
-          <Divider sx={{ mb: 2 }} />
-
-          {showFilters && (
-            <Collapse in={filtersOpen}>
-              <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
-                <EventFilters
-                  filters={filters}
-                  onChange={handleFiltersChange}
-                  availableLocations={availableLocations}
-                  availableTags={availableTags}
-                />
-              </Paper>
-            </Collapse>
-          )}
-
-          {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : filteredEvents.length > 0 ? (
-            <>
-              <Grid container spacing={3}>
-                {filteredEvents.map((event, idx) => (
-                  <Grid
-                    size={{ xs: 12, md: 6 }}
-                    key={`upcoming-event-${event.id}-${idx}`}
-                  >
-                    <EventPreviewCard event={event} />
-                  </Grid>
-                ))}
+      ) : filteredEvents.length > 0 ? (
+        <Grid container spacing={3}>
+          {filteredEvents.map((event) => {
+            const colSpan = isMobileView ? 12 : Math.floor(12 / cardsPerRow);
+            return (
+              <Grid
+                size={{ xs: 12, sm: 6, md: colSpan, lg: colSpan }}
+                key={event.id}
+              >
+                <EventPreviewCard event={event} />
               </Grid>
-
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                <Button
-                  variant="outlined"
-                  onClick={loadMoreEvents}
-                  disabled={loadingMore}
-                  sx={{ minWidth: 120 }}
-                >
-                  {loadingMore ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    t("events.loadMore", "Load More")
-                  )}
-                </Button>
-                {backgroundLoading && (
-                  <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
-                    <CircularProgress size={16} />
-                    <Typography variant="caption" sx={{ ml: 1 }}>
-                      Finding more events...
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-            </>
-          ) : (
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              textAlign="center"
-              sx={{ py: 4 }}
-            >
-              {activeFilterCount > 0
-                ? t(
-                    "events.noEventsWithFilters",
-                    "No events found matching your filters."
-                  )
-                : t("events.noUpcomingEvents", "No upcoming events found.")}
-            </Typography>
-          )}
-        </>
+            );
+          })}
+        </Grid>
+      ) : (
+        <Typography variant="body1" align="center">
+          {t("events.noUpcomingEvents", "No upcoming events found.")}
+        </Typography>
       )}
     </Box>
   );

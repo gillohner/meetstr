@@ -25,7 +25,8 @@
     "change": "Change",
     "remove": "Remove",
     "cancel": "Cancel",
-    "posting": "Posting..."
+    "posting": "Posting...",
+    "changeLanguage": "Change Language"
   },
   "createCalendar": {
     "title": "New Calendar",
@@ -216,7 +217,13 @@
       "endDate": "End Date",
       "addTags": "Add tags",
       "tagsPlaceholder": "Type and press Enter to add tags",
-      "batchSize": "Events per batch"
+      "batchSize": "Events per batch",
+      "cardsPerRow": "Cards per row"
+    },
+    "location": {
+      "radius": "Radius",
+      "yourLocation": "Your Location",
+      "useMyLocation": "Use my location"
     }
   },
   "notification": {
