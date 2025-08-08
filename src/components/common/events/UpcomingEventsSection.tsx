@@ -22,6 +22,12 @@ import {
   isLocationWithinRadius,
   normalizeLocation,
 } from "@/utils/location/locationUtils";
+import {
+  fetchEvents,
+  getCachedEvents as getSharedCachedEvents,
+  cacheEvents as cacheSharedEvents,
+  CACHE_KEYS,
+} from "@/utils/nostr/eventCacheUtils";
 import dayjs from "dayjs";
 
 // Optimized event cache with immediate display
@@ -84,9 +90,9 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
     setIsClient(true);
 
     // Check for instant cached events first
-    const instantCache = getCachedEvents(INSTANT_CACHE_KEY);
+    const instantCache = getSharedCachedEvents(CACHE_KEYS.INSTANT_EVENTS);
     if (instantCache && instantCache.length > 0) {
-      console.log("⚡ Loading events from instant cache");
+      console.log("⚡ Loading events from shared cache");
       setEvents(instantCache);
       setLoading(false);
 
@@ -100,6 +106,28 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
       });
       setAvailableLocations(Array.from(locations).sort());
       setAvailableTags(Array.from(tags).sort());
+    } else {
+      // Try the shared optimized fetching
+      if (ndk) {
+        fetchEvents(ndk).then(({ upcomingEvents }) => {
+          if (upcomingEvents.length > 0) {
+            console.log("⚡ Loading events from shared optimized fetch");
+            setEvents(upcomingEvents);
+            setLoading(false);
+
+            // Extract metadata for filters
+            const locations = new Set<string>();
+            const tags = new Set<string>();
+            upcomingEvents.forEach((event) => {
+              const metadata = getEventMetadata(event);
+              if (metadata.location) locations.add(metadata.location);
+              metadata.hashtags.forEach((tag) => tags.add(tag));
+            });
+            setAvailableLocations(Array.from(locations).sort());
+            setAvailableTags(Array.from(tags).sort());
+          }
+        });
+      }
     }
 
     // Initialize filters from URL
@@ -254,7 +282,33 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
   // Load events on NDK ready
   useEffect(() => {
     if (ndk && isClient) {
-      fetchEventsQuick();
+      // Try shared optimized fetch first
+      fetchEvents(ndk)
+        .then(({ upcomingEvents }) => {
+          if (upcomingEvents.length > 0) {
+            console.log("🚀 Using shared optimized event fetch");
+            setEvents(upcomingEvents);
+            setLoading(false);
+
+            // Extract metadata for filters
+            const locations = new Set<string>();
+            const tags = new Set<string>();
+            upcomingEvents.forEach((event) => {
+              const metadata = getEventMetadata(event);
+              if (metadata.location) locations.add(metadata.location);
+              metadata.hashtags.forEach((tag) => tags.add(tag));
+            });
+            setAvailableLocations(Array.from(locations).sort());
+            setAvailableTags(Array.from(tags).sort());
+          } else {
+            // Fallback to original method if shared method returns no events
+            fetchEventsQuick();
+          }
+        })
+        .catch(() => {
+          // Fallback to original method on error
+          fetchEventsQuick();
+        });
     }
   }, [ndk, isClient, fetchEventsQuick]);
 

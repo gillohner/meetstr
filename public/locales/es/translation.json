@@ -110,6 +110,12 @@
     "onlyApproved": "Solo meetups aprobados",
     "allMeetups": "Todos los meetups",
     "noCalendarsFound": "No se encontraron calendarios.",
+    "upcoming": "próximos",
+    "past": "pasados",
+    "untitled": "Calendario Sin Título",
+    "eventCount": "{{count}} eventos",
+    "searchCalendars": "Buscar calendarios...",
+    "hideEmpty": "Ocultar calendarios sin eventos próximos",
     "edit": {
       "title": "Editar calendario",
       "submit": "Actualizar calendario",
@@ -174,7 +180,6 @@
     }
   },
   "nav": {
-    "dezentralschweiz": "Calendario DezentralSchweiz",
     "new-calendar": "Crear Calendario",
     "new-event": "Crear Evento",
     "startpage": "Inicio"

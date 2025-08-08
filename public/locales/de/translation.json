@@ -110,6 +110,15 @@
     "onlyApproved": "Nur genehmigte Meetups",
     "allMeetups": "Alle Meetups",
     "noCalendarsFound": "Keine Kalender gefunden.",
+    "upcoming": "bevorstehend",
+    "past": "vergangen",
+    "untitled": "Unbenannter Kalender",
+    "eventCount": "{{count}} Events",
+    "searchCalendars": "Kalender suchen...",
+    "hideEmpty": "Kalender ohne bevorstehende Events ausblenden",
+    "searchResults": "{{count}} Kalender gefunden für \"{{query}}\"",
+    "totalCalendars": "{{count}} Kalender angezeigt",
+    "noSearchResults": "Keine Kalender gefunden für Ihre Suche.",
     "edit": {
       "title": "Kalender bearbeiten",
       "submit": "Kalender aktualisieren",
@@ -174,7 +183,6 @@
     }
   },
   "nav": {
-    "dezentralschweiz": "Dezentralschweiz Kalender",
     "new-calendar": "Kalender erstellen",
     "new-event": "Event erstellen",
     "startpage": "Home"

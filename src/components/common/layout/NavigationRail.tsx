@@ -60,12 +60,6 @@ const NavigationRail: React.FC = () => {
       icon: <CalendarIcon />,
       path: "/calendars",
     },
-    {
-      key: "dezentralschweiz",
-      label: t("nav.dezentralschweiz", "DezentralSchweiz"),
-      icon: <CalendarIcon />,
-      path: "/calendar/naddr1qqyrsdeevfskxvfjqydhwumn8ghj7mn0wd68ytnnwa5hxuedv4hxjemdvyhxx6qzyzym2fnu9uvw04mq5lyzjwvat5x6jgaksl2nagn2dlf45ac0nxhqzqcyqqq8edqr02a67",
-    },
   ];
 
   const handleDrawerToggle = () => {

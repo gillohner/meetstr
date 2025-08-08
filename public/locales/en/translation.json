@@ -6,7 +6,6 @@
   "nav": {
     "new-calendar": "New Calendar",
     "new-event": "New Event",
-    "dezentralschweiz": "Dezentralschweiz Calendar",
     "startpage": "Home"
   },
   "navbar": {
@@ -175,6 +174,15 @@
     "pastEvents": "Past Events",
     "noPastEvents": "No Past Events",
     "noCalendarsFound": "No calendars found.",
+    "upcoming": "upcoming",
+    "past": "past",
+    "untitled": "Untitled Calendar",
+    "eventCount": "{{count}} events",
+    "searchCalendars": "Search calendars...",
+    "hideEmpty": "Hide calendars with no upcoming events",
+    "searchResults": "Found {{count}} calendars matching \"{{query}}\"",
+    "totalCalendars": "Showing {{count}} calendars",
+    "noSearchResults": "No calendars found matching your search.",
     "subscription": {
       "added": "Calendar subscription added"
     },

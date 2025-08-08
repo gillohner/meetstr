@@ -2,7 +2,6 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import type NDK from "@nostr-dev-kit/ndk";
 import { NDKEvent as NDKEventClass } from "@nostr-dev-kit/ndk";
-import { verifyEvent } from "nostr-tools";
 
 export const getEventMetadata = (event: NDKEvent) => {
   const getTagValue = (tagName: string) =>
