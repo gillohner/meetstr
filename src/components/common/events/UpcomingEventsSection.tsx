@@ -102,7 +102,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
       instantCache.forEach((event) => {
         const metadata = getEventMetadata(event);
         if (metadata.location) locations.add(metadata.location);
-        metadata.hashtags.forEach((tag) => tags.add(tag));
+        metadata.hashtags.forEach((tag: string) => tags.add(tag));
       });
       setAvailableLocations(Array.from(locations).sort());
       setAvailableTags(Array.from(tags).sort());

@@ -460,7 +460,7 @@ const NotificationCard = ({
       {metadata.hashtags && metadata.hashtags.length > 0 && (
         <CardContent sx={{ pt: 0, pb: 1 }}>
           <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-            {metadata.hashtags.slice(0, 3).map((tag, index) => (
+            {metadata.hashtags.slice(0, 3).map((tag: string, index: number) => (
               <Chip
                 key={index}
                 label={`#${tag}`}

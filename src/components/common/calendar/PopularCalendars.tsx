@@ -229,9 +229,17 @@ const PopularCalendars: React.FC = () => {
           false;
 
         // Check tags for "test"
-        const tagsContainTest =
-          metadata.hashtags?.some(
-            (tag) =>
+        interface CalendarMetadata {
+          title?: string;
+          summary?: string;
+          hashtags?: string[];
+        }
+
+        const calendarMetadata: CalendarMetadata = getEventMetadata(calendar);
+
+        const tagsContainTest: boolean =
+          calendarMetadata.hashtags?.some(
+            (tag: string) =>
               tag.toLowerCase().includes("test") ||
               tag.toLowerCase().includes("sample")
           ) || false;
@@ -308,7 +316,13 @@ const PopularCalendars: React.FC = () => {
         />
 
         {/* Filter Toggle Button - Right aligned */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: showFilters ? 2 : 0 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            mb: showFilters ? 2 : 0,
+          }}
+        >
           <Button
             startIcon={<FilterListIcon />}
             endIcon={showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -365,10 +379,7 @@ const PopularCalendars: React.FC = () => {
                   color="primary"
                 />
               }
-              label={t(
-                "calendar.hideTest",
-                "Hide test calendars"
-              )}
+              label={t("calendar.hideTest", "Hide test calendars")}
             />
           </Box>
         </Collapse>
