@@ -124,7 +124,10 @@ export function useRsvpHandler(event: EventWithTags) {
         showSnackbar(t("event.rsvp.success"), "success");
       } catch (error) {
         console.error("Error creating RSVP:", error);
-        if (error instanceof Error && error.message.includes('Authentication required')) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Authentication required")
+        ) {
           showSnackbar(t("auth.required", "Please log in to RSVP"), "warning");
         } else {
           showSnackbar(t("event.rsvp.error"), "error");

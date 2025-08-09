@@ -10,7 +10,7 @@ interface AuthState {
 class AuthService {
   private static instance: AuthService;
   private authState: AuthState | null = null;
-  private readonly SESSION_KEY = 'meetstr_auth_state';
+  private readonly SESSION_KEY = "meetstr_auth_state";
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   static getInstance(): AuthService {
@@ -25,32 +25,32 @@ class AuthService {
   }
 
   private loadFromSession(): void {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     try {
       const stored = sessionStorage.getItem(this.SESSION_KEY);
       if (stored) {
         this.authState = JSON.parse(stored);
       }
     } catch (error) {
-      console.warn('Failed to load auth state from session:', error);
+      console.warn("Failed to load auth state from session:", error);
       this.authState = null;
     }
   }
 
   private saveToSession(): void {
-    if (typeof window === 'undefined' || !this.authState) return;
-    
+    if (typeof window === "undefined" || !this.authState) return;
+
     try {
       sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(this.authState));
     } catch (error) {
-      console.warn('Failed to save auth state to session:', error);
+      console.warn("Failed to save auth state to session:", error);
     }
   }
 
   private isStateFresh(): boolean {
     if (!this.authState) return false;
-    return (Date.now() - this.authState.lastChecked) < this.CACHE_DURATION;
+    return Date.now() - this.authState.lastChecked < this.CACHE_DURATION;
   }
 
   /**
@@ -64,8 +64,8 @@ class AuthService {
     }
 
     // Check if window.nostr is available without calling getPublicKey
-    const hasNostr = typeof window !== 'undefined' && !!window.nostr;
-    
+    const hasNostr = typeof window !== "undefined" && !!window.nostr;
+
     if (!hasNostr) {
       this.authState = {
         isAuthenticated: false,
@@ -92,7 +92,11 @@ class AuthService {
    * Get user info without triggering modal (returns cached data)
    */
   getUserInfo(): { pubkey: string; npub: string } | null {
-    if (this.authState?.isAuthenticated && this.authState.pubkey && this.authState.npub) {
+    if (
+      this.authState?.isAuthenticated &&
+      this.authState.pubkey &&
+      this.authState.npub
+    ) {
       return {
         pubkey: this.authState.pubkey,
         npub: this.authState.npub,
@@ -114,17 +118,17 @@ class AuthService {
    * This WILL trigger the modal if not authenticated
    */
   async authenticate(): Promise<{ pubkey: string; npub: string } | null> {
-    if (typeof window === 'undefined' || !window.nostr) {
-      throw new Error('Nostr extension not available');
+    if (typeof window === "undefined" || !window.nostr) {
+      throw new Error("Nostr extension not available");
     }
 
     try {
       const pubkey = await window.nostr.getPublicKey();
-      
+
       if (pubkey) {
-        const { nip19 } = await import('nostr-tools');
+        const { nip19 } = await import("nostr-tools");
         const npub = nip19.npubEncode(pubkey);
-        
+
         this.authState = {
           isAuthenticated: true,
           pubkey,
@@ -133,14 +137,15 @@ class AuthService {
           lastChecked: Date.now(),
         };
         this.saveToSession();
-        
+
         return { pubkey, npub };
       }
     } catch (error) {
-      console.warn('Authentication failed:', error);
+      console.warn("Authentication failed:", error);
       this.markModalDismissed();
+      throw error; // Re-throw to allow caller to handle
     }
-    
+
     return null;
   }
 
@@ -148,19 +153,19 @@ class AuthService {
    * Sign an event - requires authentication
    */
   async signEvent(unsignedEvent: any): Promise<any> {
-    if (typeof window === 'undefined' || !window.nostr) {
-      throw new Error('Nostr extension not available');
+    if (typeof window === "undefined" || !window.nostr) {
+      throw new Error("Nostr extension not available");
     }
 
     // Ensure we're authenticated first
     const userInfo = await this.authenticate();
     if (!userInfo) {
-      throw new Error('Authentication required for signing');
+      throw new Error("Authentication required for signing");
     }
 
     // Ensure pubkey matches
     unsignedEvent.pubkey = userInfo.pubkey;
-    
+
     return await window.nostr.signEvent(unsignedEvent);
   }
 
@@ -210,17 +215,17 @@ class AuthService {
   async refreshAuthState(): Promise<void> {
     // Clear cached state to force fresh check
     this.authState = null;
-    
+
     // Try to authenticate without triggering modal if possible
-    const hasNostr = typeof window !== 'undefined' && !!window.nostr;
+    const hasNostr = typeof window !== "undefined" && !!window.nostr;
     if (hasNostr) {
       try {
         // Only call getPublicKey if we believe user is logged in (nostr-login event)
         const pubkey = await window.nostr!.getPublicKey();
         if (pubkey) {
-          const { nip19 } = await import('nostr-tools');
+          const { nip19 } = await import("nostr-tools");
           const npub = nip19.npubEncode(pubkey);
-          
+
           this.authState = {
             isAuthenticated: true,
             pubkey,

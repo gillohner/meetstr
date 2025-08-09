@@ -145,13 +145,7 @@ export default function NotificationCenter() {
   // Accept event: add to calendar
   const handleAcceptEvent = async (notificationId: string) => {
     const notification = notifications.find((n) => n.id === notificationId);
-    if (
-      !notification ||
-      !ndk ||
-      !activeUser ||
-      !calendarEvents.length
-    )
-      return;
+    if (!notification || !ndk || !activeUser || !calendarEvents.length) return;
 
     const event = notification.event;
     const dTag = event.tags.find((t) => t[0] === "d")?.[1];

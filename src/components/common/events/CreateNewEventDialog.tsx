@@ -31,6 +31,7 @@ import NostrEntitySearchField, {
 } from "@/components/common/form/NostrEntitySearchField";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 import { useRouter } from "next/navigation";
+import { authService } from "@/services/authService";
 
 const FormGeoSearchField = dynamic(
   () => import("@/components/common/form/FormGeoSearchField"),
@@ -43,11 +44,11 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface CreateNewEventDialogProps {
-  calendarEvent?: NDKEvent;
+  open: boolean;
+  onClose: () => void;
+  calendarEvent?: any;
   initialEvent?: NDKEvent | null;
   onEventUpdated?: (event: NDKEvent) => void;
-  open?: boolean;
-  onClose?: () => void;
 }
 
 interface GeoSearchResult {
@@ -62,11 +63,11 @@ interface GeoSearchResult {
 }
 
 export default function CreateNewEventDialog({
+  open,
+  onClose,
   calendarEvent,
   initialEvent = null,
   onEventUpdated,
-  open: controlledOpen,
-  onClose: controlledOnClose,
 }: CreateNewEventDialogProps) {
   const { t } = useTranslation();
   const { ndk } = useNdk();
@@ -90,8 +91,6 @@ export default function CreateNewEventDialog({
   const [eventImage, setEventImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const isEditMode = Boolean(initialEvent);
-  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  const onClose = controlledOnClose || (() => setInternalOpen(false));
   const isFormValid = Boolean(
     formValues.title.trim() &&
       formValues.description.trim() &&
@@ -118,8 +117,10 @@ export default function CreateNewEventDialog({
 
       // Set up existing calendar references
       const existingCalendarRefs: NostrReference[] = initialEvent.tags
-        .filter((tag) => tag[0] === "a" && tag[1].startsWith("31924:"))
-        .map((tag) => ({
+        .filter(
+          (tag: string[]) => tag[0] === "a" && tag[1].startsWith("31924:")
+        )
+        .map((tag: string[]) => ({
           aTag: tag[1],
           naddr: tag[1], // Use coordinate as display
           entity: null, // Don't fetch to avoid loading time
@@ -144,7 +145,7 @@ export default function CreateNewEventDialog({
       }
     } else if (calendarEvent) {
       // Pre-populate with calendar reference when creating from calendar page
-      const dTag = calendarEvent.tags.find((t) => t[0] === "d")?.[1];
+      const dTag = calendarEvent.tags.find((t: string[]) => t[0] === "d")?.[1];
       if (dTag) {
         const calendarRef: NostrReference = {
           aTag: `31924:${calendarEvent.pubkey}:${dTag}`,
@@ -174,9 +175,16 @@ export default function CreateNewEventDialog({
   };
 
   const onSubmit = async function () {
-    if (!activeUser || !ndk) return;
+    if (!ndk) return;
 
     try {
+      // Always require authentication before submitting
+      const authenticatedUser = await authService.authenticate();
+      if (!authenticatedUser) {
+        console.log("Authentication failed");
+        return;
+      }
+
       let event: NDKEvent;
       let uniqueId: string;
 
@@ -185,7 +193,8 @@ export default function CreateNewEventDialog({
         event.kind = initialEvent.kind;
         event.content = formValues.description || "";
         uniqueId =
-          initialEvent.tags.find((t) => t[0] === "d")?.[1] || nanoid(8);
+          initialEvent.tags.find((t: string[]) => t[0] === "d")?.[1] ||
+          nanoid(8);
         event.tags = [
           ["d", uniqueId],
           ["title", formValues.title],
@@ -255,34 +264,36 @@ export default function CreateNewEventDialog({
     event: NDKEvent,
     uniqueId: string
   ): Promise<NDKEvent> => {
-    if (!activeUser || !window.nostr) {
-      throw new Error("No signer available");
+    // Get authenticated user info from authService
+    const userInfo = authService.getUserInfo();
+    if (!userInfo) {
+      throw new Error("No authenticated user available");
     }
 
-    const eventCoordinate = `31923:${activeUser?.pubkey}:${uniqueId}`;
+    const eventCoordinate = `31923:${userInfo.pubkey}:${uniqueId}`;
 
     // Add all calendar references to event
     calendarRefs.forEach((ref) => {
       event.tags.push(["a", ref.aTag]);
     });
 
-    // Sign and publish the event using window.nostr
+    // Sign and publish the event using authService
     const unsignedEvent = {
       kind: event.kind,
       content: event.content,
       tags: event.tags,
       created_at: Math.floor(Date.now() / 1000),
-      pubkey: activeUser.pubkey,
+      pubkey: userInfo.pubkey,
     };
 
-    const signedEvent = await window.nostr.signEvent(unsignedEvent);
+    const signedEvent = await authService.signEvent(unsignedEvent);
     const ndkEvent = new NDKEvent(ndk, signedEvent);
     await ndkEvent.publish();
 
     // Handle calendar updates for owned calendars
     if (!isEditMode) {
       for (const ref of calendarRefs) {
-        if (ref.entity && ref.entity.pubkey === activeUser?.pubkey) {
+        if (ref.entity && ref.entity.pubkey === userInfo.pubkey) {
           // User owns this calendar, update it to include the event
           try {
             const updatedCalendar = new NDKEvent(ndk);
@@ -293,17 +304,17 @@ export default function CreateNewEventDialog({
             updatedCalendar.tags.push(["a", eventCoordinate]);
             updatedCalendar.content = ref.entity.content || "";
 
-            // Sign and publish the calendar using window.nostr
+            // Sign and publish the calendar using authService
             const unsignedCalendar = {
               kind: updatedCalendar.kind,
               content: updatedCalendar.content,
               tags: updatedCalendar.tags,
               created_at: Math.floor(Date.now() / 1000),
-              pubkey: activeUser.pubkey,
+              pubkey: userInfo.pubkey,
             };
 
             const signedCalendar =
-              await window.nostr.signEvent(unsignedCalendar);
+              await authService.signEvent(unsignedCalendar);
             const ndkCalendar = new NDKEvent(ndk, signedCalendar);
             await ndkCalendar.publish();
           } catch (error) {
@@ -325,6 +336,14 @@ export default function CreateNewEventDialog({
   React.useEffect(() => {
     console.log("activeUser in CreateNewEventDialog:", activeUser);
   }, [activeUser]);
+
+  // Check authentication when dialog opens
+  useEffect(() => {
+    if (open && !activeUser) {
+      // If dialog is opened but user is not authenticated, close it
+      onClose();
+    }
+  }, [open, activeUser, onClose]);
 
   if (activeUser === undefined || activeUser === null) return null;
 

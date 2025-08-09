@@ -18,6 +18,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import CreateNewEventDialog from "@/components/common/events/CreateNewEventDialog";
 import CreateCalendarForm from "@/components/NostrEventCreation/CreateCalendarForm";
 import { useActiveUser } from "@/hooks/useActiveUser";
+import { authService } from "@/services/authService";
 
 interface FloatingActionButtonProps {
   // Context-specific props
@@ -56,16 +57,37 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     setOpen(true);
   };
 
-  const handleEventCreate = () => {
-    setEventDialogOpen(true);
-    setOpen(false);
+  const handleEventCreate = async () => {
+    setOpen(false); // Close SpeedDial first
+
+    // Add small delay to prevent modal conflicts
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    try {
+      // Always require authentication before opening the form
+      await authService.authenticate();
+      // Only open dialog if authentication successful
+      setEventDialogOpen(true);
+    } catch (error) {
+      console.log("User cancelled authentication - form will not open");
+    }
   };
 
-  const handleCalendarCreate = () => {
-    setCalendarDialogOpen(true);
-    setOpen(false);
-  };
+  const handleCalendarCreate = async () => {
+    setOpen(false); // Close SpeedDial first
 
+    // Add small delay to prevent modal conflicts
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    try {
+      // Always require authentication before opening the form
+      await authService.authenticate();
+      // Only open dialog if authentication successful
+      setCalendarDialogOpen(true);
+    } catch (error) {
+      console.log("User cancelled authentication - form will not open");
+    }
+  };
   const handleEdit = () => {
     if (onEdit) {
       onEdit();
@@ -77,11 +99,11 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   let actions = [];
 
   // Don't render on server to prevent hydration mismatch
-  if (!isClient || !activeUser) {
+  if (!isClient) {
     return null;
   }
 
-  // Always show general creation options
+  // Always show general creation options (even when not logged in)
   actions.push({
     icon: <EventIcon />,
     name: calendarEvent
@@ -96,8 +118,8 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     onClick: handleCalendarCreate,
   });
 
-  // Add edit action if user owns current content
-  if (isOwner && onEdit) {
+  // Add edit action if user owns current content (only show when logged in)
+  if (activeUser && isOwner && onEdit) {
     if (pathname?.includes("/event/")) {
       actions.unshift({
         icon: <EditIcon />,

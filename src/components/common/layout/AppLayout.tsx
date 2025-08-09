@@ -2,6 +2,7 @@
 import React from "react";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import NavigationRail from "@/components/common/layout/NavigationRail";
+import FloatingActionButton from "@/components/common/layout/FloatingActionButton";
 
 const RAIL_WIDTH = 80;
 
@@ -14,7 +15,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", position: "relative" }}>
       <NavigationRail />
 
       <Box
@@ -28,6 +29,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       >
         {children}
       </Box>
+
+      <FloatingActionButton />
     </Box>
   );
 };

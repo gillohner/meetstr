@@ -150,6 +150,9 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
 
     setPosting(true);
     try {
+      // Always require authentication before posting
+      await authService.authenticate();
+
       const unsignedEvent = {
         kind: 1111, // NIP-22 comment kind
         content: newComment.trim(),
@@ -196,6 +199,9 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
 
       setPosting(true);
       try {
+        // Always require authentication before posting reply
+        await authService.authenticate();
+
         const unsignedEvent = {
           kind: 1111,
           content: replyText.trim(),
@@ -274,13 +280,15 @@ const EventCommentsCard = ({ event }: EventCommentsCardProps) => {
             sx={{ mb: 2 }}
           />
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Tooltip title={signer ? "" : t("event.comments.signerRequired")}>
+            <Tooltip
+              title={signer ? "" : t("auth.loginToComment", "Login to comment")}
+            >
               <span>
                 <Button
                   variant="contained"
                   endIcon={<SendIcon />}
                   onClick={handlePostComment}
-                  disabled={!newComment.trim() || posting || !signer}
+                  disabled={!newComment.trim() || posting}
                 >
                   {posting ? t("common.posting") : t("event.comments.post")}
                 </Button>
@@ -405,15 +413,16 @@ const CommentThread = ({
           </Typography>
 
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <Tooltip title={signer ? "" : t("event.comments.signerRequired")}>
+            <Tooltip
+              title={signer ? "" : t("auth.loginToComment", "Login to comment")}
+            >
               <span>
                 <Button
                   size="small"
                   startIcon={<ReplyIcon />}
                   onClick={() => onReply(comment.id)}
-                  disabled={isReplying || !signer}
-                  color={!signer ? "inherit" : "primary"}
-                  sx={!signer ? { color: "text.disabled" } : {}}
+                  disabled={isReplying}
+                  color="primary"
                 >
                   {t("event.comments.reply")}
                 </Button>

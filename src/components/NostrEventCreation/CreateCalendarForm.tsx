@@ -79,6 +79,14 @@ export default function CreateCalendarForm({
       !isSubmitting
   );
 
+  // Check authentication when dialog opens
+  useEffect(() => {
+    if (open && !activeUser) {
+      // If dialog is opened but user is not authenticated, close it
+      onClose();
+    }
+  }, [open, activeUser, onClose]);
+
   // Pre-populate form when editing
   useEffect(() => {
     if (initialCalendar) {
@@ -123,7 +131,20 @@ export default function CreateCalendarForm({
   };
 
   const onSubmit = useCallback(async () => {
-    if (!activeUser || !ndk || !isFormValid) return;
+    if (!ndk || !isFormValid) return;
+
+    // Always require authentication before submitting
+    let authenticatedUser;
+    try {
+      authenticatedUser = await authService.authenticate();
+      if (!authenticatedUser) {
+        console.log("Authentication failed");
+        return;
+      }
+    } catch (error) {
+      console.log("Authentication cancelled");
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -146,7 +167,7 @@ export default function CreateCalendarForm({
           ["title", formValues.title],
         ] as string[][],
         created_at: Math.floor(Date.now() / 1000),
-        pubkey: activeUser.pubkey,
+        pubkey: authenticatedUser.pubkey,
       };
 
       // Add description as summary tag per NIP-52
@@ -205,7 +226,6 @@ export default function CreateCalendarForm({
       setIsSubmitting(false);
     }
   }, [
-    activeUser,
     ndk,
     formValues,
     calendarImage,
@@ -219,8 +239,6 @@ export default function CreateCalendarForm({
     onCalendarUpdated,
     onClose,
   ]);
-
-  if (activeUser === undefined || activeUser === null) return null;
 
   return (
     <>
