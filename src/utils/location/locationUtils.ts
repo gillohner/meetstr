@@ -60,8 +60,8 @@ class RateLimiter {
   }
 }
 
-// Create a single rate limiter instance for all Nominatim requests
-const rateLimiter = new RateLimiter(1000); // 1 request per second
+// Create a more aggressive rate limiter instance for all Nominatim requests
+const rateLimiter = new RateLimiter(800); // Faster: 1.25 requests per second
 
 // Helper to fetch with cache and rate limiting
 async function fetchWithCache(url: string) {

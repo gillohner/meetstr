@@ -4,37 +4,58 @@ import type NDK from "@nostr-dev-kit/ndk";
 import { NDKEvent as NDKEventClass } from "@nostr-dev-kit/ndk";
 import { authService } from "@/services/authService";
 
+// Cache for processed metadata to avoid recomputing
+const metadataCache = new Map<string, any>();
+
 export const getEventMetadata = (event: NDKEvent) => {
-  const getTagValue = (tagName: string) =>
-    event.tags.find((t) => t[0] === tagName)?.[1];
+  // Use event ID as cache key
+  const cacheKey = event.id;
+  if (metadataCache.has(cacheKey)) {
+    return metadataCache.get(cacheKey);
+  }
 
-  // Fetch all values for repeatable tags
-  const getTagValues = (tagName: string) =>
-    event.tags.filter((t) => t[0] === tagName).map((t) => t.slice(1));
+  // Pre-process tags into a map for faster lookups
+  const tagMap = new Map<string, string[]>();
+  event.tags.forEach((tag) => {
+    const [key, ...values] = tag;
+    if (!tagMap.has(key)) {
+      tagMap.set(key, []);
+    }
+    tagMap.get(key)!.push(...values);
+  });
 
-  return {
-    title: getTagValue("title") ? getTagValue("title") : getTagValue("name"),
+  const getTagValue = (tagName: string) => tagMap.get(tagName)?.[0];
+  const getTagValues = (tagName: string) => tagMap.get(tagName) || [];
+
+  const metadata = {
+    title: getTagValue("title") || getTagValue("name"),
     start: getTagValue("start"),
     end: getTagValue("end"),
     start_tzid: getTagValue("start_tzid"),
     end_tzid: getTagValue("end_tzid"),
-    summary: getTagValue("summary")
-      ? getTagValue("summary")
-      : getTagValue("description"),
+    summary: getTagValue("summary") || getTagValue("description"),
     image: getTagValue("image"),
-    // Repeatable tags:
     location: getTagValue("location"),
     geohash: getTagValue("g"),
-    participants: getTagValues("p"), // [["pubkey", "relay", "role"], ...]
-    labels: [
-      ...getTagValues("l").flat(), // ["audiospace", ...]
-      ...getTagValues("L").flat(), // ["com.cornychat", ...]
-    ],
-    hashtags: getTagValues("t").flat(), // ["tag1", "tag2", ...]
-    references: getTagValues("r").flat(), // ["url1", "url2", ...]
-    // Optionally include deprecated fields, UUID, etc.
+    participants: getTagValues("p"),
+    labels: [...getTagValues("l"), ...getTagValues("L")],
+    hashtags: getTagValues("t"),
+    references: getTagValues("r"),
     uuid: getTagValue("d"),
   };
+
+  // Cache the result
+  metadataCache.set(cacheKey, metadata);
+
+  // Limit cache size to prevent memory leaks
+  if (metadataCache.size > 1000) {
+    const firstKey = metadataCache.keys().next().value;
+    if (firstKey) {
+      metadataCache.delete(firstKey);
+    }
+  }
+
+  return metadata;
 };
 
 /** Publish an updated version of an existing parameterized replaceable event */
