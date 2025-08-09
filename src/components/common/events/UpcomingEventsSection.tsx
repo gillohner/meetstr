@@ -121,7 +121,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
             upcomingEvents.forEach((event) => {
               const metadata = getEventMetadata(event);
               if (metadata.location) locations.add(metadata.location);
-              metadata.hashtags.forEach((tag) => tags.add(tag));
+              metadata.hashtags.forEach((tag: string) => tags.add(tag));
             });
             setAvailableLocations(Array.from(locations).sort());
             setAvailableTags(Array.from(tags).sort());
@@ -211,7 +211,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
         upcomingEvents.forEach((event) => {
           const metadata = getEventMetadata(event);
           if (metadata.location) locations.add(metadata.location);
-          metadata.hashtags.forEach((tag) => tags.add(tag));
+          metadata.hashtags.forEach((tag: string) => tags.add(tag));
         });
         setAvailableLocations(Array.from(locations).sort());
         setAvailableTags(Array.from(tags).sort());
@@ -266,7 +266,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
         allUpcomingEvents.forEach((event) => {
           const metadata = getEventMetadata(event);
           if (metadata.location) allLocations.add(metadata.location);
-          metadata.hashtags.forEach((tag) => allTags.add(tag));
+          metadata.hashtags.forEach((tag: string) => allTags.add(tag));
         });
         setAvailableLocations(Array.from(allLocations).sort());
         setAvailableTags(Array.from(allTags).sort());
@@ -296,7 +296,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
             upcomingEvents.forEach((event) => {
               const metadata = getEventMetadata(event);
               if (metadata.location) locations.add(metadata.location);
-              metadata.hashtags.forEach((tag) => tags.add(tag));
+              metadata.hashtags.forEach((tag: string) => tags.add(tag));
             });
             setAvailableLocations(Array.from(locations).sort());
             setAvailableTags(Array.from(tags).sort());
@@ -452,7 +452,9 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({}) => {
 
       // Tags filter
       if (filters.tags.length > 0) {
-        const eventTags = metadata.hashtags.map((tag) => tag.toLowerCase());
+        const eventTags: string[] = metadata.hashtags.map((tag: string) =>
+          tag.toLowerCase()
+        );
         const hasMatchingTag = filters.tags.some((filterTag) =>
           eventTags.some((eventTag) =>
             eventTag.includes(filterTag.toLowerCase())
