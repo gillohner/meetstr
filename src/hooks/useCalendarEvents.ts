@@ -1,7 +1,7 @@
 // src/hooks/useCalendarEvents.ts
 import { useQuery } from "@tanstack/react-query";
 import { useNdk } from "nostr-hooks";
-import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
+import { type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { useMemo } from "react";
 
 interface UseCalendarEventsOptions {
