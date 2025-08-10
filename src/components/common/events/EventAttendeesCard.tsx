@@ -198,11 +198,37 @@ const ParticipantAvatar = ({
   pubkey: string;
   status?: string;
 }) => {
+  // Only validate for encoding, but still render the avatar
+  const isValidForEncoding = useMemo(() => {
+    return (
+      pubkey &&
+      typeof pubkey === "string" &&
+      pubkey.length === 64 &&
+      /^[a-fA-F0-9]+$/.test(pubkey)
+    );
+  }, [pubkey]);
+
   const { profile } = useProfile({ pubkey });
-  const npub = useMemo(() => nip19.npubEncode(pubkey), [pubkey]);
+
+  const npub = useMemo(() => {
+    try {
+      if (!isValidForEncoding) {
+        return null;
+      }
+      return nip19.npubEncode(pubkey);
+    } catch (error) {
+      console.warn("Failed to encode pubkey:", pubkey, error);
+      return null;
+    }
+  }, [pubkey, isValidForEncoding]);
+
+  // Always render, but handle missing data gracefully
+  if (!pubkey) {
+    return null;
+  }
 
   return (
-    <Tooltip title={profile?.displayName || npub}>
+    <Tooltip title={profile?.displayName || npub || pubkey.slice(0, 8)}>
       <Avatar
         src={profile?.image}
         sx={{
@@ -222,11 +248,15 @@ const ParticipantAvatar = ({
               : "none",
           "&:hover": { transform: "scale(1.15)" },
         }}
-        onClick={() => window.open(`https://njump.me/${npub}`, "_blank")}
+        onClick={() =>
+          npub && window.open(`https://njump.me/${npub}`, "_blank")
+        }
       >
         {profile &&
           !profile?.image &&
-          (profile?.displayName?.[0]?.toUpperCase() || npub.slice(0, 2))}
+          (profile?.displayName?.[0]?.toUpperCase() ||
+            npub?.slice(0, 2) ||
+            pubkey.slice(0, 2))}
       </Avatar>
     </Tooltip>
   );
