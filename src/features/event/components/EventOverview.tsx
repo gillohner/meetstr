@@ -224,7 +224,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           </Grid>
           <Divider sx={{ my: 2 }} />
           <Box sx={{ mt: 3 }}>
-            {metadata.references.map((reference, index) => (
+            {metadata.references.map((reference: string, index: number) => (
               <Link
                 href={reference}
                 key={`link-${index}`}
@@ -245,7 +245,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
             ))}
           </Box>
           <Box sx={{ mt: 3 }}>
-            {metadata.hashtags.map((hashtag, index) => (
+            {metadata.hashtags.map((hashtag: string, index: number) => (
               <Chip
                 key={`hashtag-${index}`}
                 label={`#${hashtag}`}
@@ -257,7 +257,7 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
                 }}
               />
             ))}
-            {metadata.labels.map((label, index) => (
+            {metadata.labels.map((label: string, index: number) => (
               <Chip
                 key={`label-${index}`}
                 label={`${label}`}
@@ -284,9 +284,11 @@ export default function EventOverview({ eventId }: { eventId?: string }) {
           <EventLocationMapCard metadata={metadata} />
           <Box sx={{ mt: 3 }}>
             <EventAttendeesCard
-              participants={metadata.participants.map((p) => ({
-                pubkey: p[0],
-              }))}
+              participants={metadata.participants.map(
+                (p: [string, ...any[]]) => ({
+                  pubkey: p[0],
+                })
+              )}
               event={event}
             />
           </Box>
