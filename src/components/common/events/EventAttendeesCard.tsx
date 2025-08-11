@@ -109,11 +109,24 @@ const EventAttendeesCard = ({
     return newPart.status === status ? [...filtered, newPart] : filtered;
   };
 
+  // Helper function to validate pubkey
+  const isValidPubkey = (pubkey: string) => {
+    return (
+      pubkey &&
+      typeof pubkey === "string" &&
+      pubkey.length === 64 &&
+      /^[a-fA-F0-9]+$/.test(pubkey)
+    );
+  };
+
   const categorizedParticipants = useMemo(
     () => ({
-      accepted: [...participants.filter((p) => !p.status), ...rsvpAccepted],
-      tentative: rsvpTentative,
-      declined: rsvpDeclined,
+      accepted: [
+        ...participants.filter((p) => !p.status && isValidPubkey(p.pubkey)),
+        ...rsvpAccepted.filter((p) => isValidPubkey(p.pubkey)),
+      ],
+      tentative: rsvpTentative.filter((p) => isValidPubkey(p.pubkey)),
+      declined: rsvpDeclined.filter((p) => isValidPubkey(p.pubkey)),
     }),
     [participants, rsvpAccepted, rsvpTentative, rsvpDeclined]
   );
@@ -198,8 +211,8 @@ const ParticipantAvatar = ({
   pubkey: string;
   status?: string;
 }) => {
-  // Only validate for encoding, but still render the avatar
-  const isValidForEncoding = useMemo(() => {
+  // Validate pubkey before using it in hooks
+  const isValidPubkey = useMemo(() => {
     return (
       pubkey &&
       typeof pubkey === "string" &&
@@ -208,11 +221,20 @@ const ParticipantAvatar = ({
     );
   }, [pubkey]);
 
-  const { profile } = useProfile({ pubkey });
+  const { profile } = useProfile({
+    pubkey: isValidPubkey ? pubkey : undefined,
+  });
+
+  // Log profile data to console
+  useEffect(() => {
+    if (profile) {
+      console.log("Profile data for pubkey", pubkey.slice(0, 8), ":", profile);
+    }
+  }, [profile, pubkey]);
 
   const npub = useMemo(() => {
     try {
-      if (!isValidForEncoding) {
+      if (!isValidPubkey) {
         return null;
       }
       return nip19.npubEncode(pubkey);
@@ -220,10 +242,11 @@ const ParticipantAvatar = ({
       console.warn("Failed to encode pubkey:", pubkey, error);
       return null;
     }
-  }, [pubkey, isValidForEncoding]);
+  }, [pubkey, isValidPubkey]);
 
-  // Always render, but handle missing data gracefully
-  if (!pubkey) {
+  // Don't render anything for invalid pubkeys
+  if (!isValidPubkey) {
+    console.log("Invalid pubkey detected:", pubkey);
     return null;
   }
 
