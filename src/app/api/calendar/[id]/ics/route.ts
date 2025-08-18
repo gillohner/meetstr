@@ -5,8 +5,15 @@ import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  ctx: { params: { id: string } } | { params: Promise<{ id: string }> }
 ) {
+  // Support both Promise and non-Promise params
+  let params: { id: string };
+  if (ctx.params instanceof Promise) {
+    params = await ctx.params;
+  } else {
+    params = ctx.params;
+  }
   const { id: calendarNaddr } = params;
 
   const ndk = getNdk();
@@ -39,12 +46,17 @@ export async function GET(
 
 function generateICSContent(calendarMetadata: any, events: any[]): string {
   const now = new Date();
-  const formatDate = (timestamp: string | number) => {
-    const date = new Date(
-      typeof timestamp === "string"
-        ? parseInt(timestamp) * 1000
-        : timestamp * 1000
-    );
+  const formatDate = (timestamp: string | number | undefined | null) => {
+    if (
+      timestamp === undefined ||
+      timestamp === null ||
+      isNaN(Number(timestamp))
+    )
+      return "";
+    const num = typeof timestamp === "string" ? parseInt(timestamp) : timestamp;
+    if (!isFinite(num)) return "";
+    const date = new Date(num * 1000);
+    if (isNaN(date.getTime())) return "";
     return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   };
 
