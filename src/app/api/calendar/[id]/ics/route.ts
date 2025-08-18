@@ -76,13 +76,20 @@ function generateICSContent(calendarMetadata: any, events: any[]): string {
 
   events.forEach((event) => {
     const metadata = getEventMetadata(event);
+    // Ensure start is a valid UNIX timestamp (seconds)
+    const startTimestamp = Number(metadata.start);
+    if (!startTimestamp || !isFinite(startTimestamp)) return;
 
-    if (!metadata.start) return;
+    const startDate = formatDate(startTimestamp);
 
-    const startDate = formatDate(metadata.start);
-    const endDate = metadata.end
-      ? formatDate(metadata.end)
-      : formatDate(parseInt(metadata.start) + 3600); // Default 1 hour
+    // If end is present and valid, use it; otherwise, default to 1 hour after start
+    let endTimestamp: number;
+    if (metadata.end && isFinite(Number(metadata.end))) {
+      endTimestamp = Number(metadata.end);
+    } else {
+      endTimestamp = startTimestamp + 3600; // Default 1 hour duration
+    }
+    const endDate = formatDate(endTimestamp);
 
     ics.push(
       "BEGIN:VEVENT",
