@@ -15,7 +15,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { type NDKEvent } from "@nostr-dev-kit/ndk";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
-
+import { encodeEventToNaddr } from "@/utils/nostr/nostrUtils";
 interface AddToCalendarIcsButtonProps {
   calendarEvent: NDKEvent;
 }
@@ -44,8 +44,8 @@ const AddToCalendarIcsButton: React.FC<AddToCalendarIcsButtonProps> = ({
   const generateWebcalUrl = () => {
     // Generate webcal URL for calendar subscription
     const baseUrl = window.location.origin;
-    const calendarId = calendarEvent.id;
-    return `webcal://${baseUrl.replace(/^https?:\/\//, "")}/api/calendar/${calendarId}/ics`;
+    const calendarNaddr = encodeEventToNaddr(calendarEvent);
+    return `webcal://${baseUrl.replace(/^https?:\/\//, "")}/api/calendar/${calendarNaddr}/ics`;
   };
 
   const generateIcsUrl = () => {
