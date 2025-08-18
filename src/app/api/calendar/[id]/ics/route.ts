@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { getNdk } from "@/lib/ndkClient";
 import { fetchCalendarEvents, fetchEventById } from "@/utils/nostr/nostrUtils";
 import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id: calendarNaddr } = params;
+  const { id: calendarNaddr } = await context.params;
 
   const ndk = getNdk();
 
