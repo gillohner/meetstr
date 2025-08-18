@@ -5,9 +5,9 @@ import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id: calendarNaddr } = await params;
+  const { id: calendarNaddr } = params;
 
   const ndk = getNdk();
 
