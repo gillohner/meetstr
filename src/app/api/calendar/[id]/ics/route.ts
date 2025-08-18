@@ -5,15 +5,8 @@ import { getEventMetadata } from "@/utils/nostr/eventUtils";
 
 export async function GET(
   req: Request,
-  ctx: { params: { id: string } } | { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  // Support both Promise and non-Promise params
-  let params: { id: string };
-  if (ctx.params instanceof Promise) {
-    params = await ctx.params;
-  } else {
-    params = ctx.params;
-  }
   const { id: calendarNaddr } = params;
 
   const ndk = getNdk();
