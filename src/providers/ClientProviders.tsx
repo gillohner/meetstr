@@ -86,10 +86,9 @@ function ProviderContent({ children }: { children: ReactNode }) {
 
       initNdk({
         explicitRelayUrls: [
-          "wss://multiplexer.huszonegy.world/",
+          "wss://relay.primal.net",
           "wss://relay.damus.io",
           "wss://nos.lol",
-          "wss://relay.primal.net",
           "wss://relay.nostr.band",
           "wss://relay.nostr.watch",
           "wss://relay.snort.social",
@@ -103,10 +102,9 @@ function ProviderContent({ children }: { children: ReactNode }) {
   const initializeNdkWithoutSigner = async () => {
     initNdk({
       explicitRelayUrls: [
-        "wss://multiplexer.huszonegy.world/",
+        "wss://relay.primal.net",
         "wss://relay.damus.io",
         "wss://nos.lol",
-        "wss://relay.primal.net",
         "wss://relay.nostr.band",
         "wss://relay.nostr.watch",
         "wss://relay.snort.social",
