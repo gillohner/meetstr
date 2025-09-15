@@ -7,12 +7,7 @@ export function getNdk(): NDK {
   if (!ndkInstance) {
     ndkInstance = new NDK({
       explicitRelayUrls: [
-        "wss://relay.primal.net",
         "wss://relay.damus.io",
-        "wss://nos.lol",
-        "wss://relay.nostr.band",
-        "wss://relay.nostr.watch",
-        "wss://relay.snort.social",
       ],
     });
     ndkInstance.connect().catch(console.error);

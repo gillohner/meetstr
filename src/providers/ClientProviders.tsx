@@ -86,12 +86,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
 
       initNdk({
         explicitRelayUrls: [
-          "wss://relay.primal.net",
           "wss://relay.damus.io",
-          "wss://nos.lol",
-          "wss://relay.nostr.band",
-          "wss://relay.nostr.watch",
-          "wss://relay.snort.social",
         ],
         signer, // This is the key - pass the signer to NDK
       });
@@ -102,12 +97,7 @@ function ProviderContent({ children }: { children: ReactNode }) {
   const initializeNdkWithoutSigner = async () => {
     initNdk({
       explicitRelayUrls: [
-        "wss://relay.primal.net",
         "wss://relay.damus.io",
-        "wss://nos.lol",
-        "wss://relay.nostr.band",
-        "wss://relay.nostr.watch",
-        "wss://relay.snort.social",
       ],
       // No signer when logged out
     });
