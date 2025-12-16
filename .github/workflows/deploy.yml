@@ -43,9 +43,36 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
+            # Install PM2 globally if not already installed
+            if ! command -v pm2 &> /dev/null; then
+              echo "Installing PM2..."
+              npm install -g pm2
+            fi
+            
+            # Navigate to project directory
             cd /root/meetstr
+            
+            # Pull latest code
             git pull origin main
+            
+            # Install dependencies and build
             npm install
             npm run build
-            pm2 restart meetstr
+            
+            # Check if ecosystem file exists, if not copy it
+            if [ ! -f ecosystem.config.cjs ]; then
+              echo "Ecosystem file not found, it should be in the repository"
+            fi
+            
+            # Check if app is already running in PM2
+            if pm2 list | grep -q meetstr; then
+              echo "Restarting meetstr with PM2..."
+              pm2 restart meetstr
+            else
+              echo "Starting meetstr with PM2..."
+              pm2 start ecosystem.config.cjs
+            fi
+            
+            # Save PM2 process list and configure startup
             pm2 save
+            pm2 startup systemd -u root --hp /root
